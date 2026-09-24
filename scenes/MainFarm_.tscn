@@ -21,7 +21,7 @@ sources/0 = SubResource("TileSetAtlasSource_0hol4")
 tile_size = Vector2i(32, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8vi88"]
-size = Vector2(96, 80.5)
+size = Vector2(96, 96.25)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_q6r6c"]
 texture = ExtResource("3_hyara")
@@ -74,6 +74,21 @@ tile_size = Vector2i(32, 32)
 physics_layer_0/collision_layer = 0
 sources/1 = SubResource("TileSetAtlasSource_q6r6c")
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bt0nm"]
+size = Vector2(179, 11)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_s81aj"]
+size = Vector2(10, 364)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k80d1"]
+size = Vector2(588, 11)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c7cde"]
+size = Vector2(340, 11)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_20c4e"]
+size = Vector2(10, 368.5)
+
 [node name="MainFarm" type="Node2D" unique_id=1417966789]
 
 [node name="Ground" type="TileMapLayer" parent="." unique_id=1052394047]
@@ -93,8 +108,8 @@ scale = Vector2(1.8333334, 1.8333334)
 texture = ExtResource("2_kl4g5")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Brickhouse" unique_id=1004337425]
-z_index = 2
-position = Vector2(290, 155)
+z_index = 4
+position = Vector2(290, 162.875)
 shape = SubResource("RectangleShape2D_8vi88")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1269946822]
@@ -104,3 +119,30 @@ tile_set = SubResource("TileSet_ri2sq")
 
 [node name="Player" parent="." unique_id=401233134 instance=ExtResource("4_n2dco")]
 position = Vector2(275, 283)
+
+[node name="Fence collision" type="StaticBody2D" parent="." unique_id=2021321634]
+
+[node name="Fence collision2" type="CollisionShape2D" parent="Fence collision" unique_id=39569739]
+z_index = 2
+position = Vector2(101.5, 369.5)
+shape = SubResource("RectangleShape2D_bt0nm")
+
+[node name="Fence collisio 3" type="CollisionShape2D" parent="Fence collision" unique_id=1694584569]
+z_index = 2
+position = Vector2(17, 192)
+shape = SubResource("RectangleShape2D_s81aj")
+
+[node name="Fence collision 4" type="CollisionShape2D" parent="Fence collision" unique_id=1427652248]
+z_index = 2
+position = Vector2(306, 16)
+shape = SubResource("RectangleShape2D_k80d1")
+
+[node name="Fence collision" type="CollisionShape2D" parent="Fence collision" unique_id=1135516075]
+z_index = 2
+position = Vector2(429, 368.5)
+shape = SubResource("RectangleShape2D_c7cde")
+
+[node name="Fence collision 5" type="CollisionShape2D" parent="Fence collision" unique_id=151132673]
+z_index = 2
+position = Vector2(593, 188.75)
+shape = SubResource("RectangleShape2D_20c4e")
