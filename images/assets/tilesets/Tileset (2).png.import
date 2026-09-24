@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cejfr5hlektbq"
-path="res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"
+uid="uid://drpw13n44n8gl"
+path="res://.godot/imported/Tileset (2).png-b08bfe9fe34f39739458866e976dcd4e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://brickhouse.png"
-dest_files=["res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"]
+source_file="res://images/assets/tilesets/Tileset (2).png"
+dest_files=["res://.godot/imported/Tileset (2).png-b08bfe9fe34f39739458866e976dcd4e.ctex"]
 
 [params]
 

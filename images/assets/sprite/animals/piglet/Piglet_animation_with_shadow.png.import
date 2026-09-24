@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://r5xdoxxo5iat"
-path="res://.godot/imported/House_1_Wood_Base_Blue.png-2fd3705c0d7b4355de37fa2a7b35bdd7.ctex"
+uid="uid://l3t4vnhc22wi"
+path="res://.godot/imported/Piglet_animation_with_shadow.png-fc967364ee6efa2e943ce53999c967e0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://House_1_Wood_Base_Blue.png"
-dest_files=["res://.godot/imported/House_1_Wood_Base_Blue.png-2fd3705c0d7b4355de37fa2a7b35bdd7.ctex"]
+source_file="res://images/assets/sprite/animals/piglet/Piglet_animation_with_shadow.png"
+dest_files=["res://.godot/imported/Piglet_animation_with_shadow.png-fc967364ee6efa2e943ce53999c967e0.ctex"]
 
 [params]
 

@@ -1,8 +1,8 @@
 [gd_scene format=4 uid="uid://bn217vyrn8iga"]
 
-[ext_resource type="Texture2D" uid="uid://drpw13n44n8gl" path="res://Tileset.png" id="1_ymvkw"]
-[ext_resource type="Texture2D" uid="uid://r5xdoxxo5iat" path="res://House_1_Wood_Base_Blue.png" id="2_kl4g5"]
-[ext_resource type="Texture2D" uid="uid://df501bykdgkd3" path="res://fence.png" id="3_hyara"]
+[ext_resource type="Texture2D" uid="uid://drpw13n44n8gl" path="res://images/assets/tilesets/Tileset (2).png" id="1_ymvkw"]
+[ext_resource type="Texture2D" uid="uid://r5xdoxxo5iat" path="res://images/assets/objects/House_1_Wood_Base_Blue.png" id="2_kl4g5"]
+[ext_resource type="Texture2D" uid="uid://df501bykdgkd3" path="res://images/assets/objects/fence.png" id="3_hyara"]
 [ext_resource type="PackedScene" uid="uid://bht2ayox3xd7g" path="res://scenes/player.tscn" id="4_n2dco"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
