@@ -2,16 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
+<<<<<<<< Updated upstream:images/assets/objects/fence.png.import
 uid="uid://df501bykdgkd3"
 path="res://.godot/imported/fence.png-32cefc4e4d844059a257e35aea27b0c4.ctex"
+========
+uid="uid://cejfr5hlektbq"
+path="res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"
+>>>>>>>> Stashed changes:brickhouse.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<<< Updated upstream:images/assets/objects/fence.png.import
 source_file="res://images/assets/objects/fence.png"
 dest_files=["res://.godot/imported/fence.png-32cefc4e4d844059a257e35aea27b0c4.ctex"]
+========
+source_file="res://brickhouse.png"
+dest_files=["res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"]
+>>>>>>>> Stashed changes:brickhouse.png.import
 
 [params]
 

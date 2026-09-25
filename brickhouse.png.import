@@ -1,0 +1,70 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+<<<<<<< Updated upstream
+<<<<<<<< HEAD:images/assets/objects/Paths.png.import
+uid="uid://tl5ueomidoxe"
+path="res://.godot/imported/Paths.png-ba322db9ddd828f871d05795ff189b61.ctex"
+========
+uid="uid://cejfr5hlektbq"
+path="res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"
+>>>>>>>> parent of 01dc660 (Mark Barretto- Added new map designs, layout, market ewan):brickhouse.png.import
+=======
+<<<<<<<< Updated upstream:images/assets/objects/fence.png.import
+uid="uid://df501bykdgkd3"
+path="res://.godot/imported/fence.png-32cefc4e4d844059a257e35aea27b0c4.ctex"
+========
+uid="uid://cejfr5hlektbq"
+path="res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"
+>>>>>>>> Stashed changes:brickhouse.png.import
+>>>>>>> Stashed changes
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+<<<<<<< Updated upstream
+<<<<<<<< HEAD:images/assets/objects/Paths.png.import
+source_file="res://images/assets/objects/Paths.png"
+dest_files=["res://.godot/imported/Paths.png-ba322db9ddd828f871d05795ff189b61.ctex"]
+========
+source_file="res://brickhouse.png"
+dest_files=["res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"]
+>>>>>>>> parent of 01dc660 (Mark Barretto- Added new map designs, layout, market ewan):brickhouse.png.import
+=======
+<<<<<<<< Updated upstream:images/assets/objects/fence.png.import
+source_file="res://images/assets/objects/fence.png"
+dest_files=["res://.godot/imported/fence.png-32cefc4e4d844059a257e35aea27b0c4.ctex"]
+========
+source_file="res://brickhouse.png"
+dest_files=["res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"]
+>>>>>>>> Stashed changes:brickhouse.png.import
+>>>>>>> Stashed changes
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1

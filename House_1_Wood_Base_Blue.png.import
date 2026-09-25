@@ -1,0 +1,70 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+<<<<<<< Updated upstream
+<<<<<<<< HEAD:images/assets/objects/Chest.png.import
+uid="uid://cmedaovh20fee"
+path="res://.godot/imported/Chest.png-e079b6e75db7b511d9e394b8d116eeea.ctex"
+========
+uid="uid://r5xdoxxo5iat"
+path="res://.godot/imported/House_1_Wood_Base_Blue.png-2fd3705c0d7b4355de37fa2a7b35bdd7.ctex"
+>>>>>>>> parent of 01dc660 (Mark Barretto- Added new map designs, layout, market ewan):House_1_Wood_Base_Blue.png.import
+=======
+<<<<<<<< Updated upstream:images/assets/tilesets/Doors.png.import
+uid="uid://wvdp5g0v64ik"
+path="res://.godot/imported/Doors.png-ad6635dedfb5431417c7fd800fd88240.ctex"
+========
+uid="uid://r5xdoxxo5iat"
+path="res://.godot/imported/House_1_Wood_Base_Blue.png-2fd3705c0d7b4355de37fa2a7b35bdd7.ctex"
+>>>>>>>> Stashed changes:House_1_Wood_Base_Blue.png.import
+>>>>>>> Stashed changes
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+<<<<<<< Updated upstream
+<<<<<<<< HEAD:images/assets/objects/Chest.png.import
+source_file="res://images/assets/objects/Chest.png"
+dest_files=["res://.godot/imported/Chest.png-e079b6e75db7b511d9e394b8d116eeea.ctex"]
+========
+source_file="res://House_1_Wood_Base_Blue.png"
+dest_files=["res://.godot/imported/House_1_Wood_Base_Blue.png-2fd3705c0d7b4355de37fa2a7b35bdd7.ctex"]
+>>>>>>>> parent of 01dc660 (Mark Barretto- Added new map designs, layout, market ewan):House_1_Wood_Base_Blue.png.import
+=======
+<<<<<<<< Updated upstream:images/assets/tilesets/Doors.png.import
+source_file="res://images/assets/tilesets/Doors.png"
+dest_files=["res://.godot/imported/Doors.png-ad6635dedfb5431417c7fd800fd88240.ctex"]
+========
+source_file="res://House_1_Wood_Base_Blue.png"
+dest_files=["res://.godot/imported/House_1_Wood_Base_Blue.png-2fd3705c0d7b4355de37fa2a7b35bdd7.ctex"]
+>>>>>>>> Stashed changes:House_1_Wood_Base_Blue.png.import
+>>>>>>> Stashed changes
+
+[params]
+
+compress/mode=0
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=false
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=1
