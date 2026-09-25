@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cejfr5hlektbq"
-path="res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"
+uid="uid://ckwkehg0f6l7b"
+path="res://.godot/imported/5.png-d8eabfb4819dbc68a3ed4acdc14b975c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://brickhouse.png"
-dest_files=["res://.godot/imported/brickhouse.png-72d3dbbaeb2ea39df7102daec02a91e0.ctex"]
+source_file="res://5.png"
+dest_files=["res://.godot/imported/5.png-d8eabfb4819dbc68a3ed4acdc14b975c.ctex"]
 
 [params]
 

@@ -171,9 +171,10 @@ script = ExtResource("1_onrkg")
 position = Vector2(6.25, 0)
 scale = Vector2(1.1666666, 1)
 sprite_frames = SubResource("SpriteFrames_epypp")
-animation = &"idle"
-frame_progress = 0.04649032
+animation = &"walk_up"
+frame_progress = 0.10172144
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1999718859]
+visible = false
 position = Vector2(9, 1)
 shape = SubResource("CapsuleShape2D_0hol4")
