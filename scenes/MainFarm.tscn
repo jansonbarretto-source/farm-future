@@ -37,7 +37,9 @@
 [ext_resource type="Texture2D" uid="uid://bsjovl63rxujt" path="res://images/assets/for factory/woods.png" id="37_iyitj"]
 [ext_resource type="Texture2D" uid="uid://8qvx7xd881v2" path="res://images/assets/for factory/barrel.png" id="38_fm2cn"]
 [ext_resource type="Texture2D" uid="uid://blxl613cyc5qu" path="res://images/assets/for livestock/livestock area sign.png" id="39_v2a8d"]
+[ext_resource type="Texture2D" uid="uid://d4fqgbdb5w8fp" path="res://images/assets/map and deco/rock1.png" id="40_a6fmw"]
 [ext_resource type="Texture2D" uid="uid://dfus3idevp5l1" path="res://images/assets/map and deco/bridge.png" id="40_m7dws"]
+[ext_resource type="Texture2D" uid="uid://bq30j0t6laq8y" path="res://images/assets/map and deco/rock2.png" id="41_0v70v"]
 [ext_resource type="Texture2D" uid="uid://bwi7fupp4wve" path="res://images/assets/map and deco/shore bridge.png" id="41_23wmk"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
@@ -1850,7 +1852,7 @@ texture = ExtResource("28_6ocxv")
 
 [node name="MetalDecor7" type="Sprite2D" parent="MetalDec" unique_id=1633043654]
 texture_filter = 1
-position = Vector2(1381, -312)
+position = Vector2(1364, -309)
 scale = Vector2(0.45987672, 0.45987675)
 texture = ExtResource("28_6ocxv")
 
@@ -1925,3 +1927,13 @@ texture = ExtResource("35_2tucw")
 position = Vector2(1363, 522)
 scale = Vector2(0.38235295, 0.38235295)
 texture = ExtResource("36_3r6mh")
+
+[node name="Rock1" type="Sprite2D" parent="." unique_id=1158670546]
+position = Vector2(-722.00006, -310)
+scale = Vector2(0.9375, 0.9375)
+texture = ExtResource("40_a6fmw")
+
+[node name="Rock2" type="Sprite2D" parent="." unique_id=2073203827]
+position = Vector2(-662.00006, -182)
+scale = Vector2(0.86309516, 0.86309516)
+texture = ExtResource("41_0v70v")
