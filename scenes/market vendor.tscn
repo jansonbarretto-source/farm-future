@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://c103dph0rfdri"]
 
+[ext_resource type="Script" uid="uid://dgm6dkq7pfw6o" path="res://scenes/market_vendor.gd" id="1_8dctn"]
 [ext_resource type="Texture2D" uid="uid://ciyqm3cw4be7d" path="res://images/assets/market vendor/vendor 1.png" id="1_xgbu0"]
 [ext_resource type="Texture2D" uid="uid://csa68nmwm6e4t" path="res://images/assets/market vendor/vendor 2.png" id="2_8dctn"]
 [ext_resource type="Texture2D" uid="uid://dmj00biplkaob" path="res://images/assets/market vendor/vendor 3.png" id="3_1k3as"]
@@ -28,7 +29,11 @@ animations = [{
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bt0nm"]
 height = 54.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_c7cde"]
+radius = 35.057095
+
 [node name="Node2D" type="CharacterBody2D" unique_id=946874008]
+script = ExtResource("1_8dctn")
 
 [node name="AnimatableBody2D" type="AnimatedSprite2D" parent="." unique_id=1522108046]
 position = Vector2(3.5762787e-07, 1)
@@ -40,3 +45,20 @@ autoplay = "idle"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=428914329]
 position = Vector2(-3, 1)
 shape = SubResource("CapsuleShape2D_bt0nm")
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=2119226679]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea" unique_id=449042738]
+position = Vector2(-1, 3)
+shape = SubResource("CircleShape2D_c7cde")
+
+[node name="PromptLabel" type="Label" parent="." unique_id=1247330671]
+visible = false
+offset_left = -62.0
+offset_top = -74.0
+offset_right = 63.0
+offset_bottom = -51.0
+text = "[E] Enter Market"
+
+[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
+[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]

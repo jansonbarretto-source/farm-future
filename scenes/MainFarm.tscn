@@ -1748,7 +1748,7 @@ tile_set = SubResource("TileSet_ri2sq")
 [node name="Market vendor" type="CharacterBody2D" parent="." unique_id=1753547804]
 
 [node name="Node2D" parent="Market vendor" unique_id=946874008 instance=ExtResource("16_x08uo")]
-position = Vector2(224, -333)
+position = Vector2(224, -330)
 
 [node name="Player" parent="." unique_id=401233134 instance=ExtResource("15_jws35")]
 position = Vector2(197, 216)
