@@ -1,0 +1,137 @@
+[gd_scene format=3 uid="uid://cc2dg0pcyebyl"]
+
+[ext_resource type="Script" uid="uid://cjummbpa254wd" path="res://scenes/market_ui.gd" id="1_p05av"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p05av"]
+bg_color = Color(0.2901961, 0.18039216, 0.09411765, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.76862746, 0.56078434, 0.27450982, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.53333336)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wfknu"]
+bg_color = Color(0.1764706, 0.41568628, 0.30980393, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.105882354, 0.2627451, 0.19607843, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xy1cf"]
+bg_color = Color(0.32156864, 0.7176471, 0.53333336, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3m543"]
+bg_color = Color(0.105882354, 0.2627451, 0.19607843, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_02dp0"]
+bg_color = Color(0.61960787, 0.16470589, 0.16862746, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i1doi"]
+bg_color = Color(0.9019608, 0.22352941, 0.27450982, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_erqge"]
+bg_color = Color(0.32941177, 0.043137256, 0.05490196, 1)
+
+[node name="MarketUI" type="Control" unique_id=450026637]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_p05av")
+
+[node name="Panel" type="Panel" parent="." unique_id=105574756]
+custom_minimum_size = Vector2(400, 300)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p05av")
+
+[node name="TitleLabel" type="Label" parent="Panel" unique_id=176359212]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -63.5
+offset_right = 63.5
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.81960785, 0.4, 1)
+theme_override_font_sizes/font_size = 20
+text = "TOWN MARKET"
+
+[node name="MoneyLabel" type="Label" parent="Panel" unique_id=493971685]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 32.0
+offset_right = 165.0
+offset_bottom = 55.0
+text = "Money: ₱500"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1063850496]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -72.5
+offset_top = -33.0
+offset_right = 72.5
+offset_bottom = 33.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="BuySeedsButton" type="Button" parent="Panel/VBoxContainer" unique_id=1419100511]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_wfknu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xy1cf")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_3m543")
+text = "Buy 1 Seed (₱10)"
+
+[node name="SellWheatButton" type="Button" parent="Panel/VBoxContainer" unique_id=1916981052]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_wfknu")
+theme_override_styles/hover = SubResource("StyleBoxFlat_xy1cf")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_3m543")
+text = "Sell 1 Wheat (₱20)"
+
+[node name="CloseButton" type="Button" parent="Panel" unique_id=479684439]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -25.0
+offset_top = -39.0
+offset_right = 25.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_02dp0")
+theme_override_styles/hover = SubResource("StyleBoxFlat_i1doi")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_erqge")
+text = "Close"

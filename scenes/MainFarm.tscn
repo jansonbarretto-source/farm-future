@@ -47,6 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://cagmjtwtjr08l" path="res://images/assets/map and deco/Tree3.png" id="44_gx53n"]
 [ext_resource type="Texture2D" uid="uid://ogm0kdyag3tc" path="res://images/assets/map and deco/Tree1.png" id="45_x08uo"]
 [ext_resource type="PackedScene" uid="uid://brx67dqahbl3c" path="res://scenes/animal.tscn" id="46_gx53n"]
+[ext_resource type="PackedScene" uid="uid://cc2dg0pcyebyl" path="res://scenes/MarketUI.tscn" id="48_u3ptn"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
 texture = ExtResource("1_6ocxv")
@@ -2381,3 +2382,7 @@ position = Vector2(1024, 650)
 [node name="Animal4" parent="." unique_id=1713700855 instance=ExtResource("46_gx53n")]
 position = Vector2(1217, 684)
 animal_type = 1
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1788011128]
+
+[node name="MarketUI" parent="CanvasLayer" unique_id=450026637 instance=ExtResource("48_u3ptn")]

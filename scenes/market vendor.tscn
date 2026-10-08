@@ -53,11 +53,10 @@ position = Vector2(-1, 3)
 shape = SubResource("CircleShape2D_c7cde")
 
 [node name="PromptLabel" type="Label" parent="." unique_id=1247330671]
-visible = false
 offset_left = -62.0
-offset_top = -74.0
+offset_top = -81.0
 offset_right = 63.0
-offset_bottom = -51.0
+offset_bottom = -58.0
 text = "[E] Enter Market"
 
 [connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]

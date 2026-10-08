@@ -22,4 +22,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		open_market()
 
 func open_market() -> void:
-	print("Enter Market!")
+	var market_ui = get_tree().root.find_child("MarketUI", true, false)
+	if market_ui:
+		market_ui.open_market()
