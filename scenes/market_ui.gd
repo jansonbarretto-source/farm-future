@@ -6,19 +6,21 @@ extends Control
 @onready var close_button: Button = $Panel/CloseButton
 
 func _ready() -> void:
-	hide() # Naka-hide sa simula
-	update_ui()
+	hide() # Hidden by default
 	
-	# Connect button signals
-	buy_seeds_button.pressed.connect(_on_buy_seeds_pressed)
-	sell_wheat_button.pressed.connect(_on_sell_wheat_pressed)
-	close_button.pressed.connect(_on_close_pressed)
+	if buy_seeds_button:
+		buy_seeds_button.pressed.connect(_on_buy_seeds_pressed)
+	if sell_wheat_button:
+		sell_wheat_button.pressed.connect(_on_sell_wheat_pressed)
+	if close_button:
+		close_button.pressed.connect(_on_close_pressed)
 	
-	# Listen sa pagbabago ng data
-	GameData.data_changed.connect(update_ui)
+	if GameData.has_signal("data_changed"):
+		GameData.data_changed.connect(update_ui)
 
 func update_ui() -> void:
-	money_label.text = "Money: ₱" + str(GameData.money) + " | Seeds: " + str(GameData.seeds) + " | Wheat: " + str(GameData.wheat)
+	if money_label and "money" in GameData:
+		money_label.text = "Money: ₱" + str(GameData.money) + " | Seeds: " + str(GameData.seeds) + " | Wheat: " + str(GameData.wheat)
 
 func open_market() -> void:
 	update_ui()
@@ -26,13 +28,13 @@ func open_market() -> void:
 
 func _on_buy_seeds_pressed() -> void:
 	if GameData.remove_money(10):
-		GameData.seeds += 1
-		GameData.data_changed.emit()
+		GameData.add_seeds(1)
+		update_ui()
 
 func _on_sell_wheat_pressed() -> void:
-	if GameData.wheat > 0:
-		GameData.wheat -= 1
+	if GameData.remove_wheat(1):
 		GameData.add_money(20)
+		update_ui()
 
 func _on_close_pressed() -> void:
 	hide()
