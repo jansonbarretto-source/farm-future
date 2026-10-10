@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbn1dqng0mok"
-path="res://.godot/imported/Harvestable.png-d5f03676e1200ef1ae0ffa34317d8140.ctex"
+uid="uid://bqklj0nsppyyo"
+path="res://.godot/imported/Water.png-bb9ee24a0e22bd4a89630b71e7068c0c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Harvestable.png"
-dest_files=["res://.godot/imported/Harvestable.png-d5f03676e1200ef1ae0ffa34317d8140.ctex"]
+source_file="res://images/assets/for main (crops)/Water.png"
+dest_files=["res://.godot/imported/Water.png-bb9ee24a0e22bd4a89630b71e7068c0c.ctex"]
 
 [params]
 

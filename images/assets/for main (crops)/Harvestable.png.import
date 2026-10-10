@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://330jyq6cpux"
-path="res://.godot/imported/SeedBagIcon.png-01f5c61a513032406dec1d216ee28808.ctex"
+uid="uid://bbn1dqng0mok"
+path="res://.godot/imported/Harvestable.png-bcd685159b5eab74523ba14da13072ee.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://SeedBagIcon.png"
-dest_files=["res://.godot/imported/SeedBagIcon.png-01f5c61a513032406dec1d216ee28808.ctex"]
+source_file="res://images/assets/for main (crops)/Harvestable.png"
+dest_files=["res://.godot/imported/Harvestable.png-bcd685159b5eab74523ba14da13072ee.ctex"]
 
 [params]
 

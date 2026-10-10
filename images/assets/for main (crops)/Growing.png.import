@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://buomfx8jnk2h5"
-path="res://.godot/imported/Hoe.png-308e15b91cbfea735b8d09ff22f0f56e.ctex"
+uid="uid://bs1hrtsadekto"
+path="res://.godot/imported/Growing.png-9ad1cb09e8b9985f0b9aeb5a9a6695c2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Hoe.png"
-dest_files=["res://.godot/imported/Hoe.png-308e15b91cbfea735b8d09ff22f0f56e.ctex"]
+source_file="res://images/assets/for main (crops)/Growing.png"
+dest_files=["res://.godot/imported/Growing.png-9ad1cb09e8b9985f0b9aeb5a9a6695c2.ctex"]
 
 [params]
 

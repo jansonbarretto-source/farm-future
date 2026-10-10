@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2rw0apvarisl"
-path="res://.godot/imported/SelectionBorder.png-0cb49995a6be8580e1a9178f8672a65f.ctex"
+uid="uid://ddu4ha8463ui0"
+path="res://.godot/imported/Seed.png-98702a1eee3c8b207fd1568552707e89.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://SelectionBorder.png"
-dest_files=["res://.godot/imported/SelectionBorder.png-0cb49995a6be8580e1a9178f8672a65f.ctex"]
+source_file="res://images/assets/for main (crops)/Seed.png"
+dest_files=["res://.godot/imported/Seed.png-98702a1eee3c8b207fd1568552707e89.ctex"]
 
 [params]
 

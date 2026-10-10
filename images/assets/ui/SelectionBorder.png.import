@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cl5tvlus5p6pa"
-path="res://.godot/imported/Seeding.png-84e3ba304bd83633ef3f98634941c432.ctex"
+uid="uid://2rw0apvarisl"
+path="res://.godot/imported/SelectionBorder.png-50b863f6fd55357bff9da5f740b5df47.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Seeding.png"
-dest_files=["res://.godot/imported/Seeding.png-84e3ba304bd83633ef3f98634941c432.ctex"]
+source_file="res://images/assets/ui/SelectionBorder.png"
+dest_files=["res://.godot/imported/SelectionBorder.png-50b863f6fd55357bff9da5f740b5df47.ctex"]
 
 [params]
 

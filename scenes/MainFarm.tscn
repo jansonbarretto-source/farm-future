@@ -49,16 +49,16 @@
 [ext_resource type="PackedScene" uid="uid://brx67dqahbl3c" path="res://scenes/animal.tscn" id="46_gx53n"]
 [ext_resource type="PackedScene" uid="uid://cc2dg0pcyebyl" path="res://scenes/MarketUI.tscn" id="48_u3ptn"]
 [ext_resource type="Script" uid="uid://x7074wgtuvlr" path="res://scripts/HUD.gd" id="49_5d3tn"]
-[ext_resource type="Texture2D" uid="uid://mh3cd0sc4cpq" path="res://Border.png" id="49_tl2ej"]
-[ext_resource type="Texture2D" uid="uid://dcpls0j5pfbpc" path="res://Coin.png" id="50_v26oj"]
-[ext_resource type="Texture2D" uid="uid://ddu4ha8463ui0" path="res://Seed.png" id="51_qcift"]
-[ext_resource type="Texture2D" uid="uid://b0eeruy77ro5t" path="res://Wheat.png" id="52_u8pd1"]
-[ext_resource type="Texture2D" uid="uid://ctc857h17l22m" path="res://Main Panel.png" id="53_04wnd"]
-[ext_resource type="Texture2D" uid="uid://buomfx8jnk2h5" path="res://Hoe.png" id="54_w84sg"]
-[ext_resource type="Texture2D" uid="uid://2rw0apvarisl" path="res://SelectionBorder.png" id="55_g00v6"]
-[ext_resource type="Texture2D" uid="uid://bqklj0nsppyyo" path="res://Water.png" id="56_mu0rj"]
-[ext_resource type="Texture2D" uid="uid://330jyq6cpux" path="res://SeedBagIcon.png" id="57_q7h3f"]
-[ext_resource type="Texture2D" uid="uid://ccykpnhthg7wh" path="res://Farm.png" id="59_w84sg"]
+[ext_resource type="Texture2D" uid="uid://mh3cd0sc4cpq" path="res://images/assets/ui/Border.png" id="49_tl2ej"]
+[ext_resource type="Texture2D" uid="uid://dcpls0j5pfbpc" path="res://images/assets/ui/Coin.png" id="50_v26oj"]
+[ext_resource type="Texture2D" uid="uid://ddu4ha8463ui0" path="res://images/assets/for main (crops)/Seed.png" id="51_qcift"]
+[ext_resource type="Texture2D" uid="uid://b0eeruy77ro5t" path="res://images/assets/for main (crops)/Wheat.png" id="52_u8pd1"]
+[ext_resource type="Texture2D" uid="uid://ctc857h17l22m" path="res://images/assets/ui/Main Panel.png" id="53_04wnd"]
+[ext_resource type="Texture2D" uid="uid://buomfx8jnk2h5" path="res://images/assets/for main (crops)/Hoe.png" id="54_w84sg"]
+[ext_resource type="Texture2D" uid="uid://2rw0apvarisl" path="res://images/assets/ui/SelectionBorder.png" id="55_g00v6"]
+[ext_resource type="Texture2D" uid="uid://bqklj0nsppyyo" path="res://images/assets/for main (crops)/Water.png" id="56_mu0rj"]
+[ext_resource type="Texture2D" uid="uid://330jyq6cpux" path="res://images/assets/for main (crops)/SeedBagIcon.png" id="57_q7h3f"]
+[ext_resource type="Texture2D" uid="uid://ccykpnhthg7wh" path="res://images/assets/for main (crops)/Farm.png" id="59_w84sg"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
 texture = ExtResource("1_6ocxv")
@@ -1770,7 +1770,7 @@ position_smoothing_enabled = true
 
 [node name="Decor" type="TileMapLayer" parent="." unique_id=36663424]
 position = Vector2(16, 28)
-tile_map_data = PackedByteArray("AAACAAQAAQAsAAkAAAADAAQAAQAtAAkAAAADAAUAAQAtAAoAAAAEAAUAAQAuAAoAAAAEAAYAAQAuAAsAAABZAOz/AgAQAAcAAABeAOz/AgAfABQAAABdAPL/AgAoAAQAAABdAP3/AgAQAAQAAAD1//L/AgATAAUAAADS/xcAAgAQAAEAAADS/xkAAgAQAAMAAADS/xoAAgAQAAQAAADV/xcAAgATAAEAAADV/xoAAgATAAQAAAA=")
+tile_map_data = PackedByteArray("AAACAAQAAQAsAAkAAAADAAQAAQAtAAkAAAADAAUAAQAtAAoAAAAEAAUAAQAuAAoAAAAEAAYAAQAuAAsAAABZAOz/AgAQAAcAAABeAOz/AgAfABQAAABdAPL/AgAoAAQAAABdAP3/AgAQAAQAAAD1//L/AgATAAUAAAA=")
 tile_set = SubResource("TileSet_n48tv")
 
 [node name="Buildings" type="StaticBody2D" parent="." unique_id=913658574]
@@ -1883,6 +1883,11 @@ y_sort_enabled = true
 position = Vector2(118, -194)
 scale = Vector2(0.18, 0.17848101)
 texture = ExtResource("23_p6t5t")
+
+[node name="FarmSignage" type="Sprite2D" parent="Signage" unique_id=564750575]
+position = Vector2(78, 336.00003)
+scale = Vector2(0.123333305, 0.12768824)
+texture = ExtResource("59_w84sg")
 
 [node name="Stall" type="Node2D" parent="." unique_id=519043071]
 
@@ -2381,16 +2386,18 @@ z_index = 4
 position = Vector2(82, 1)
 texture = ExtResource("43_7il7i")
 
-[node name="Animal" parent="." unique_id=1058197852 instance=ExtResource("46_gx53n")]
+[node name="Animals" type="Node2D" parent="." unique_id=680158026]
+
+[node name="Animal" parent="Animals" unique_id=1058197852 instance=ExtResource("46_gx53n")]
 position = Vector2(1033, 584)
 
-[node name="Animal2" parent="." unique_id=1553265838 instance=ExtResource("46_gx53n")]
+[node name="Animal2" parent="Animals" unique_id=1553265838 instance=ExtResource("46_gx53n")]
 position = Vector2(1087, 621)
 
-[node name="Animal3" parent="." unique_id=2006245936 instance=ExtResource("46_gx53n")]
+[node name="Animal3" parent="Animals" unique_id=2006245936 instance=ExtResource("46_gx53n")]
 position = Vector2(1024, 650)
 
-[node name="Animal4" parent="." unique_id=1713700855 instance=ExtResource("46_gx53n")]
+[node name="Animal4" parent="Animals" unique_id=1713700855 instance=ExtResource("46_gx53n")]
 position = Vector2(1217, 684)
 animal_type = 1
 
@@ -2601,8 +2608,3 @@ texture = ExtResource("55_g00v6")
 layer = 2
 
 [node name="MarketUI" parent="CanvasLayer" unique_id=450026637 instance=ExtResource("48_u3ptn")]
-
-[node name="FarmSignage" type="Sprite2D" parent="." unique_id=564750575]
-position = Vector2(78, 336.00003)
-scale = Vector2(0.123333305, 0.12768824)
-texture = ExtResource("59_w84sg")

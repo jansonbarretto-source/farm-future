@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ccykpnhthg7wh"
-path="res://.godot/imported/Farm.png-b6a3f61efb0e5be580035884465e6b14.ctex"
+uid="uid://mh3cd0sc4cpq"
+path="res://.godot/imported/Border.png-706d64f9951a5c7fd0ea52717611ff87.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Farm.png"
-dest_files=["res://.godot/imported/Farm.png-b6a3f61efb0e5be580035884465e6b14.ctex"]
+source_file="res://images/assets/ui/Border.png"
+dest_files=["res://.godot/imported/Border.png-706d64f9951a5c7fd0ea52717611ff87.ctex"]
 
 [params]
 

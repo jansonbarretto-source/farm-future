@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bsq6hy5nfcs4j"]
 
 [ext_resource type="Script" uid="uid://cudnirwdsoxxi" path="res://scripts/WheatCrop.gd" id="1_paovj"]
-[ext_resource type="Texture2D" uid="uid://bs1hrtsadekto" path="res://Growing.png" id="2_n72ge"]
-[ext_resource type="Texture2D" uid="uid://bbn1dqng0mok" path="res://Harvestable.png" id="3_lj8oi"]
-[ext_resource type="Texture2D" uid="uid://cl5tvlus5p6pa" path="res://Seeding.png" id="4_gei74"]
+[ext_resource type="Texture2D" uid="uid://bs1hrtsadekto" path="res://images/assets/for main (crops)/Growing.png" id="2_n72ge"]
+[ext_resource type="Texture2D" uid="uid://bbn1dqng0mok" path="res://images/assets/for main (crops)/Harvestable.png" id="3_lj8oi"]
+[ext_resource type="Texture2D" uid="uid://cl5tvlus5p6pa" path="res://images/assets/for main (crops)/Seeding.png" id="4_gei74"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_n72ge"]
 atlas = ExtResource("4_gei74")

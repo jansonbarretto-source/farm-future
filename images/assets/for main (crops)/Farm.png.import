@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ctc857h17l22m"
-path="res://.godot/imported/Main Panel.png-0ebf17581b603e06c637d0e400f6a48b.ctex"
+uid="uid://ccykpnhthg7wh"
+path="res://.godot/imported/Farm.png-230aa31118930ca547d7b171eb4d5da1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Main Panel.png"
-dest_files=["res://.godot/imported/Main Panel.png-0ebf17581b603e06c637d0e400f6a48b.ctex"]
+source_file="res://images/assets/for main (crops)/Farm.png"
+dest_files=["res://.godot/imported/Farm.png-230aa31118930ca547d7b171eb4d5da1.ctex"]
 
 [params]
 
