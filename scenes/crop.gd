@@ -34,9 +34,6 @@ func _apply_seed_data() -> void:
 		
 		if info.has("growth_time"):
 			time_per_stage = info["growth_time"]
-			
-		if info.has("scale") and animated_sprite:
-			animated_sprite.scale = info["scale"]
 
 func water_crop() -> void:
 	if not is_watered:
@@ -57,9 +54,27 @@ func update_crop_visual() -> void:
 		animated_sprite.play(anim_name)
 		animated_sprite.stop()
 		animated_sprite.frame = current_stage
+		
+		if GameData.SEED_DATA.has(seed_type):
+			var info = GameData.SEED_DATA[seed_type]
+			
+			# 1. Dynamic Scale per Stage
+			if info.has("stage_scales") and current_stage < info["stage_scales"].size():
+				animated_sprite.scale = info["stage_scales"][current_stage]
+			elif info.has("scale"):
+				animated_sprite.scale = info["scale"]
+				
+			# 2. Dynamic Position Offset per Stage
+			if info.has("stage_offsets") and current_stage < info["stage_offsets"].size():
+				animated_sprite.position = info["stage_offsets"][current_stage]
+			elif info.has("offset"):
+				animated_sprite.position = info["offset"]
+			else:
+				animated_sprite.position = Vector2.ZERO
+	else:
+		print("Warning: Walang animation na nagngangalang ", anim_name)
 
 func _on_growth_timer_timeout() -> void:
-	# Mag-grow lamang kung nadiligan na
 	if is_watered and current_stage < Stage.HARVESTABLE:
 		current_stage += 1 as Stage
 		update_crop_visual()

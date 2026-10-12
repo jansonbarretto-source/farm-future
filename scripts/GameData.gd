@@ -6,16 +6,42 @@ extends Node
 # Sa GameData.gd:
 
 var SEED_DATA = {
-	"Wheat": {"buy": 10, "sell": 20, "growth_time": 3.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/wheat seed pack.jpeg"},
-	"Carrot": {"buy": 10, "sell": 25, "growth_time": 5.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/carrot seed pack.jpeg"},
-	"Potato": {"buy": 12, "sell": 30, "growth_time": 8.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/potato seed pack.jpeg"},
-	"Tomato": {"buy": 15, "sell": 35, "growth_time": 10.0, "scale": Vector2(0.6, 0.6), "icon": "res://images/assets/seeds/tomato seed pack.jpeg"},
-	"Rice": {"buy": 18, "sell": 50, "growth_time": 12.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/rice seed pack.jpeg"},
-	"Corn": {"buy": 20, "sell": 45, "growth_time": 15.0, "scale": Vector2(0.6, 0.6), "icon": "res://images/assets/seeds/corn seed pack.jpeg"},
-	"Strawberry": {"buy": 20, "sell": 40, "growth_time": 18.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/strawberrt seed pack.jpeg"},
-	"Banana": {"buy": 40, "sell": 80, "growth_time": 25.0, "scale": Vector2(0.7, 0.7), "icon": "res://images/assets/seeds/banana seed pack.jpeg"},
-	"Apple": {"buy": 50, "sell": 100, "growth_time": 30.0, "scale": Vector2(0.7, 0.7), "icon": "res://images/assets/seeds/apple seed pack.jpeg"},
-	"Mango": {"buy": 60, "sell": 120, "growth_time": 40.0, "scale": Vector2(0.8, 0.8), "icon": "res://images/assets/seeds/mango seed pack.jpeg"}
+	"Wheat": {"buy": 10, "sell": 20, "growth_time": 3.0, "scale": Vector2(0.2, 0.2), "icon": "res://images/assets/seeds/wheat seed pack.png", "crop_icon": "res://images/assets/for main (crops)/Wheat.png"},
+	"Carrot": {"buy": 10, "sell": 25, "growth_time": 5.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/carrot seed pack.png", "crop_icon": "res://images/assets/for main (crops)/carrot/carrot.png"},
+	"Potato": {"buy": 12, "sell": 30, "growth_time": 8.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/potato seed pack.png", "crop_icon": "res://images/assets/for main (crops)/potato/potato.png"},
+	"Tomato": {"buy": 15, "sell": 35, "growth_time": 10.0, "scale": Vector2(0.6, 0.6), "icon": "res://images/assets/seeds/tomato seed pack.png", "crop_icon": "res://images/assets/for main (crops)/tomato/tomato.png"},
+	"Rice": {"buy": 18, "sell": 50, "growth_time": 12.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/rice seed pack.png", "crop_icon": "res://images/assets/for main (crops)/rice/rice.png"},
+	"Corn": {"buy": 20, "sell": 45, "growth_time": 15.0, "scale": Vector2(0.8, 0.8), "offset": Vector2(0, -8), "icon": "res://images/assets/seeds/corn seed pack.png", "crop_icon": "res://images/assets/for main (crops)/corn/corn.png"},
+	"Strawberry": {"buy": 20, "sell": 40, "growth_time": 18.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/strawberry seed pack.png", "crop_icon": "res://images/assets/for main (crops)/strawberry/strawberry.png"},
+	
+	# TREE CROPS WITH STAGE SCALES AND STAGE OFFSETS
+	"Banana": {
+		"buy": 40, 
+		"sell": 80, 
+		"growth_time": 25.0, 
+		"stage_scales": [Vector2(0.5, 0.5), Vector2(1.0, 1.0), Vector2(1.4, 1.4)], 
+		"stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -130)], # [Frame 0, Frame 1, Frame 2]
+		"icon": "res://images/assets/seeds/banana seed pack.png",
+		"crop_icon": "res://images/assets/for main (crops)/banana/banana.png"
+	},
+	"Apple": {
+		"buy": 50, 
+		"sell": 100, 
+		"growth_time": 30.0, 
+		"stage_scales": [Vector2(0.5, 0.5), Vector2(1.0, 1.0), Vector2(1.6, 1.6)], 
+		"stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -140)], # [Frame 0, Frame 1, Frame 2]
+		"icon": "res://images/assets/seeds/apple seed pack.png",
+		"crop_icon": "res://images/assets/for main (crops)/apple/apple.png"
+	},
+	"Mango": {
+		"buy": 60, 
+		"sell": 120, 
+		"growth_time": 40.0, 
+		"stage_scales": [Vector2(0.5, 0.5), Vector2(1.1, 1.1), Vector2(1.6, 1.6)], 
+		"stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -140)], # [Frame 0, Frame 1, Frame 2]
+		"icon": "res://images/assets/seeds/mango seed pack.png",
+		"crop_icon": "res://images/assets/for main (crops)/mango/mango.png"
+	}
 }
 
 # Player Currencies & Resources

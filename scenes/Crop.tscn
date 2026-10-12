@@ -2,11 +2,35 @@
 
 [ext_resource type="Script" uid="uid://b83dskgtev85a" path="res://scenes/crop.gd" id="1_7w5hp"]
 [ext_resource type="Texture2D" uid="uid://cf45ol6ygvpvp" path="res://images/assets/for main (crops)/tomato/tomato_seed.png" id="2_7w5hp"]
+[ext_resource type="Texture2D" uid="uid://dthca7g5p5y4e" path="res://images/assets/for main (crops)/strawberry/strawberry_seed.png" id="2_763re"]
+[ext_resource type="Texture2D" uid="uid://b4xj6ogb6jdyn" path="res://images/assets/for main (crops)/carrot/carrot_seed.png" id="2_ba6w6"]
+[ext_resource type="Texture2D" uid="uid://cb7v551bostua" path="res://images/assets/for main (crops)/apple/apple_seed.png" id="2_ct3fp"]
+[ext_resource type="Texture2D" uid="uid://d3d28f6u1u6n1" path="res://images/assets/for main (crops)/banana/banana_seed.png" id="2_dnigl"]
+[ext_resource type="Texture2D" uid="uid://bxhpjte0wbojv" path="res://images/assets/for main (crops)/corn/corn_seed.png" id="2_ga45t"]
+[ext_resource type="Texture2D" uid="uid://dpo0fwc1f332a" path="res://images/assets/for main (crops)/potato/potato_seed.png" id="2_kcn57"]
 [ext_resource type="Texture2D" uid="uid://cl5tvlus5p6pa" path="res://images/assets/for main (crops)/Seeding.png" id="2_travc"]
 [ext_resource type="Texture2D" uid="uid://bs1hrtsadekto" path="res://images/assets/for main (crops)/Growing.png" id="3_6s6xe"]
+[ext_resource type="Texture2D" uid="uid://b5656vuq63v1l" path="res://images/assets/for main (crops)/corn/corn_growing.png" id="3_5284g"]
+[ext_resource type="Texture2D" uid="uid://cb7k3r3c2qc4y" path="res://images/assets/for main (crops)/strawberry/strawberry_growing.png" id="3_dx8rs"]
+[ext_resource type="Texture2D" uid="uid://b6h3ckcicmhka" path="res://images/assets/for main (crops)/apple/apple_growing.png" id="3_eou2y"]
+[ext_resource type="Texture2D" uid="uid://0qmp8em0tuny" path="res://images/assets/for main (crops)/potato/potato_growing.png" id="3_id7ya"]
+[ext_resource type="Texture2D" uid="uid://d1q0sjul6ourc" path="res://images/assets/for main (crops)/banana/banana_growing.png" id="3_s2h6s"]
+[ext_resource type="Texture2D" uid="uid://y6kl2x7i27g4" path="res://images/assets/for main (crops)/carrot/carrot_growing.png" id="3_t63qw"]
 [ext_resource type="Texture2D" uid="uid://ips7na0ss04l" path="res://images/assets/for main (crops)/tomato/tomato_growing.png" id="3_voajn"]
+[ext_resource type="Texture2D" uid="uid://d1c5tklbk81fu" path="res://images/assets/for main (crops)/potato/potato_final.png" id="4_1qqad"]
 [ext_resource type="Texture2D" uid="uid://bbn1dqng0mok" path="res://images/assets/for main (crops)/Harvestable.png" id="4_7w5hp"]
 [ext_resource type="Texture2D" uid="uid://dm71pa2x6ra3w" path="res://images/assets/for main (crops)/tomato/tomato_final.png" id="4_246gg"]
+[ext_resource type="Texture2D" uid="uid://bkkqn1hlriox5" path="res://images/assets/for main (crops)/apple/apple_final.png" id="4_a8bay"]
+[ext_resource type="Texture2D" uid="uid://r8sr8ntmbmak" path="res://images/assets/for main (crops)/carrot/carrot_final.png" id="4_iahxo"]
+[ext_resource type="Texture2D" uid="uid://bpjfmkoxako54" path="res://images/assets/for main (crops)/strawberry/strawberry_final.png" id="4_im1rq"]
+[ext_resource type="Texture2D" uid="uid://b6n0r2ywbm1ho" path="res://images/assets/for main (crops)/corn/corn_final.png" id="4_m7oht"]
+[ext_resource type="Texture2D" uid="uid://dmd5y6t5ipmg0" path="res://images/assets/for main (crops)/banana/banana_final.png" id="4_wx4oh"]
+[ext_resource type="Texture2D" uid="uid://cni3clarslloe" path="res://images/assets/for main (crops)/rice/rice_seed.png" id="5_1rusm"]
+[ext_resource type="Texture2D" uid="uid://lsh24td8geua" path="res://images/assets/for main (crops)/mango/mango_seed.png" id="5_ba6w6"]
+[ext_resource type="Texture2D" uid="uid://w26tmi0xlim7" path="res://images/assets/for main (crops)/rice/rice_growing.png" id="6_4ywk4"]
+[ext_resource type="Texture2D" uid="uid://2wevsnm3bmx5" path="res://images/assets/for main (crops)/mango/mango_growing.png" id="6_t63qw"]
+[ext_resource type="Texture2D" uid="uid://cu0cngjld4xgs" path="res://images/assets/for main (crops)/mango/mango_final.png" id="7_iahxo"]
+[ext_resource type="Texture2D" uid="uid://dh4rhwcyf5rsq" path="res://images/assets/for main (crops)/rice/rice_final.png" id="7_oa427"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_n72ge"]
 atlas = ExtResource("2_travc")
@@ -22,42 +46,114 @@ region = Rect2(0, 0, 499, 573)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_04wnd"]
 animations = [{
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ct3fp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_eou2y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_a8bay")
+}],
 "loop": 1,
 "name": &"apple",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_dnigl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_s2h6s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_wx4oh")
+}],
 "loop": 1,
 "name": &"banana",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ba6w6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_t63qw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_iahxo")
+}],
 "loop": 1,
 "name": &"carrot",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ga45t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_5284g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_m7oht")
+}],
 "loop": 1,
 "name": &"corn",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_ba6w6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_t63qw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_iahxo")
+}],
 "loop": 1,
 "name": &"mango",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_kcn57")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_id7ya")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_1qqad")
+}],
 "loop": 1,
 "name": &"potato",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_1rusm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_4ywk4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_oa427")
+}],
 "loop": 1,
 "name": &"rice",
 "speed": 5.0
 }, {
-"frames": [],
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_763re")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_dx8rs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_im1rq")
+}],
 "loop": 1,
 "name": &"strawberry",
 "speed": 5.0
@@ -102,7 +198,9 @@ script = ExtResource("1_7w5hp")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1985063963]
 position = Vector2(-1, -1)
 sprite_frames = SubResource("SpriteFrames_04wnd")
-animation = &"tomato"
+animation = &"apple"
+frame = 2
+frame_progress = 0.7888993
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=411636897]
 visible = false
