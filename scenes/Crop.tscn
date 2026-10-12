@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://bsq6hy5nfcs4j"]
+
+[ext_resource type="Script" uid="uid://b83dskgtev85a" path="res://scenes/crop.gd" id="1_7w5hp"]
+[ext_resource type="Texture2D" uid="uid://cf45ol6ygvpvp" path="res://images/assets/for main (crops)/tomato/tomato_seed.png" id="2_7w5hp"]
+[ext_resource type="Texture2D" uid="uid://cl5tvlus5p6pa" path="res://images/assets/for main (crops)/Seeding.png" id="2_travc"]
+[ext_resource type="Texture2D" uid="uid://bs1hrtsadekto" path="res://images/assets/for main (crops)/Growing.png" id="3_6s6xe"]
+[ext_resource type="Texture2D" uid="uid://ips7na0ss04l" path="res://images/assets/for main (crops)/tomato/tomato_growing.png" id="3_voajn"]
+[ext_resource type="Texture2D" uid="uid://bbn1dqng0mok" path="res://images/assets/for main (crops)/Harvestable.png" id="4_7w5hp"]
+[ext_resource type="Texture2D" uid="uid://dm71pa2x6ra3w" path="res://images/assets/for main (crops)/tomato/tomato_final.png" id="4_246gg"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n72ge"]
+atlas = ExtResource("2_travc")
+region = Rect2(0, 0, 499, 370)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lj8oi"]
+atlas = ExtResource("3_6s6xe")
+region = Rect2(0, 0, 499, 491)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gei74"]
+atlas = ExtResource("4_7w5hp")
+region = Rect2(0, 0, 499, 573)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_04wnd"]
+animations = [{
+"frames": [],
+"loop": 1,
+"name": &"apple",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"banana",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"carrot",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"corn",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"mango",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"potato",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"rice",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"strawberry",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_7w5hp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_voajn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_246gg")
+}],
+"loop": 1,
+"name": &"tomato",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n72ge")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lj8oi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gei74")
+}],
+"loop": 1,
+"name": &"wheat",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8vi88"]
+size = Vector2(398.5, 360)
+
+[node name="Crop" type="Area2D" unique_id=912218041]
+position = Vector2(0.2, 0.2)
+scale = Vector2(0.2, 0.2)
+script = ExtResource("1_7w5hp")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1985063963]
+position = Vector2(-1, -1)
+sprite_frames = SubResource("SpriteFrames_04wnd")
+animation = &"tomato"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=411636897]
+visible = false
+position = Vector2(-20.25, 39)
+shape = SubResource("RectangleShape2D_8vi88")
+
+[node name="GrowthTimer" type="Timer" parent="." unique_id=367999022]
+wait_time = 5.0

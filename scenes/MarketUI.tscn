@@ -16,24 +16,6 @@ corner_radius_bottom_left = 6
 shadow_color = Color(0, 0, 0, 0.53333336)
 shadow_size = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wfknu"]
-bg_color = Color(0.1764706, 0.41568628, 0.30980393, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.105882354, 0.2627451, 0.19607843, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xy1cf"]
-bg_color = Color(0.32156864, 0.7176471, 0.53333336, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3m543"]
-bg_color = Color(0.105882354, 0.2627451, 0.19607843, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_02dp0"]
 bg_color = Color(0.61960787, 0.16470589, 0.16862746, 1)
 
@@ -89,34 +71,38 @@ offset_right = 165.0
 offset_bottom = 55.0
 text = "Money: ₱500"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1063850496]
+[node name="MarketTabs" type="TabContainer" parent="Panel" unique_id=1648458589]
+custom_minimum_size = Vector2(250, 100)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -72.5
+offset_left = -125.0
 offset_top = -33.0
-offset_right = 72.5
+offset_right = 125.0
 offset_bottom = 33.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 12
+current_tab = 0
 
-[node name="BuySeedsButton" type="Button" parent="Panel/VBoxContainer" unique_id=1419100511]
+[node name="Buy" type="ScrollContainer" parent="Panel/MarketTabs" unique_id=1062667706]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_wfknu")
-theme_override_styles/hover = SubResource("StyleBoxFlat_xy1cf")
-theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_3m543")
-text = "Buy 1 Seed (₱10)"
+metadata/_tab_index = 0
 
-[node name="SellWheatButton" type="Button" parent="Panel/VBoxContainer" unique_id=1916981052]
+[node name="BuyListContainer" type="VBoxContainer" parent="Panel/MarketTabs/Buy" unique_id=684907417]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_wfknu")
-theme_override_styles/hover = SubResource("StyleBoxFlat_xy1cf")
-theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_3m543")
-text = "Sell 1 Wheat (₱20)"
+size_flags_horizontal = 3
+
+[node name="Sell" type="ScrollContainer" parent="Panel/MarketTabs" unique_id=1472951051]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="SellListContainer" type="VBoxContainer" parent="Panel/MarketTabs/Sell" unique_id=1581676251]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="CloseButton" type="Button" parent="Panel" unique_id=479684439]
 layout_mode = 1

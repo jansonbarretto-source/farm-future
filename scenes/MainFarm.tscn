@@ -56,6 +56,7 @@
 [ext_resource type="Texture2D" uid="uid://ctc857h17l22m" path="res://images/assets/ui/Main Panel.png" id="53_04wnd"]
 [ext_resource type="Texture2D" uid="uid://buomfx8jnk2h5" path="res://images/assets/for main (crops)/Hoe.png" id="54_w84sg"]
 [ext_resource type="Texture2D" uid="uid://2rw0apvarisl" path="res://images/assets/ui/SelectionBorder.png" id="55_g00v6"]
+[ext_resource type="Script" uid="uid://l6nhwp1pex3g" path="res://scenes/hot_bar_panel.gd" id="55_mu0rj"]
 [ext_resource type="Texture2D" uid="uid://bqklj0nsppyyo" path="res://images/assets/for main (crops)/Water.png" id="56_mu0rj"]
 [ext_resource type="Texture2D" uid="uid://330jyq6cpux" path="res://images/assets/for main (crops)/SeedBagIcon.png" id="57_q7h3f"]
 [ext_resource type="Texture2D" uid="uid://ccykpnhthg7wh" path="res://images/assets/for main (crops)/Farm.png" id="59_w84sg"]
@@ -2502,6 +2503,7 @@ offset_right = 181.0
 grow_horizontal = 2
 grow_vertical = 0
 texture = ExtResource("53_04wnd")
+script = ExtResource("55_mu0rj")
 
 [node name="Slot_Hoe" type="Button" parent="HUD/HotBarPanel" unique_id=1094733156]
 layout_mode = 0
@@ -2603,6 +2605,16 @@ offset_top = -5.0
 offset_right = 90.0
 offset_bottom = 59.0
 texture = ExtResource("55_g00v6")
+
+[node name="SeedMenuPopup" type="PanelContainer" parent="HUD/HotBarPanel/Slot_Seed" unique_id=65085126]
+layout_mode = 0
+offset_top = -31.0
+offset_right = 40.0
+offset_bottom = 9.0
+mouse_filter = 1
+
+[node name="SeedList" type="HBoxContainer" parent="HUD/HotBarPanel/Slot_Seed/SeedMenuPopup" unique_id=1423442160]
+layout_mode = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1788011128]
 layer = 2

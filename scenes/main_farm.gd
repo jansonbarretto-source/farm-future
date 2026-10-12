@@ -4,7 +4,8 @@ extends Node2D
 @onready var ground_terrain: TileMapLayer = $Ground_Terrain
 @onready var player: CharacterBody2D = $Player
 
-var wheat_crop_scene: PackedScene = preload("res://scenes/WheatCrop.tscn")
+# Naka-point na sa pangkalahatang Crop.tscn scene
+var crop_scene: PackedScene = preload("res://scenes/Crop.tscn")
 
 # Untilled Dirt Ground (Inside Fence Area)
 const UNTILLED_SOURCE_ID = 21
@@ -62,11 +63,14 @@ func _handle_farm_interaction(map_pos: Vector2i) -> void:
 		GameData.ActiveItem.SEED:
 			# Plant on dry tilled soil or wet watered soil
 			if current_source_id == TILLED_SOURCE_ID and (current_tile_coords == TILLED_DIRT_COORDS or current_tile_coords == WATERED_DIRT_COORDS):
-				if GameData.remove_seeds(1):
-					_spawn_crop(map_pos)
-					print("Planted seed at: ", map_pos)
+				var current_seed = GameData.selected_seed_type
+				var is_soil_watered = (current_tile_coords == WATERED_DIRT_COORDS)
+				
+				if GameData.remove_seeds(current_seed, 1):
+					_spawn_crop(map_pos, current_seed, is_soil_watered)
+					print("Planted ", current_seed, " seed at: ", map_pos)
 				else:
-					print("No seeds in inventory!")
+					print("No ", current_seed, " seeds in inventory!")
 
 # Tills an untilled tile and triggers hoe animation
 func _till_tile(map_pos: Vector2i) -> void:
@@ -82,20 +86,25 @@ func _till_tile(map_pos: Vector2i) -> void:
 	else:
 		print("Cannot till tile at ", map_pos)
 
-# Waters dry tilled ground and triggers watering animation
+# Waters dry tilled ground and triggers watering animation + triggers crop growth
 func _water_tile(map_pos: Vector2i) -> void:
 	var current_source_id = ground_terrain.get_cell_source_id(map_pos)
 	var current_tile_coords = ground_terrain.get_cell_atlas_coords(map_pos)
 	
 	if current_source_id == TILLED_SOURCE_ID and current_tile_coords == TILLED_DIRT_COORDS:
-		# Corrected parameters: set_cell(coords, source_id, atlas_coords)
 		ground_terrain.set_cell(map_pos, TILLED_SOURCE_ID, WATERED_DIRT_COORDS)
 		print("Successfully watered ground at: ", map_pos)
+		
+		# Hanapin kung may nakatanim sa tile na ito para masimulan ang pagpapatubo
+		var tile_world_pos = ground_terrain.map_to_local(map_pos)
+		for child in get_children():
+			if child.has_method("water_crop") and child.global_position.distance_to(tile_world_pos) < 8.0:
+				child.water_crop()
 		
 		if player and player.has_method("use_watering_can"):
 			player.use_watering_can()
 	else:
-		print("Cannot water tile at ", map_pos, " (Must be dry tilled soil)")
+		print("Cannot water tile at ", map_pos)
 
 # Reverts tilled or watered tile back to regular dirt
 func _untill_tile(map_pos: Vector2i) -> void:
@@ -108,7 +117,12 @@ func _untill_tile(map_pos: Vector2i) -> void:
 	else:
 		print("Cannot untill tile at ", map_pos)
 
-func _spawn_crop(map_pos: Vector2i) -> void:
-	var crop_instance = wheat_crop_scene.instantiate()
+func _spawn_crop(map_pos: Vector2i, seed_type: String, start_watered: bool = false) -> void:
+	var crop_instance = crop_scene.instantiate()
 	crop_instance.global_position = ground_terrain.map_to_local(map_pos)
+	
+	# I-setup ang crop sa pamamagitan ng pagpasa ng seed_type at watered status
+	if crop_instance.has_method("setup_crop"):
+		crop_instance.setup_crop(seed_type, start_watered)
+		
 	add_child(crop_instance)
