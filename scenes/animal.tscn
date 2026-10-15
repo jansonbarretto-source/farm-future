@@ -563,17 +563,20 @@ animations = [{
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8vi88"]
 radius = 13.0
-height = 28.0
+height = 32.0
 
 [node name="Animal" type="CharacterBody2D" unique_id=1058197852]
+input_pickable = true
 script = ExtResource("1_ifcgm")
+feed_required = null
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=504972614]
 sprite_frames = SubResource("SpriteFrames_n48tv")
-animation = &"chicken_eat_down"
+animation = &"chicken_walk_right"
+frame_progress = 0.85246956
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=518449758]
-position = Vector2(0, 1)
+position = Vector2(2, 0)
 shape = SubResource("CapsuleShape2D_8vi88")
 
 [node name="Timer" type="Timer" parent="." unique_id=336562613]

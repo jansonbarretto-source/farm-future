@@ -29,8 +29,10 @@ func setup_crop(type: String, start_watered: bool = false) -> void:
 		water_crop()
 
 func _apply_seed_data() -> void:
-	if GameData.SEED_DATA.has(seed_type):
-		var info = GameData.SEED_DATA[seed_type]
+	# Ensure title case lookup in GameData
+	var formatted_type = seed_type.capitalize()
+	if GameData.SEED_DATA.has(formatted_type):
+		var info = GameData.SEED_DATA[formatted_type]
 		
 		if info.has("growth_time"):
 			time_per_stage = info["growth_time"]
@@ -39,6 +41,11 @@ func water_crop() -> void:
 	if not is_watered:
 		is_watered = true
 		print(seed_type, " is watered! Growth timer started.")
+		
+		# Visual tint for wet soil/watered crop
+		if animated_sprite:
+			animated_sprite.modulate = Color(0.7, 0.85, 1.0, 1.0)
+			
 		if growth_timer:
 			growth_timer.wait_time = time_per_stage
 			growth_timer.one_shot = false
@@ -49,14 +56,15 @@ func update_crop_visual() -> void:
 		return
 		
 	var anim_name = seed_type.to_lower()
+	var formatted_type = seed_type.capitalize()
 	
 	if animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation(anim_name):
 		animated_sprite.play(anim_name)
 		animated_sprite.stop()
 		animated_sprite.frame = current_stage
 		
-		if GameData.SEED_DATA.has(seed_type):
-			var info = GameData.SEED_DATA[seed_type]
+		if GameData.SEED_DATA.has(formatted_type):
+			var info = GameData.SEED_DATA[formatted_type]
 			
 			# 1. Dynamic Scale per Stage
 			if info.has("stage_scales") and current_stage < info["stage_scales"].size():
@@ -76,7 +84,7 @@ func update_crop_visual() -> void:
 
 func _on_growth_timer_timeout() -> void:
 	if is_watered and current_stage < Stage.HARVESTABLE:
-		current_stage += 1 as Stage
+		current_stage = (current_stage + 1) as Stage
 		update_crop_visual()
 		print(seed_type, " grew to stage: ", current_stage)
 		
@@ -85,10 +93,31 @@ func _on_growth_timer_timeout() -> void:
 
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if current_stage == Stage.HARVESTABLE:
+		var active_item = GameData.selected_item if "selected_item" in GameData else null
+		
+		# Water crop if watering can is selected and plant is not watered yet
+		if active_item == GameData.ActiveItem.WATERING_CAN and not is_watered and current_stage == Stage.SEED:
+			water_crop()
+		# Harvest crop if ready
+		elif current_stage == Stage.HARVESTABLE:
 			_harvest()
 
 func _harvest() -> void:
-	print("Harvested 1 ", seed_type, "!")
-	GameData.add_crop(seed_type, 1)
+	# Format to Title Case (e.g., "wheat" -> "Wheat") to match GameData keys
+	var formatted_type = seed_type.capitalize()
+	
+	print("Harvested 1 ", formatted_type, "!")
+	
+	if GameData.has_method("add_crop"):
+		GameData.add_crop(formatted_type, 1)
+	else:
+		# Direct fallback if method signature differs
+		if formatted_type in GameData.crop_inventory:
+			GameData.crop_inventory[formatted_type] += 1
+		else:
+			GameData.crop_inventory[formatted_type] = 1
+			
+		if GameData.has_signal("data_changed"):
+			GameData.data_changed.emit()
+			
 	queue_free()
