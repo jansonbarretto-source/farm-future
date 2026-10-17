@@ -63,6 +63,7 @@
 [ext_resource type="Script" uid="uid://c2swyvlqam8ut" path="res://scenes/inventory_ui.gd" id="60_q7h3f"]
 [ext_resource type="Texture2D" uid="uid://bxabrvdqvptpp" path="res://images/How To Play.png" id="62_fq28v"]
 [ext_resource type="FontFile" uid="uid://u3a35lkqlfl" path="res://images/Vampire Wars.ttf" id="63_fnrbq"]
+[ext_resource type="PackedScene" uid="uid://cn1ysjqdb7jfq" path="res://scenes/CompostingStation.tscn" id="64_fnrbq"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
 texture = ExtResource("1_6ocxv")
@@ -1828,7 +1829,7 @@ position = Vector2(1061.5, 776.5)
 shape = SubResource("RectangleShape2D_xwdap")
 
 [node name="Livestock_boxes2" type="CollisionShape2D" parent="Buildings" unique_id=937632253]
-position = Vector2(1395, 738.5)
+position = Vector2(1452, 668)
 shape = SubResource("RectangleShape2D_785fs")
 
 [node name="Livestock_boxes3" type="CollisionShape2D" parent="Buildings" unique_id=1527963690]
@@ -1836,7 +1837,7 @@ position = Vector2(1122.4375, 540.3125)
 shape = SubResource("RectangleShape2D_0br7q")
 
 [node name="Livestock_drums" type="CollisionShape2D" parent="Buildings" unique_id=75647202]
-position = Vector2(1330.5, 777.5)
+position = Vector2(1448, 647)
 shape = SubResource("RectangleShape2D_l6jtm")
 
 [node name="water1" type="CollisionShape2D" parent="Buildings" unique_id=438010284]
@@ -2073,7 +2074,7 @@ texture = ExtResource("29_af4el")
 [node name="Box16" type="Sprite2D" parent="Boxes" unique_id=1252170125]
 z_index = 2
 texture_filter = 1
-position = Vector2(1367.0001, 747)
+position = Vector2(1411.0001, 669.00006)
 scale = Vector2(0.34375, 0.34375)
 texture = ExtResource("29_af4el")
 
@@ -2158,13 +2159,13 @@ texture = ExtResource("28_6ocxv")
 
 [node name="Woods" type="Sprite2D" parent="Wood_s_ tractor" unique_id=720293813]
 z_index = 2
-position = Vector2(1406, 738.00006)
+position = Vector2(1448.9961, 677.25)
 scale = Vector2(0.37307686, 0.3730769)
 texture = ExtResource("37_iyitj")
 
 [node name="Woods2" type="Sprite2D" parent="Wood_s_ tractor" unique_id=485521703]
 z_index = 2
-position = Vector2(1406.0001, 722.00006)
+position = Vector2(1448.9962, 661.25)
 scale = Vector2(0.37307686, 0.3730769)
 texture = ExtResource("37_iyitj")
 
@@ -2212,7 +2213,7 @@ texture = ExtResource("38_fm2cn")
 
 [node name="Barrel4" type="Sprite2D" parent="Barrels" unique_id=457857744]
 z_index = 2
-position = Vector2(1333, 770)
+position = Vector2(1452, 637)
 scale = Vector2(0.090560935, 0.090560935)
 texture = ExtResource("38_fm2cn")
 
@@ -2394,25 +2395,36 @@ texture = ExtResource("43_7il7i")
 
 [node name="Animal" parent="Animals" unique_id=1058197852 instance=ExtResource("46_gx53n")]
 position = Vector2(1033, 584)
-feed_required = "Wheat"
 
 [node name="Animal2" parent="Animals" unique_id=1553265838 instance=ExtResource("46_gx53n")]
 position = Vector2(1087, 621)
-feed_required = "Wheat"
 
 [node name="Animal3" parent="Animals" unique_id=2006245936 instance=ExtResource("46_gx53n")]
 position = Vector2(1024, 650)
-feed_required = "Wheat"
 
 [node name="Animal4" parent="Animals" unique_id=1713700855 instance=ExtResource("46_gx53n")]
-position = Vector2(1194, 648)
+position = Vector2(1177, 572)
 animal_type = 1
-feed_required = "Wheat"
 
 [node name="Animal5" parent="Animals" unique_id=7028802 instance=ExtResource("46_gx53n")]
-position = Vector2(1246, 592)
+position = Vector2(1253, 565)
 animal_type = 1
-feed_required = "Wheat"
+
+[node name="Animal6" parent="Animals" unique_id=2091287904 instance=ExtResource("46_gx53n")]
+position = Vector2(1117, 672)
+animal_type = 2
+
+[node name="Animal7" parent="Animals" unique_id=833046978 instance=ExtResource("46_gx53n")]
+position = Vector2(1174, 646)
+animal_type = 2
+
+[node name="Animal8" parent="Animals" unique_id=1690417454 instance=ExtResource("46_gx53n")]
+position = Vector2(1129, 582)
+animal_type = 3
+
+[node name="Animal9" parent="Animals" unique_id=221985784 instance=ExtResource("46_gx53n")]
+position = Vector2(1044, 702)
+animal_type = 3
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1861771381]
 script = ExtResource("49_5d3tn")
@@ -2677,10 +2689,9 @@ grow_vertical = 2
 [node name="TextureRect" type="TextureRect" parent="HowToPlayPanel" unique_id=182582467]
 z_index = 20
 layout_mode = 0
-offset_left = -164.0
-offset_top = -11.0
-offset_right = 510.0
-offset_bottom = 414.0
+offset_left = -161.0
+offset_right = 513.0
+offset_bottom = 425.0
 mouse_filter = 2
 texture = ExtResource("62_fq28v")
 expand_mode = 1
@@ -2697,5 +2708,8 @@ theme_override_constants/outline_size = 8
 theme_override_fonts/font = ExtResource("63_fnrbq")
 theme_override_font_sizes/font_size = 16
 text = "x"
+
+[node name="CompostingStation" parent="." unique_id=304350803 instance=ExtResource("64_fnrbq")]
+position = Vector2(1195, 756)
 
 [connection signal="pressed" from="HowToPlayPanel/CloseButton" to="." method="_on_close_button_pressed"]

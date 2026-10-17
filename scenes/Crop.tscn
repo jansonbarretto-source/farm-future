@@ -188,7 +188,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8vi88"]
-size = Vector2(398.5, 360)
+size = Vector2(65.00003, 50.00003)
 
 [node name="Crop" type="Area2D" unique_id=912218041]
 position = Vector2(0.2, 0.2)
@@ -198,13 +198,11 @@ script = ExtResource("1_7w5hp")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1985063963]
 position = Vector2(-1, -1)
 sprite_frames = SubResource("SpriteFrames_04wnd")
-animation = &"apple"
-frame = 2
-frame_progress = 0.7888993
+animation = &"carrot"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=411636897]
-visible = false
-position = Vector2(-20.25, 39)
+position = Vector2(1.4999971, -5.999999)
+scale = Vector2(0.99999934, 0.99999934)
 shape = SubResource("RectangleShape2D_8vi88")
 
 [node name="GrowthTimer" type="Timer" parent="." unique_id=367999022]

@@ -1,8 +1,13 @@
 @tool
 extends CharacterBody2D
 
-# 1. Define animal options (Chicken & Cow)
-enum AnimalType { CHICKEN, COW }
+# 1. Explicit integer assignment para hindi mag-shift ang indices sa Inspector
+enum AnimalType { 
+	CHICKEN = 0, 
+	COW = 1, 
+	PIG = 2, 
+	SHEEP = 3 
+}
 enum State { IDLE, EATING, WALKING }
 
 # 2. Export variables for Inspector & Feeding/Harvesting
@@ -14,6 +19,7 @@ enum State { IDLE, EATING, WALKING }
 
 @export var move_speed: float = 20.0
 @export var feed_required: String = "Wheat" # What food item this animal eats
+@export var hunger_cooldown: float = 30.0   # Specific hunger time per animal (seconds)
 
 var current_state: State = State.IDLE
 var walk_direction: Vector2 = Vector2.DOWN
@@ -24,6 +30,10 @@ var is_fed: bool = false
 var is_ready_for_harvest: bool = false
 var harvest_item: String = "Egg"
 var harvest_timer: Timer
+var hunger_timer: Timer                    # Timer para sa muling pagkagutom
+
+# Sheep Specific Wool Logic (Magsisimula na FALSE / WALANG BALAHIBO sa start!)
+var has_wool: bool = false 
 
 # UI Status Label Node & Animation Tweens
 var status_label: Label
@@ -48,19 +58,35 @@ func _ready() -> void:
 	timer.timeout.connect(_on_timer_timeout)
 	randomize()
 	
-	# Adjust stats based on animal type
+	# SPECIFIC STATS & HUNGER TIME PER ANIMAL TYPE
 	if animal_type == AnimalType.COW:
 		move_speed = 18.0
 		harvest_item = "Milk"
 		base_label_y = -42.0
 		feed_required = "Wheat"
-	else:
+		hunger_cooldown = 60.0 # Baka: 60 seconds bago magutom uli
+	elif animal_type == AnimalType.PIG:
+		move_speed = 22.0
+		harvest_item = "Manure"
+		base_label_y = -32.0
+		feed_required = "Carrot"
+		hunger_cooldown = 45.0 # Baboy: 45 seconds bago magutom uli
+	elif animal_type == AnimalType.SHEEP:
+		move_speed = 20.0
+		harvest_item = "Wool"
+		base_label_y = -35.0
+		feed_required = "Wheat"
+		has_wool = false
+		hunger_cooldown = 50.0 # Tupa: 50 seconds bago magutom uli
+	else: # CHICKEN
 		move_speed = 30.0
 		harvest_item = "Egg"
 		base_label_y = -28.0
 		feed_required = "Wheat"
+		hunger_cooldown = 25.0 # Manok: 25 seconds lang magugutom na uli
 
 	_setup_harvest_timer()
+	_setup_hunger_timer()
 	_setup_status_label()
 	_switch_state(State.EATING)
 
@@ -73,7 +99,6 @@ func _physics_process(_delta: float) -> void:
 		
 		var collided = move_and_slide()
 		
-		# Stop and switch to IDLE if hitting fences or objects
 		if collided or get_slide_collision_count() > 0:
 			velocity = Vector2.ZERO
 			_switch_state(State.IDLE)
@@ -86,7 +111,7 @@ func _on_mouse_entered() -> void:
 func _on_mouse_exited() -> void:
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
-# --- HARVEST TIMER SETUP ---
+# --- HARVEST & HUNGER TIMERS SETUP ---
 
 func _setup_harvest_timer() -> void:
 	harvest_timer = Timer.new()
@@ -95,14 +120,34 @@ func _setup_harvest_timer() -> void:
 	harvest_timer.timeout.connect(_on_harvest_ready)
 	add_child(harvest_timer)
 
+func _setup_hunger_timer() -> void:
+	hunger_timer = Timer.new()
+	hunger_timer.one_shot = true
+	hunger_timer.timeout.connect(_on_became_hungry)
+	add_child(hunger_timer)
+
 func _on_harvest_ready() -> void:
 	is_ready_for_harvest = true
 	
-	var produce_text = "🥚 EGG!" if harvest_item == "Egg" else "🥛 MILK!"
+	var produce_text = "🥚 EGG!"
+	if harvest_item == "Milk":
+		produce_text = "🥛 MILK!"
+	elif harvest_item == "Manure":
+		produce_text = "💩 MANURE!"
+	elif harvest_item == "Wool":
+		produce_text = "🧶 WOOL!"
+		has_wool = true
+		_switch_state(current_state)
+		
 	_set_status_text(produce_text, Color(1.0, 0.9, 0.3))
 	_start_ready_animations()
 	
 	print(AnimalType.keys()[animal_type], " has produced a ", harvest_item, "!")
+
+func _on_became_hungry() -> void:
+	is_fed = false
+	_set_status_text("❗", Color(1.0, 0.2, 0.2)) # Magpapakita uli ang Red Exclamation Sign!
+	print("[LIVESTOCK] ", AnimalType.keys()[animal_type], " is hungry again!")
 
 # --- STATUS LABEL SETUP (HUNGRY / FED / READY) ---
 
@@ -121,7 +166,6 @@ func _setup_status_label() -> void:
 	
 	add_child(status_label)
 	
-	# Default to Hungry state at start
 	_set_status_text("❗", Color(1.0, 0.2, 0.2))
 
 func _stop_label_animations() -> void:
@@ -141,12 +185,10 @@ func _start_ready_animations() -> void:
 		
 	status_label.pivot_offset = Vector2(20, 8)
 	
-	# 1. Gentle Floating (Bobbing Up & Down)
 	float_tween = create_tween().set_loops()
 	float_tween.tween_property(status_label, "position:y", base_label_y - 6.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	float_tween.tween_property(status_label, "position:y", base_label_y, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
-	# 2. Pulsing Glow Effect
 	pulse_tween = create_tween().set_loops()
 	pulse_tween.tween_property(status_label, "scale", Vector2(1.15, 1.15), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	pulse_tween.tween_property(status_label, "scale", Vector2(1.0, 1.0), 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -172,31 +214,54 @@ func _set_status_text(text_string: String, text_color: Color) -> void:
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_handle_interaction()
-		get_viewport().set_input_as_handled()
 
 func _handle_interaction() -> void:
-	# 1. HARVEST PRODUCE IF READY
 	if is_ready_for_harvest:
 		_harvest_produce()
 		return
 
-	# 2. FEED ANIMAL IF NOT FED YET
 	if not is_fed:
 		_try_feed_animal()
 	else:
 		print("[LIVESTOCK] ", AnimalType.keys()[animal_type], " is already fed! Wait for produce to spawn.")
 
 func _try_feed_animal() -> void:
-	var food_name = feed_required.capitalize()
-	
-	# STRICT CHECK: Look ONLY at harvested crop_inventory (Bypasses seed inventory completely)
-	if "crop_inventory" in GameData and GameData.crop_inventory.get(food_name, 0) > 0:
-		GameData.crop_inventory[food_name] -= 1
-		GameData.data_changed.emit()
-		_feed_success()
+	var required_food = feed_required.capitalize()
+	var currently_selected_food = GameData.selected_seed_type.capitalize() if "selected_seed_type" in GameData else ""
+
+	# 1. CHECK KUNG ANG NAKATUTOK/SELECTED ITEM SA UI AY TUGMA SA KAILANGAN NG HAYOP
+	if currently_selected_food != required_food:
+		print("[LIVESTOCK] Wrong food selected! Selected: ", currently_selected_food, " | Needs: ", required_food)
+		_show_wrong_food_warning(required_food)
 		return
 
-	print("[LIVESTOCK WARNING] You must harvest fully-grown ", food_name, " crops from your farm to feed this animal! Seed packs cannot be used.")
+	# 2. CHECK KUNG MAY SAPAT NA PAGKAIN SA INVENTORY
+	if "crop_inventory" in GameData and GameData.crop_inventory.get(required_food, 0) > 0:
+		GameData.crop_inventory[required_food] -= 1
+		GameData.data_changed.emit()
+		_feed_success()
+	else:
+		# Tama ang napiling item pero zero ang quantity sa inventory
+		_show_wrong_food_warning(required_food)
+
+func _show_wrong_food_warning(required_food: String) -> void:
+	# Mabilis na yugyog/shake effect para sa feedback
+	var tween = create_tween()
+	tween.tween_property(self, "rotation_degrees", 8.0, 0.05)
+	tween.tween_property(self, "rotation_degrees", -8.0, 0.05)
+	tween.tween_property(self, "rotation_degrees", 0.0, 0.05)
+	
+	# Ipakita sa status label ang kailangang pagkain (e.g., "NEED CARROT!")
+	var warning_text = "NEED " + required_food.to_upper() + "!"
+	_set_status_text(warning_text, Color(1.0, 0.5, 0.2)) # Orange Warning Color
+	
+	print("[LIVESTOCK WARNING] ", AnimalType.keys()[animal_type], " needs 1x ", required_food, "!")
+	
+	# Pagkaraan ng 1.8 seconds, ibalik sa dating status label (e.g., "❗" hungry sign)
+	get_tree().create_timer(1.8).timeout.connect(func():
+		if not is_fed and not is_ready_for_harvest:
+			_set_status_text("❗", Color(1.0, 0.2, 0.2))
+	)
 
 func _feed_success() -> void:
 	is_fed = true
@@ -205,7 +270,6 @@ func _feed_success() -> void:
 	_play_happy_animation()
 	_set_status_text("❤️ FED", Color(1.0, 0.85, 0.85))
 	
-	# Start production timer
 	harvest_timer.start()
 	_switch_state(State.EATING)
 
@@ -215,28 +279,34 @@ func _harvest_produce() -> void:
 	
 	if GameData.has_method("add_crop"):
 		GameData.add_crop(harvest_item, 1)
+		
+		if animal_type == AnimalType.SHEEP:
+			has_wool = false
+			_switch_state(current_state)
+			
 	print("[LIVESTOCK] Successfully harvested 1x ", harvest_item, "!")
 	
 	_play_happy_animation()
 	
-	# Smoothly fade out status label until daily reset
 	var tween = create_tween()
 	tween.tween_property(status_label, "modulate:a", 0.0, 0.2)
 	tween.chain().tween_callback(func(): status_label.visible = false)
+	
+	# SIMULAN ANG SPECIFIC HUNGER TIME NG ANIMAL
+	hunger_timer.start(hunger_cooldown)
 
 func _play_happy_animation() -> void:
 	var tween = create_tween()
 	tween.tween_property(self, "scale", Vector2(1.2, 0.8), 0.1)
 	tween.tween_property(self, "scale", Vector2.ONE, 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-# Call this when a new day starts to reset status back to Hungry
 func reset_daily_fed_status() -> void:
 	is_fed = false
 	is_ready_for_harvest = false
 	_stop_label_animations()
 	_set_status_text("❗", Color(1.0, 0.2, 0.2))
 
-# --- AI MOVEMENT & STATES ---
+# --- AI MOVEMENT & ANIMATION PREFIXES ---
 
 func _get_prefix() -> String:
 	match animal_type:
@@ -244,12 +314,21 @@ func _get_prefix() -> String:
 			return "chicken_"
 		AnimalType.COW:
 			return "cow_"
+		AnimalType.PIG:
+			return "pig_"
+		AnimalType.SHEEP:
+			var wool_state = "wool_" if has_wool else "shorn_"
+			return "sheep_" + wool_state
 	return "chicken_"
 
 func _update_editor_preview() -> void:
 	if sprite and sprite.sprite_frames:
 		var prefix = _get_prefix()
 		var anim = prefix + "eat_down"
+		
+		if not sprite.sprite_frames.has_animation(anim):
+			anim = prefix + "idle" if sprite.sprite_frames.has_animation(prefix + "idle") else prefix + "eat"
+			
 		if sprite.sprite_frames.has_animation(anim):
 			sprite.play(anim)
 
@@ -261,7 +340,7 @@ func _switch_state(new_state: State) -> void:
 		State.IDLE:
 			if sprite.sprite_frames.has_animation(prefix + "idle"):
 				sprite.play(prefix + "idle")
-			else:
+			elif sprite.sprite_frames.has_animation(prefix + "walk_" + facing_direction):
 				sprite.play(prefix + "walk_" + facing_direction)
 				sprite.pause()
 				sprite.frame = 0
@@ -269,7 +348,14 @@ func _switch_state(new_state: State) -> void:
 			timer.start(randf_range(2.0, 4.0))
 
 		State.EATING:
-			sprite.play(prefix + "eat_" + facing_direction)
+			if sprite.sprite_frames.has_animation(prefix + "eat_" + facing_direction):
+				sprite.play(prefix + "eat_" + facing_direction)
+			elif sprite.sprite_frames.has_animation(prefix + "eat"):
+				sprite.play(prefix + "eat")
+			else:
+				if sprite.sprite_frames.has_animation(prefix + "idle"):
+					sprite.play(prefix + "idle")
+
 			timer.start(randf_range(3.0, 6.0))
 
 		State.WALKING:
@@ -277,7 +363,11 @@ func _switch_state(new_state: State) -> void:
 			walk_direction = directions.pick_random()
 			_update_facing_direction(walk_direction)
 
-			sprite.play(prefix + "walk_" + facing_direction)
+			if sprite.sprite_frames.has_animation(prefix + "walk_" + facing_direction):
+				sprite.play(prefix + "walk_" + facing_direction)
+			elif sprite.sprite_frames.has_animation(prefix + "walk"):
+				sprite.play(prefix + "walk")
+				
 			timer.start(randf_range(2.0, 4.0))
 
 func _update_facing_direction(dir: Vector2) -> void:

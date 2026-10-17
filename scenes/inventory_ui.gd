@@ -15,9 +15,12 @@ extends Control
 	"Rice": preload("res://images/assets/Inventory (Fruits)/Rice.png"),
 	"Strawberry": preload("res://images/assets/Inventory (Fruits)/Straberry.png"),
 	
-	# UPDATED ITEM TEXTURES FOR LIVESTOCK PRODUCE
+	# UPDATED ITEM TEXTURES FOR LIVESTOCK PRODUCE & FERTILIZER
 	"Egg": preload("res://images/assets/Inventory (Fruits)/egg.png"),
-	"Milk": preload("res://images/assets/Inventory (Fruits)/milk.png")
+	"Milk": preload("res://images/assets/Inventory (Fruits)/milk.png"),
+	"Manure": preload("res://images/assets/for main (crops)/manure/manure.png"),
+	"Organic Fertilizer": preload("res://images/assets/for main (crops)/fertilizer/fertilizer.png"),
+	"Wool": preload("res://images/assets/for main (crops)/wool/wool.png"),
 }
 
 @export var lock_texture: Texture2D = preload("res://Lock.png") 
@@ -237,8 +240,8 @@ func update_inventory_ui() -> void:
 					if GameData.has_method("select_seed_type"):
 						GameData.select_seed_type(crop_name)
 					
-					# Set pointing hand shape when selecting Wheat or feed items
-					if crop_name in ["Wheat", "Egg", "Milk"]:
+					# Set pointing hand shape when selecting Wheat, Feed, Produce, or Fertilizer
+					if crop_name in ["Wheat", "Egg", "Milk", "Manure", "Organic Fertilizer"]:
 						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 					else:
 						Input.set_default_cursor_shape(Input.CURSOR_ARROW)

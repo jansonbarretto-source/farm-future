@@ -10,6 +10,7 @@ var is_popup_open: bool = false
 func _ready() -> void:
 	if seed_popup:
 		seed_popup.hide()
+		seed_popup.mouse_filter = Control.MOUSE_FILTER_PASS
 		_style_popup_window()
 		_setup_scrollable_container()
 	
@@ -20,7 +21,6 @@ func _ready() -> void:
 	_on_data_changed()
 
 func _setup_scrollable_container() -> void:
-	# Find or create a ScrollContainer inside the popup
 	var existing = seed_popup.get_node_or_null("ScrollContainer")
 	var scroll: ScrollContainer
 	
@@ -29,19 +29,23 @@ func _setup_scrollable_container() -> void:
 	else:
 		scroll = ScrollContainer.new()
 		scroll.name = "ScrollContainer"
-		scroll.custom_minimum_size = Vector2(280, 70) # Restrict max width so it stays on screen
-		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		seed_popup.add_child(scroll)
 	
-	# Reparent or create HBox inside the ScrollContainer
+	scroll.custom_minimum_size = Vector2(320, 75)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	
+	# HINDI HARARANGIN ANG CLICKS SA BUTTONS
+	scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	
 	var hbox = scroll.get_node_or_null("SeedList")
 	if not hbox:
 		hbox = HBoxContainer.new()
 		hbox.name = "SeedList"
-		hbox.add_theme_constant_override("separation", 6)
+		hbox.add_theme_constant_override("separation", 8)
 		scroll.add_child(hbox)
 		
+	hbox.mouse_filter = Control.MOUSE_FILTER_PASS
 	seed_list = hbox
 
 func _style_popup_window() -> void:
@@ -57,7 +61,8 @@ func _style_popup_window() -> void:
 
 func _on_data_changed() -> void:
 	_update_slot_icon()
-	_refresh_seed_menu()
+	if is_popup_open:
+		_refresh_seed_menu()
 
 func _update_slot_icon() -> void:
 	var current_seed = GameData.selected_seed_type
@@ -69,8 +74,9 @@ func _update_slot_icon() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if is_popup_open and event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			await get_tree().create_timer(0.05).timeout
-			_hide_popup()
+			# Tiyakin na sa labas lang ng popup iki-click bago mag-close
+			if seed_popup and not seed_popup.get_global_rect().has_point(event.global_position):
+				_hide_popup()
 
 func _on_slot_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -94,24 +100,21 @@ func _refresh_seed_menu() -> void:
 	if not seed_list:
 		return
 
-	# Clear previous entries
 	for child in seed_list.get_children():
 		child.queue_free()
 
-	# Loop through available seeds with stock
 	for seed_name in GameData.seed_inventory.keys():
 		var count = GameData.seed_inventory[seed_name]
 		if count > 0:
 			var btn = Button.new()
-			btn.custom_minimum_size = Vector2(85, 56)
+			btn.custom_minimum_size = Vector2(85, 58)
 			
-			# Card styling
 			var btn_style = StyleBoxFlat.new()
 			btn_style.bg_color = Color(0.08, 0.05, 0.03, 0.85)
 			btn_style.border_color = Color(0.28, 0.18, 0.1, 1.0)
 			
 			if seed_name == GameData.selected_seed_type:
-				btn_style.border_color = Color(1.0, 0.85, 0.2, 1.0) # Golden highlight for active seed
+				btn_style.border_color = Color(1.0, 0.85, 0.2, 1.0)
 				btn_style.bg_color = Color(0.22, 0.15, 0.08, 0.9)
 				
 			btn_style.set_border_width_all(2)
@@ -121,7 +124,6 @@ func _refresh_seed_menu() -> void:
 			btn.add_theme_stylebox_override("hover", btn_style)
 			btn.add_theme_stylebox_override("pressed", btn_style)
 			
-			# Layout inside button
 			var vbox = VBoxContainer.new()
 			vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 			vbox.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -130,16 +132,15 @@ func _refresh_seed_menu() -> void:
 			
 			var data = GameData.SEED_DATA.get(seed_name, {})
 			
-			# Seed Icon
 			if data.has("icon") and ResourceLoader.exists(data["icon"]):
 				var icon_rect = TextureRect.new()
 				icon_rect.custom_minimum_size = Vector2(24, 24)
 				icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 				icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 				icon_rect.texture = load(data["icon"])
+				icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				vbox.add_child(icon_rect)
 			
-			# Seed Name
 			var name_label = Label.new()
 			name_label.text = seed_name
 			name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -147,9 +148,9 @@ func _refresh_seed_menu() -> void:
 			name_label.add_theme_color_override("font_color", Color(1, 1, 1))
 			name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 			name_label.add_theme_constant_override("outline_size", 3)
+			name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			vbox.add_child(name_label)
 			
-			# Quantity Count
 			var count_label = Label.new()
 			count_label.text = "x" + str(count)
 			count_label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -159,14 +160,23 @@ func _refresh_seed_menu() -> void:
 			count_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.65))
 			count_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 			count_label.add_theme_constant_override("outline_size", 3)
+			count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			btn.add_child(count_label)
 			
 			btn.mouse_filter = Control.MOUSE_FILTER_STOP
-			btn.pressed.connect(func(): _on_select_seed(seed_name))
+			
+			# DIRECT GUI INPUT HANDLER FOR GUARANTEED CLICKS
+			var current_name = seed_name
+			btn.gui_input.connect(func(event: InputEvent):
+				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+					_on_select_seed(current_name)
+			)
+			
 			seed_list.add_child(btn)
 
 func _on_select_seed(seed_name: String) -> void:
 	GameData.select_seed_type(seed_name)
-	print("Selected Seed: ", seed_name)
-	_on_data_changed()
+	GameData.select_item(GameData.ActiveItem.SEED)
+	print("[UI] Successfully Selected Seed: ", seed_name)
+	_update_slot_icon()
 	_hide_popup()

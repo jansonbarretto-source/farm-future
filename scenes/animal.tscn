@@ -5,6 +5,104 @@
 [ext_resource type="Texture2D" uid="uid://gh1sxebthuqg" path="res://images/assets/for livestock/chicken_walk.png" id="3_bj4fw"]
 [ext_resource type="Texture2D" uid="uid://wbajjk75j1qo" path="res://images/assets/for livestock/cow_eat.png" id="4_3c5tq"]
 [ext_resource type="Texture2D" uid="uid://b5bye6iwlcbip" path="res://images/assets/for livestock/cow_walk.png" id="5_ieass"]
+[ext_resource type="Texture2D" uid="uid://cdv7yn0jalf74" path="res://images/assets/for livestock/pig/pig eating down_1.png" id="6_nhc2b"]
+[ext_resource type="Texture2D" uid="uid://cdw2n3md4ixoe" path="res://images/assets/for livestock/pig/pig eating down_2.png" id="7_1jhi6"]
+[ext_resource type="Texture2D" uid="uid://dehko7tqs15s6" path="res://images/assets/for livestock/pig/pig eating down_3.png" id="8_lpx3a"]
+[ext_resource type="Texture2D" uid="uid://bbgel3143wec" path="res://images/assets/for livestock/pig/pig eating left_1.png" id="9_krckq"]
+[ext_resource type="Texture2D" uid="uid://fu4k21pdrvxb" path="res://images/assets/for livestock/pig/pig eating left_2.png" id="10_dehku"]
+[ext_resource type="Texture2D" uid="uid://bufhlbklaw1t7" path="res://images/assets/for livestock/pig/pig eating left_3.png" id="11_0gofc"]
+[ext_resource type="Texture2D" uid="uid://cbrgwp4v522cf" path="res://images/assets/for livestock/pig/pig eating left_4.png" id="12_5j5ki"]
+[ext_resource type="Texture2D" uid="uid://jo2sdhe6rayq" path="res://images/assets/for livestock/pig/pig eating right_1.png" id="13_6tn15"]
+[ext_resource type="Texture2D" uid="uid://ctp6jd1np3vo4" path="res://images/assets/for livestock/pig/pig eating right_2.png" id="14_2g5yg"]
+[ext_resource type="Texture2D" uid="uid://c0fh1etd0ra4j" path="res://images/assets/for livestock/pig/pig eating right_3.png" id="15_en0g5"]
+[ext_resource type="Texture2D" uid="uid://cil12cfog3f15" path="res://images/assets/for livestock/pig/pig eating right_4.png" id="16_a8c0u"]
+[ext_resource type="Texture2D" uid="uid://s2g0mpb5fgko" path="res://images/assets/for livestock/pig/pig eating up_1.png" id="17_hc6jx"]
+[ext_resource type="Texture2D" uid="uid://btpgmqtvrshva" path="res://images/assets/for livestock/pig/pig eating up_2.png" id="18_h2u2i"]
+[ext_resource type="Texture2D" uid="uid://blv2plgar2sqg" path="res://images/assets/for livestock/pig/pig eating up_3.png" id="19_hrcp5"]
+[ext_resource type="Texture2D" uid="uid://bh2f1xqifkmrp" path="res://images/assets/for livestock/pig/pig eating up_4.png" id="20_h8fua"]
+[ext_resource type="Texture2D" uid="uid://8duyxvclmkl1" path="res://images/assets/for livestock/pig/pig idle.png" id="21_irurb"]
+[ext_resource type="Texture2D" uid="uid://dmv0mp2nj5o3m" path="res://images/assets/for livestock/pig/pig walking down_1.png" id="22_ybv3j"]
+[ext_resource type="Texture2D" uid="uid://buayf54pw0ir0" path="res://images/assets/for livestock/pig/pig walking down_2.png" id="23_3kpti"]
+[ext_resource type="Texture2D" uid="uid://ceeroi01giyr7" path="res://images/assets/for livestock/pig/pig walking down_3.png" id="24_rlwx1"]
+[ext_resource type="Texture2D" uid="uid://bgpf4ggi52mub" path="res://images/assets/for livestock/pig/pig walking down_4.png" id="25_hh0al"]
+[ext_resource type="Texture2D" uid="uid://di22t5modjlsf" path="res://images/assets/for livestock/pig/pig walking left_1.png" id="26_7bx5x"]
+[ext_resource type="Texture2D" uid="uid://8gvujj7d6u8t" path="res://images/assets/for livestock/pig/pig walking left_2.png" id="27_2qi4g"]
+[ext_resource type="Texture2D" uid="uid://cvfoj5n18o4pm" path="res://images/assets/for livestock/pig/pig walking left_3.png" id="28_yj14d"]
+[ext_resource type="Texture2D" uid="uid://dm6g86qpoporn" path="res://images/assets/for livestock/pig/pig walking left_4.png" id="29_sf61y"]
+[ext_resource type="Texture2D" uid="uid://c5im48gyt8ef2" path="res://images/assets/for livestock/pig/pig walking right_1.png" id="30_fda5j"]
+[ext_resource type="Texture2D" uid="uid://bpi523ms0hrm3" path="res://images/assets/for livestock/pig/pig walking right_2.png" id="31_600ji"]
+[ext_resource type="Texture2D" uid="uid://byg0t7oeiffi7" path="res://images/assets/for livestock/pig/pig walking right_3.png" id="32_6lveh"]
+[ext_resource type="Texture2D" uid="uid://c50dtg35uvh3j" path="res://images/assets/for livestock/pig/pig walking right_4.png" id="33_esd57"]
+[ext_resource type="Texture2D" uid="uid://bdj21a87y07fu" path="res://images/assets/for livestock/pig/pig walking up_1.png" id="34_x8jtl"]
+[ext_resource type="Texture2D" uid="uid://d0b88bjti7y53" path="res://images/assets/for livestock/pig/pig walking up_2.png" id="35_xdd38"]
+[ext_resource type="Texture2D" uid="uid://b2f8ktqks8nco" path="res://images/assets/for livestock/pig/pig walking up_3.png" id="36_mi3gr"]
+[ext_resource type="Texture2D" uid="uid://dgyigxcm8adxd" path="res://images/assets/for livestock/pig/pig walking up_4.png" id="37_3nxde"]
+[ext_resource type="Texture2D" uid="uid://c7b7apy543to3" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_down_1.png" id="38_i42qo"]
+[ext_resource type="Texture2D" uid="uid://dx52p8ju752em" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_down_2.png" id="39_r5mir"]
+[ext_resource type="Texture2D" uid="uid://c08lgic43r06j" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_down_3.png" id="40_o150s"]
+[ext_resource type="Texture2D" uid="uid://cmy2ceyb2gjik" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_down_4.png" id="41_hdxf2"]
+[ext_resource type="Texture2D" uid="uid://udabskfhq33s" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_left_1.png" id="42_8dd1v"]
+[ext_resource type="Texture2D" uid="uid://cn3t43xka1xgw" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_left_2.png" id="43_w7tb1"]
+[ext_resource type="Texture2D" uid="uid://i26ek584fkv3" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_left_3.png" id="44_hnlyd"]
+[ext_resource type="Texture2D" uid="uid://blfhd7a3psqgn" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_left_4.png" id="45_x8fp3"]
+[ext_resource type="Texture2D" uid="uid://rqm11tq0g8eh" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_right_1.png" id="46_k3gle"]
+[ext_resource type="Texture2D" uid="uid://b84sjgd5q5fn2" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_right_2.png" id="47_ig0tn"]
+[ext_resource type="Texture2D" uid="uid://bxq388uthkvo2" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_right_3.png" id="48_s0fgp"]
+[ext_resource type="Texture2D" uid="uid://bhkqt06164ty" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_right_4.png" id="49_3yd1x"]
+[ext_resource type="Texture2D" uid="uid://bo6i8bh0n2wjm" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_up_1.png" id="50_gvalp"]
+[ext_resource type="Texture2D" uid="uid://bteln3v38iljd" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_up_2.png" id="51_5l4mw"]
+[ext_resource type="Texture2D" uid="uid://fhgayvgvsxnp" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_up_3.png" id="52_n6jdq"]
+[ext_resource type="Texture2D" uid="uid://ehwdfabtr67s" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_eating_up_4.png" id="53_ekntq"]
+[ext_resource type="Texture2D" uid="uid://csxxkvm3vflek" path="res://images/assets/for livestock/sheep/without wool/sheep without wool idle.png" id="54_h624r"]
+[ext_resource type="Texture2D" uid="uid://blp11xmai0pkf" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_down_1.png" id="55_kk2fh"]
+[ext_resource type="Texture2D" uid="uid://bo3ddifg022o" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_down_2.png" id="56_an3yi"]
+[ext_resource type="Texture2D" uid="uid://bydg3b4pkce1s" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_down_3.png" id="57_dtoyq"]
+[ext_resource type="Texture2D" uid="uid://d4d3xe60pxiqi" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_down_4.png" id="58_8etfj"]
+[ext_resource type="Texture2D" uid="uid://8axh6wg057l3" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_left_1.png" id="59_6y382"]
+[ext_resource type="Texture2D" uid="uid://c425qfxwdpde" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_left_2.png" id="60_w0283"]
+[ext_resource type="Texture2D" uid="uid://dgj8nk67mrsj2" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_left_3.png" id="61_4ai2x"]
+[ext_resource type="Texture2D" uid="uid://bhsjqr6tlm4k7" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_left_4.png" id="62_fg7h6"]
+[ext_resource type="Texture2D" uid="uid://dcp043e7p4t61" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_right_1.png" id="63_d3fuo"]
+[ext_resource type="Texture2D" uid="uid://ceg3njyfkjj6e" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_right_2.png" id="64_btu8l"]
+[ext_resource type="Texture2D" uid="uid://dt0hk83q6nuyv" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_right_3.png" id="65_vr3cx"]
+[ext_resource type="Texture2D" uid="uid://tduy5ivb88nr" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_right_4.png" id="66_ed2lh"]
+[ext_resource type="Texture2D" uid="uid://dcr30qkt07m4x" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_up_1.png" id="67_fp7on"]
+[ext_resource type="Texture2D" uid="uid://8bruaeknctr6" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_up_2.png" id="68_0ufnw"]
+[ext_resource type="Texture2D" uid="uid://uwk2dccfl7tl" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_up_3.png" id="69_sib76"]
+[ext_resource type="Texture2D" uid="uid://w7g4abu46ndd" path="res://images/assets/for livestock/sheep/without wool/sheep_without_wool_walking_up_4.png" id="70_64kcp"]
+[ext_resource type="Texture2D" uid="uid://4qkyue5831yj" path="res://images/assets/for livestock/sheep/with wool/sheep eating down1.png" id="71_wfu4k"]
+[ext_resource type="Texture2D" uid="uid://djsgapauwhevs" path="res://images/assets/for livestock/sheep/with wool/sheep eating down2.png" id="72_6v8ky"]
+[ext_resource type="Texture2D" uid="uid://caaespycgf1cb" path="res://images/assets/for livestock/sheep/with wool/sheep eating down3.png" id="73_d1v4x"]
+[ext_resource type="Texture2D" uid="uid://c3ltx7f43o4d8" path="res://images/assets/for livestock/sheep/with wool/sheep eating down4.png" id="74_kqq0y"]
+[ext_resource type="Texture2D" uid="uid://dp7xsya7j3q0w" path="res://images/assets/for livestock/sheep/with wool/sheep eating left1.png" id="75_55l2c"]
+[ext_resource type="Texture2D" uid="uid://ccsiqp5f1sucm" path="res://images/assets/for livestock/sheep/with wool/sheep eating left2.png" id="76_kt0u2"]
+[ext_resource type="Texture2D" uid="uid://b4bstlketf2fn" path="res://images/assets/for livestock/sheep/with wool/sheep eating left3.png" id="77_fbkl0"]
+[ext_resource type="Texture2D" uid="uid://cniaxkgonl7vc" path="res://images/assets/for livestock/sheep/with wool/sheep eating left4.png" id="78_ymunb"]
+[ext_resource type="Texture2D" uid="uid://ds0s77stiumpg" path="res://images/assets/for livestock/sheep/with wool/sheep eating right 1.png" id="79_8uay6"]
+[ext_resource type="Texture2D" uid="uid://d3pdxys8l1rg8" path="res://images/assets/for livestock/sheep/with wool/sheep eating right2.png" id="80_1wp50"]
+[ext_resource type="Texture2D" uid="uid://bhdhcmop3hfrt" path="res://images/assets/for livestock/sheep/with wool/sheep eating right3.png" id="81_8evw2"]
+[ext_resource type="Texture2D" uid="uid://dev3at6oiqxm" path="res://images/assets/for livestock/sheep/with wool/sheep eating right4.png" id="82_hp3rq"]
+[ext_resource type="Texture2D" uid="uid://800bow3djaw" path="res://images/assets/for livestock/sheep/with wool/sheep eating up1.png" id="83_sh6fk"]
+[ext_resource type="Texture2D" uid="uid://v7xee78ijx78" path="res://images/assets/for livestock/sheep/with wool/sheep eating up2.png" id="84_nunrj"]
+[ext_resource type="Texture2D" uid="uid://c41xhim6cdbl0" path="res://images/assets/for livestock/sheep/with wool/sheep eating up3.png" id="85_wytkh"]
+[ext_resource type="Texture2D" uid="uid://bs1pr703hc5e3" path="res://images/assets/for livestock/sheep/with wool/sheep eating up4.png" id="86_t86lo"]
+[ext_resource type="Texture2D" uid="uid://bg8ht3asv35uy" path="res://images/assets/for livestock/sheep/with wool/sheep idle.png" id="87_dj3p3"]
+[ext_resource type="Texture2D" uid="uid://b1dk8168wqdop" path="res://images/assets/for livestock/sheep/with wool/sheep walking down1.png" id="88_6ei47"]
+[ext_resource type="Texture2D" uid="uid://bqi4pujplfyji" path="res://images/assets/for livestock/sheep/with wool/sheep walking down2.png" id="89_8hmcx"]
+[ext_resource type="Texture2D" uid="uid://ded3c03mia0r3" path="res://images/assets/for livestock/sheep/with wool/sheep walking down3.png" id="90_4ndm7"]
+[ext_resource type="Texture2D" uid="uid://wxfspgq25giu" path="res://images/assets/for livestock/sheep/with wool/sheep walking down4.png" id="91_7eaxb"]
+[ext_resource type="Texture2D" uid="uid://bhp2juaoj1ktm" path="res://images/assets/for livestock/sheep/with wool/sheep walking left1.png" id="92_uc5ac"]
+[ext_resource type="Texture2D" uid="uid://dru8pwjchqcxv" path="res://images/assets/for livestock/sheep/with wool/sheep walking left2.png" id="93_bgjwe"]
+[ext_resource type="Texture2D" uid="uid://cciyjfo83ebje" path="res://images/assets/for livestock/sheep/with wool/sheep walking left3.png" id="94_xbvj1"]
+[ext_resource type="Texture2D" uid="uid://bsm33pk48udgc" path="res://images/assets/for livestock/sheep/with wool/sheep walking left4.png" id="95_8b6m5"]
+[ext_resource type="Texture2D" uid="uid://c7cx0nind5ge5" path="res://images/assets/for livestock/sheep/with wool/sheep walking right1.png" id="96_3ck2c"]
+[ext_resource type="Texture2D" uid="uid://4tsrcw4vnlq" path="res://images/assets/for livestock/sheep/with wool/sheep walking right2.png" id="97_5ahi2"]
+[ext_resource type="Texture2D" uid="uid://bq3rvox0dn300" path="res://images/assets/for livestock/sheep/with wool/sheep walking right3.png" id="98_lkpsi"]
+[ext_resource type="Texture2D" uid="uid://dgbxjst8n06cx" path="res://images/assets/for livestock/sheep/with wool/sheep walking right4.png" id="99_pynrj"]
+[ext_resource type="Texture2D" uid="uid://cveri6mfjs1ry" path="res://images/assets/for livestock/sheep/with wool/sheep walking up1.png" id="100_nrvi0"]
+[ext_resource type="Texture2D" uid="uid://hi7kdcqag5v2" path="res://images/assets/for livestock/sheep/with wool/sheep walking up2.png" id="101_33ypp"]
+[ext_resource type="Texture2D" uid="uid://dfvwgxjyx8djs" path="res://images/assets/for livestock/sheep/with wool/sheep walking up3.png" id="102_7r11e"]
+[ext_resource type="Texture2D" uid="uid://cpmgc2xruv3w3" path="res://images/assets/for livestock/sheep/with wool/sheep walking up4.png" id="103_a586k"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_riyer"]
 atlas = ExtResource("2_suy7h")
@@ -559,6 +657,435 @@ animations = [{
 "loop": 1,
 "name": &"cow_walk_up",
 "speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_nhc2b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_1jhi6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_lpx3a")
+}],
+"loop": 1,
+"name": &"pig_eat_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_krckq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_dehku")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_0gofc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_5j5ki")
+}],
+"loop": 1,
+"name": &"pig_eat_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_6tn15")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_2g5yg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_en0g5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_a8c0u")
+}],
+"loop": 1,
+"name": &"pig_eat_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("17_hc6jx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_h2u2i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_hrcp5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_h8fua")
+}],
+"loop": 1,
+"name": &"pig_eat_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("21_irurb")
+}],
+"loop": 1,
+"name": &"pig_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("22_ybv3j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_3kpti")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_rlwx1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_hh0al")
+}],
+"loop": 1,
+"name": &"pig_walk_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("26_7bx5x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_2qi4g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_yj14d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_sf61y")
+}],
+"loop": 1,
+"name": &"pig_walk_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("30_fda5j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_600ji")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_6lveh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_esd57")
+}],
+"loop": 1,
+"name": &"pig_walk_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("34_x8jtl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_xdd38")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_mi3gr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_3nxde")
+}],
+"loop": 1,
+"name": &"pig_walk_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("38_i42qo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_r5mir")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_o150s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_hdxf2")
+}],
+"loop": 1,
+"name": &"sheep_shorn_eat_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("42_8dd1v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_w7tb1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_hnlyd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_x8fp3")
+}],
+"loop": 1,
+"name": &"sheep_shorn_eat_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("46_k3gle")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_ig0tn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_s0fgp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_3yd1x")
+}],
+"loop": 1,
+"name": &"sheep_shorn_eat_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("50_gvalp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_5l4mw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_n6jdq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_ekntq")
+}],
+"loop": 1,
+"name": &"sheep_shorn_eat_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("54_h624r")
+}],
+"loop": 1,
+"name": &"sheep_shorn_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("55_kk2fh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_an3yi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_dtoyq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_8etfj")
+}],
+"loop": 1,
+"name": &"sheep_shorn_walk_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("59_6y382")
+}, {
+"duration": 1.0,
+"texture": ExtResource("60_w0283")
+}, {
+"duration": 1.0,
+"texture": ExtResource("61_4ai2x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("62_fg7h6")
+}],
+"loop": 1,
+"name": &"sheep_shorn_walk_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("63_d3fuo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("64_btu8l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("65_vr3cx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("66_ed2lh")
+}],
+"loop": 1,
+"name": &"sheep_shorn_walk_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("67_fp7on")
+}, {
+"duration": 1.0,
+"texture": ExtResource("68_0ufnw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("69_sib76")
+}, {
+"duration": 1.0,
+"texture": ExtResource("70_64kcp")
+}],
+"loop": 1,
+"name": &"sheep_shorn_walk_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("71_wfu4k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("72_6v8ky")
+}, {
+"duration": 1.0,
+"texture": ExtResource("73_d1v4x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("74_kqq0y")
+}],
+"loop": 1,
+"name": &"sheep_wool_eat_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("75_55l2c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("76_kt0u2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("77_fbkl0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("78_ymunb")
+}],
+"loop": 1,
+"name": &"sheep_wool_eat_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("79_8uay6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("80_1wp50")
+}, {
+"duration": 1.0,
+"texture": ExtResource("81_8evw2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("82_hp3rq")
+}],
+"loop": 1,
+"name": &"sheep_wool_eat_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("83_sh6fk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("84_nunrj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("85_wytkh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("86_t86lo")
+}],
+"loop": 1,
+"name": &"sheep_wool_eat_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("87_dj3p3")
+}],
+"loop": 1,
+"name": &"sheep_wool_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("88_6ei47")
+}, {
+"duration": 1.0,
+"texture": ExtResource("89_8hmcx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("90_4ndm7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("91_7eaxb")
+}],
+"loop": 1,
+"name": &"sheep_wool_walk_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("92_uc5ac")
+}, {
+"duration": 1.0,
+"texture": ExtResource("93_bgjwe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("94_xbvj1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("95_8b6m5")
+}],
+"loop": 1,
+"name": &"sheep_wool_walk_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("96_3ck2c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("97_5ahi2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("98_lkpsi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("99_pynrj")
+}],
+"loop": 1,
+"name": &"sheep_wool_walk_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("100_nrvi0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("101_33ypp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("102_7r11e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("103_a586k")
+}],
+"loop": 1,
+"name": &"sheep_wool_walk_up",
+"speed": 5.0
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8vi88"]
@@ -566,14 +1093,15 @@ radius = 13.0
 height = 32.0
 
 [node name="Animal" type="CharacterBody2D" unique_id=1058197852]
+z_index = 2
 input_pickable = true
 script = ExtResource("1_ifcgm")
-feed_required = null
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=504972614]
+texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_n48tv")
-animation = &"chicken_walk_right"
-frame_progress = 0.85246956
+animation = &"sheep_shorn_walk_right"
+frame_progress = 0.15475933
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=518449758]
 position = Vector2(2, 0)

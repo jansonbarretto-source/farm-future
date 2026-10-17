@@ -54,29 +54,42 @@ func _populate_market_tabs() -> void:
 
 	for item_name in GameData.SEED_DATA.keys():
 		var data = GameData.SEED_DATA[item_name]
+		var buy_price = data.get("buy", 0)
+		var sell_price = data.get("sell", 0)
+		
+		# Kunin ang icon para sa binhi o para sa itinanim/harvester item
 		var seed_icon: Texture2D = seed_textures.get(item_name)
+		var crop_icon_texture: Texture2D = seed_icon
 		
-		# --- 1. BUY TAB ITEM CARD ---
-		var buy_card = _create_market_card(
-			item_name + " Seed",
-			data["buy"],
-			"Buy",
-			Color(0.18, 0.42, 0.22, 1.0), # Green button
-			func(): _on_buy_seed(item_name, data["buy"]),
-			seed_icon
-		)
-		buy_container.add_child(buy_card)
+		# Kung walang seed pack icon (halimbawa Egg, Milk, Wool, Manure), gamitin ang crop_icon path
+		if not crop_icon_texture and data.has("crop_icon") and ResourceLoader.exists(data["crop_icon"]):
+			crop_icon_texture = load(data["crop_icon"])
+
+		# --- 1. BUY TAB ITEM CARD (Crops / Seeds Only) ---
+		# FILTER: Ang lalabas lang sa Buy Tab ay ang mga tunay na halaman na may buy price (> 0) at may seed pack texture!
+		if buy_price > 0 and seed_textures.has(item_name):
+			var buy_card = _create_market_card(
+				item_name + " Seed",
+				buy_price,
+				"Buy",
+				Color(0.18, 0.42, 0.22, 1.0), # Green button
+				func(): _on_buy_seed(item_name, buy_price),
+				seed_icon
+			)
+			buy_container.add_child(buy_card)
 		
-		# --- 2. SELL TAB ITEM CARD ---
-		var sell_card = _create_market_card(
-			item_name,
-			data["sell"],
-			"Sell",
-			Color(0.55, 0.22, 0.18, 1.0), # Red/Brown button
-			func(): _on_sell_crop(item_name, data["sell"]),
-			seed_icon
-		)
-		sell_container.add_child(sell_card)
+		# --- 2. SELL TAB ITEM CARD (All Crops & Animal Produce) ---
+		# FILTER: Ang lahat ng pwedeng ibenta na may sell price (> 0) ay lalabas sa Sell Tab
+		if sell_price > 0:
+			var sell_card = _create_market_card(
+				item_name,
+				sell_price,
+				"Sell",
+				Color(0.55, 0.22, 0.18, 1.0), # Red/Brown button
+				func(): _on_sell_crop(item_name, sell_price),
+				crop_icon_texture
+			)
+			sell_container.add_child(sell_card)
 
 # Helper function to generate visual market cards
 func _create_market_card(item_title: String, price: int, action_text: String, btn_color: Color, on_click_callable: Callable, texture: Texture2D = null) -> PanelContainer:
@@ -168,6 +181,7 @@ func update_ui() -> void:
 
 func open_market() -> void:
 	update_ui()
+	_populate_market_tabs() # Re-populate tabs to sync icons & stock dynamically
 	show()
 
 func _on_buy_seed(seed_name: String, price: int) -> void:

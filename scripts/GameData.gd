@@ -87,7 +87,7 @@ var SEED_DATA = {
 		"crop_icon": "res://images/assets/for main (crops)/mango/mango.png"
 	},
 	
-	# --- LIVESTOCK PRODUCE DEFINITIONS ---
+	# --- LIVESTOCK PRODUCE & FERTILIZER DEFINITIONS ---
 	"Egg": {
 		"buy": 0, 
 		"sell": 15, 
@@ -99,6 +99,24 @@ var SEED_DATA = {
 		"sell": 30, 
 		"growth_time": 0.0,
 		"crop_icon": "res://images/assets/for main (crops)/milk/milk.png"
+	},
+	"Manure": {
+		"buy": 0, 
+		"sell": 5, 
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for main (crops)/manure/manure.png"
+	},
+	"Organic Fertilizer": {
+		"buy": 0, 
+		"sell": 50, 
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for main (crops)/fertilizer/fertilizer.png"
+	},
+	"Wool": {
+		"buy": 0, 
+		"sell": 40, 
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for main (crops)/wool/wool.png" # Siguraduhing tugma sa totoong PNG path mo
 	}
 }
 
@@ -131,7 +149,10 @@ var crop_inventory: Dictionary = {
 	"Apple": 0,
 	"Mango": 0,
 	"Egg": 0,
-	"Milk": 0
+	"Milk": 0,
+	"Manure": 0,
+	"Organic Fertilizer": 0,
+	"Wool": 0
 }
 
 # Getter for Inventory UI Compatibility
