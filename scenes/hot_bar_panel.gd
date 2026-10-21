@@ -17,8 +17,10 @@ func _ready() -> void:
 	if slot_seed:
 		slot_seed.gui_input.connect(_on_slot_gui_input)
 		
-	GameData.data_changed.connect(_on_data_changed)
-	_on_data_changed()
+	if GameData and GameData.has_signal("data_changed"):
+		if not GameData.data_changed.is_connected(_on_data_changed):
+			GameData.data_changed.connect(_on_data_changed)
+		_on_data_changed()
 
 func _setup_scrollable_container() -> void:
 	var existing = seed_popup.get_node_or_null("ScrollContainer")

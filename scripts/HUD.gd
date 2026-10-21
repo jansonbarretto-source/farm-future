@@ -21,22 +21,60 @@ extends CanvasLayer
 
 func _ready() -> void:
 	# Listen to GameData updates
-	if GameData.has_signal("data_changed"):
-		GameData.data_changed.connect(_update_hud_ui)
+	if GameData and GameData.has_signal("data_changed"):
+		if not GameData.data_changed.is_connected(_update_hud_ui):
+			GameData.data_changed.connect(_update_hud_ui)
 	
-	# Connect Button Click Signals
+	# Connect Button Click Signals & Right-Click Deselect
 	if hoe_button:
-		hoe_button.pressed.connect(func(): GameData.select_item(GameData.ActiveItem.HOE))
+		hoe_button.pressed.connect(func(): 
+			if GameData and "ActiveItem" in GameData:
+				GameData.select_item(GameData.ActiveItem.HOE)
+		)
+		hoe_button.gui_input.connect(func(event):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+				if GameData:
+					GameData.selected_seed_type = ""
+					GameData.data_changed.emit()
+					print("[HUD] Hoe/Tool deselected via right-click")
+		)
+
 	if water_button:
-		water_button.pressed.connect(func(): GameData.select_item(GameData.ActiveItem.WATERING_CAN))
+		water_button.pressed.connect(func(): 
+			if GameData and "ActiveItem" in GameData:
+				GameData.select_item(GameData.ActiveItem.WATERING_CAN)
+		)
+		water_button.gui_input.connect(func(event):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+				if GameData:
+					GameData.selected_seed_type = ""
+					GameData.data_changed.emit()
+					print("[HUD] Watering Can deselected via right-click")
+		)
+
 	if seed_button:
-		seed_button.pressed.connect(func(): GameData.select_item(GameData.ActiveItem.SEED))
+		seed_button.pressed.connect(func(): 
+			if GameData and "ActiveItem" in GameData:
+				GameData.select_item(GameData.ActiveItem.SEED)
+		)
+		seed_button.gui_input.connect(func(event):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+				if GameData:
+					GameData.selected_seed_type = ""
+					GameData.data_changed.emit()
+					print("[HUD] Seed slot deselected via right-click")
+		)
 		
-	# Select HOE on game launch
-	GameData.select_item(GameData.ActiveItem.HOE)
+	# Select HOE on game launch with safety check
+	if GameData and "ActiveItem" in GameData and GameData.has_method("select_item"):
+		GameData.select_item(GameData.ActiveItem.HOE)
+		
 	_update_hud_ui()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not GameData or not "ActiveItem" in GameData:
+		return
+
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		if event.keycode == KEY_1:
 			GameData.select_item(GameData.ActiveItem.HOE)
@@ -46,10 +84,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			GameData.select_item(GameData.ActiveItem.SEED)
 
 func _update_hud_ui() -> void:
+	if not GameData:
+		return
+		
 	_update_resource_labels()
 	_update_hotbar_selection()
 
 func _update_resource_labels() -> void:
+	if not GameData:
+		return
+
 	# 1. Money Display
 	if money_label:
 		if "player_money" in GameData:
@@ -57,35 +101,59 @@ func _update_resource_labels() -> void:
 		elif "money" in GameData:
 			money_label.text = "₱" + str(GameData.money)
 
-	# 2. Selected Seed Info & Count
-	var current_seed = GameData.selected_seed_type if "selected_seed_type" in GameData else "Wheat"
-	var current_seed_count = 0
+	# 2. Selected Item / Seed / Animal Info & Count
+	var current_item = GameData.selected_seed_type if "selected_seed_type" in GameData else ""
+	var current_count = 0
 	
-	if "seed_inventory" in GameData and GameData.seed_inventory.has(current_seed):
-		current_seed_count = GameData.seed_inventory[current_seed]
-	elif "seeds" in GameData:
-		current_seed_count = GameData.seeds
+	if current_item != "":
+		if "seed_inventory" in GameData and GameData.seed_inventory.has(current_item):
+			current_count = GameData.seed_inventory[current_item]
+		elif "crop_inventory" in GameData and GameData.crop_inventory.has(current_item):
+			current_count = GameData.crop_inventory[current_item]
+		elif "animal_inventory" in GameData and GameData.animal_inventory.has(current_item):
+			current_count = GameData.animal_inventory[current_item]
 
 	# Dynamic Label Updates
 	if seeds_label:
-		seeds_label.text = str(current_seed_count) # Magpapakita ng count (e.g., 10)
+		seeds_label.text = str(current_count) if current_item != "" else "-"
 		
 	if wheat_label:
-		wheat_label.text = current_seed # Magpapakita ng name (e.g., "Carrot", "Tomato")
+		wheat_label.text = current_item if current_item != "" else "None"
 
-	# 3. Dynamic Seed Pack Icon (Middle Icon)
-	if seed_icon and GameData.SEED_DATA.has(current_seed):
-		var data = GameData.SEED_DATA[current_seed]
-		if data.has("icon") and ResourceLoader.exists(data["icon"]):
-			seed_icon.texture = load(data["icon"])
+	# 3 & 4. Dynamic Icon Updates (Checks SEED_DATA and ANIMAL_DATA)
+	var icon_path = ""
+	var crop_icon_path = ""
 
-	# 4. Dynamic Crop Sprite Icon (Rightmost Icon)
-	if wheat_icon and GameData.SEED_DATA.has(current_seed):
-		var data = GameData.SEED_DATA[current_seed]
-		if data.has("crop_icon") and ResourceLoader.exists(data["crop_icon"]):
-			wheat_icon.texture = load(data["crop_icon"])
+	if current_item != "":
+		if "SEED_DATA" in GameData and GameData.SEED_DATA.has(current_item):
+			var data = GameData.SEED_DATA[current_item]
+			icon_path = data.get("icon", "")
+			crop_icon_path = data.get("crop_icon", "")
+		elif "ANIMAL_DATA" in GameData and GameData.ANIMAL_DATA.has(current_item):
+			var data = GameData.ANIMAL_DATA[current_item]
+			icon_path = data.get("icon", "")
+			crop_icon_path = data.get("icon", "")
+
+	# Set Middle Icon (Seed Pack / Item Icon)
+	if seed_icon:
+		if icon_path != "" and ResourceLoader.exists(icon_path):
+			seed_icon.texture = load(icon_path)
+			seed_icon.visible = true
+		else:
+			seed_icon.texture = null
+
+	# Set Rightmost Icon (Crop / Animal Sprite)
+	if wheat_icon:
+		if crop_icon_path != "" and ResourceLoader.exists(crop_icon_path):
+			wheat_icon.texture = load(crop_icon_path)
+			wheat_icon.visible = true
+		else:
+			wheat_icon.texture = null
 
 func _update_hotbar_selection() -> void:
+	if not GameData or not "ActiveItem" in GameData or not "selected_item" in GameData:
+		return
+
 	var current = GameData.selected_item
 	
 	# Explicitly show only the active selection border

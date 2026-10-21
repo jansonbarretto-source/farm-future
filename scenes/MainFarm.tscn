@@ -46,7 +46,6 @@
 [ext_resource type="Texture2D" uid="uid://tsghi5fagbk8" path="res://images/assets/map and deco/Tree2.png" id="43_7il7i"]
 [ext_resource type="Texture2D" uid="uid://cagmjtwtjr08l" path="res://images/assets/map and deco/Tree3.png" id="44_gx53n"]
 [ext_resource type="Texture2D" uid="uid://ogm0kdyag3tc" path="res://images/assets/map and deco/Tree1.png" id="45_x08uo"]
-[ext_resource type="PackedScene" uid="uid://brx67dqahbl3c" path="res://scenes/animal.tscn" id="46_gx53n"]
 [ext_resource type="PackedScene" uid="uid://cc2dg0pcyebyl" path="res://scenes/MarketUI.tscn" id="48_u3ptn"]
 [ext_resource type="Script" uid="uid://x7074wgtuvlr" path="res://scripts/HUD.gd" id="49_5d3tn"]
 [ext_resource type="Texture2D" uid="uid://mh3cd0sc4cpq" path="res://images/assets/ui/Border.png" id="49_tl2ej"]
@@ -2391,41 +2390,6 @@ z_index = 4
 position = Vector2(82, 1)
 texture = ExtResource("43_7il7i")
 
-[node name="Animals" type="Node2D" parent="." unique_id=680158026]
-
-[node name="Animal" parent="Animals" unique_id=1058197852 instance=ExtResource("46_gx53n")]
-position = Vector2(1033, 584)
-
-[node name="Animal2" parent="Animals" unique_id=1553265838 instance=ExtResource("46_gx53n")]
-position = Vector2(1087, 621)
-
-[node name="Animal3" parent="Animals" unique_id=2006245936 instance=ExtResource("46_gx53n")]
-position = Vector2(1024, 650)
-
-[node name="Animal4" parent="Animals" unique_id=1713700855 instance=ExtResource("46_gx53n")]
-position = Vector2(1177, 572)
-animal_type = 1
-
-[node name="Animal5" parent="Animals" unique_id=7028802 instance=ExtResource("46_gx53n")]
-position = Vector2(1253, 565)
-animal_type = 1
-
-[node name="Animal6" parent="Animals" unique_id=2091287904 instance=ExtResource("46_gx53n")]
-position = Vector2(1117, 672)
-animal_type = 2
-
-[node name="Animal7" parent="Animals" unique_id=833046978 instance=ExtResource("46_gx53n")]
-position = Vector2(1174, 646)
-animal_type = 2
-
-[node name="Animal8" parent="Animals" unique_id=1690417454 instance=ExtResource("46_gx53n")]
-position = Vector2(1129, 582)
-animal_type = 3
-
-[node name="Animal9" parent="Animals" unique_id=221985784 instance=ExtResource("46_gx53n")]
-position = Vector2(1044, 702)
-animal_type = 3
-
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1861771381]
 script = ExtResource("49_5d3tn")
 
@@ -2674,19 +2638,24 @@ layer = 2
 [node name="MarketUI" parent="CanvasLayer" unique_id=450026637 instance=ExtResource("48_u3ptn")]
 visible = false
 
-[node name="TileCursor" type="ColorRect" parent="." unique_id=1204891642]
-offset_right = 32.0
-offset_bottom = 32.0
-
-[node name="HowToPlayPanel" type="Control" parent="." unique_id=1030039366]
-layout_mode = 3
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer" unique_id=319505880]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -216.0
+offset_right = -160.0
+offset_bottom = -216.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="TextureRect" type="TextureRect" parent="HowToPlayPanel" unique_id=182582467]
+[node name="HowToPlayPanel" type="Control" parent="CanvasLayer/CenterContainer" unique_id=1030039366]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/CenterContainer/HowToPlayPanel" unique_id=182582467]
 z_index = 20
 layout_mode = 0
 offset_left = -161.0
@@ -2696,7 +2665,7 @@ mouse_filter = 2
 texture = ExtResource("62_fq28v")
 expand_mode = 1
 
-[node name="CloseButton" type="Button" parent="HowToPlayPanel" unique_id=1565984415]
+[node name="CloseButton" type="Button" parent="CanvasLayer/CenterContainer/HowToPlayPanel" unique_id=1565984415]
 z_index = 1050
 layout_mode = 0
 offset_left = 440.0
@@ -2709,7 +2678,11 @@ theme_override_fonts/font = ExtResource("63_fnrbq")
 theme_override_font_sizes/font_size = 16
 text = "x"
 
+[node name="TileCursor" type="ColorRect" parent="." unique_id=1204891642]
+offset_right = 32.0
+offset_bottom = 32.0
+
 [node name="CompostingStation" parent="." unique_id=304350803 instance=ExtResource("64_fnrbq")]
 position = Vector2(1195, 756)
 
-[connection signal="pressed" from="HowToPlayPanel/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/CenterContainer/HowToPlayPanel/CloseButton" to="." method="_on_close_button_pressed"]

@@ -1100,8 +1100,7 @@ script = ExtResource("1_ifcgm")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=504972614]
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_n48tv")
-animation = &"sheep_shorn_walk_right"
-frame_progress = 0.15475933
+animation = &"sheep_wool_walk_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=518449758]
 position = Vector2(2, 0)

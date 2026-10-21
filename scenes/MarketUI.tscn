@@ -104,6 +104,14 @@ metadata/_tab_index = 1
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="Animals" type="ScrollContainer" parent="Panel/MarketTabs" unique_id=1334187490]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="AnimalListContainer" type="VBoxContainer" parent="Panel/MarketTabs/Animals" unique_id=2021361603]
+layout_mode = 2
+
 [node name="CloseButton" type="Button" parent="Panel" unique_id=479684439]
 layout_mode = 1
 anchors_preset = 7

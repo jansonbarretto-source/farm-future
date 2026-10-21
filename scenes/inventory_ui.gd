@@ -2,7 +2,7 @@ extends Control
 
 @onready var grid_container: GridContainer = $GridContainer
 
-# Map crop & produce names to item textures based on FileSystem paths
+# Map crop, produce, & livestock animal names to item textures based on FileSystem paths
 @export var crop_textures: Dictionary = {
 	"Wheat": preload("res://images/assets/Inventory (Fruits)/Wheattt.png"),
 	"Carrot": preload("res://images/assets/Inventory (Fruits)/Carrots.png"),
@@ -15,12 +15,18 @@ extends Control
 	"Rice": preload("res://images/assets/Inventory (Fruits)/Rice.png"),
 	"Strawberry": preload("res://images/assets/Inventory (Fruits)/Straberry.png"),
 	
-	# UPDATED ITEM TEXTURES FOR LIVESTOCK PRODUCE & FERTILIZER
+	# LIVESTOCK PRODUCE & FERTILIZER
 	"Egg": preload("res://images/assets/Inventory (Fruits)/egg.png"),
 	"Milk": preload("res://images/assets/Inventory (Fruits)/milk.png"),
 	"Manure": preload("res://images/assets/for main (crops)/manure/manure.png"),
 	"Organic Fertilizer": preload("res://images/assets/for main (crops)/fertilizer/fertilizer.png"),
 	"Wool": preload("res://images/assets/for main (crops)/wool/wool.png"),
+
+	# LIVESTOCK ANIMALS (BOUGHT FROM MARKET)
+	"Chicken": preload("res://images/assets/for livestock/chicken/chicken.png"),
+	"Cow": preload("res://images/assets/for livestock/cow/cow.png"),
+	"Pig": preload("res://images/assets/for livestock/pig/pig.png"),
+	"Sheep": preload("res://images/assets/for livestock/sheep/with wool/sheep.png")
 }
 
 @export var lock_texture: Texture2D = preload("res://Lock.png") 
@@ -135,11 +141,27 @@ func update_inventory_ui() -> void:
 	grid_container.add_theme_constant_override("h_separation", 8)
 	grid_container.add_theme_constant_override("v_separation", 8)
 
-	var inv = GameData.crop_inventory if "crop_inventory" in GameData else GameData.inventory
-	var owned_crops = []
-	for crop_name in inv.keys():
-		if inv[crop_name] > 0:
-			owned_crops.append(crop_name)
+	var inv: Dictionary = {}
+	if GameData and "crop_inventory" in GameData:
+		inv = GameData.crop_inventory
+	elif GameData and "inventory" in GameData:
+		inv = GameData.inventory
+
+	var animal_inv: Dictionary = {}
+	if GameData and "animal_inventory" in GameData:
+		animal_inv = GameData.animal_inventory
+	
+	var owned_items = []
+	
+	# 1. Collect Crops & Produce
+	for item_name in inv.keys():
+		if inv[item_name] > 0 and not owned_items.has(item_name):
+			owned_items.append(item_name)
+
+	# 2. Collect Bought Animals
+	for animal_name in animal_inv.keys():
+		if animal_inv[animal_name] > 0 and not owned_items.has(animal_name):
+			owned_items.append(animal_name)
 
 	for i in range(max_slots):
 		var slot_panel = PanelContainer.new()
@@ -171,15 +193,15 @@ func update_inventory_ui() -> void:
 				lock_rect.texture = lock_texture
 			slot_panel.add_child(lock_rect)
 			
-		elif i < owned_crops.size():
+		elif i < owned_items.size():
 			# --- UNLOCKED & FILLED SLOT ---
-			var crop_name = owned_crops[i]
-			var count = inv[crop_name]
+			var item_name = owned_items[i]
+			var count = inv.get(item_name, animal_inv.get(item_name, 0))
 			
-			slot_panel.tooltip_text = crop_name + " (x" + str(count) + ")"
+			slot_panel.tooltip_text = item_name + " (x" + str(count) + ")"
 			
 			# Check if selected
-			var is_selected = ("selected_seed_type" in GameData and GameData.selected_seed_type == crop_name)
+			var is_selected = ("selected_seed_type" in GameData and GameData.selected_seed_type == item_name)
 			
 			var slot_style = default_style.duplicate()
 			if is_selected:
@@ -187,7 +209,7 @@ func update_inventory_ui() -> void:
 				slot_style.set_border_width_all(2)
 			slot_panel.add_theme_stylebox_override("panel", slot_style)
 			
-			# Crop/Produce Icon
+			# Icon Texture
 			var icon_rect = TextureRect.new()
 			icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 			icon_rect.offset_left = 4
@@ -197,8 +219,8 @@ func update_inventory_ui() -> void:
 			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			
-			if crop_textures.has(crop_name):
-				icon_rect.texture = crop_textures[crop_name]
+			if crop_textures.has(item_name):
+				icon_rect.texture = crop_textures[item_name]
 			slot_panel.add_child(icon_rect)
 			
 			# Count Label
@@ -234,19 +256,26 @@ func update_inventory_ui() -> void:
 				tween.tween_property(slot_panel, "scale", Vector2.ONE, 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			)
 
-			# Click slot to select item & change cursor state
+			# Click slot to select item/animal or Right-Click to deselect
 			slot_panel.gui_input.connect(func(event: InputEvent):
-				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-					if GameData.has_method("select_seed_type"):
-						GameData.select_seed_type(crop_name)
-					
-					# Set pointing hand shape when selecting Wheat, Feed, Produce, or Fertilizer
-					if crop_name in ["Wheat", "Egg", "Milk", "Manure", "Organic Fertilizer"]:
-						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
-					else:
-						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+				if event is InputEventMouseButton and event.pressed:
+					if event.button_index == MOUSE_BUTTON_LEFT:
+						if GameData.has_method("select_seed_type"):
+							GameData.select_seed_type(item_name)
 						
-					print("Selected item from inventory: ", crop_name)
+						if item_name in ["Wheat", "Egg", "Milk", "Manure", "Organic Fertilizer", "Chicken", "Cow", "Pig", "Sheep"]:
+							Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
+						else:
+							Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+							
+						print("Selected item from inventory: ", item_name)
+						
+					elif event.button_index == MOUSE_BUTTON_RIGHT:
+						if GameData:
+							GameData.selected_seed_type = ""
+							GameData.data_changed.emit()
+							Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+							print("[INVENTORY] Item deselected via right-click.")
 			)
 
 		grid_container.add_child(slot_panel)

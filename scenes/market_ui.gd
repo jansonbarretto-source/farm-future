@@ -3,6 +3,7 @@ extends Control
 @onready var money_label: Label = $Panel/MoneyLabel
 @onready var buy_container: VBoxContainer = $Panel/MarketTabs/Buy/BuyListContainer
 @onready var sell_container: VBoxContainer = $Panel/MarketTabs/Sell/SellListContainer
+@onready var animal_container: VBoxContainer = $Panel/MarketTabs/Animals/AnimalListContainer if $Panel/MarketTabs.has_node("Animals/AnimalListContainer") else null
 @onready var close_button: Button = $Panel/CloseButton
 
 # Seed Pack Image Textures (located inside res://images/assets/seeds/)
@@ -46,27 +47,40 @@ func _adjust_container_sizes() -> void:
 		sell_container.custom_minimum_size = Vector2(260, 0)
 		sell_container.add_theme_constant_override("separation", 8)
 
+	if animal_container:
+		animal_container.custom_minimum_size = Vector2(260, 0)
+		animal_container.add_theme_constant_override("separation", 8)
+
 func _populate_market_tabs() -> void:
+	# Linisin muna ang lumang UI entries sa containers
 	for child in buy_container.get_children():
 		child.queue_free()
 	for child in sell_container.get_children():
 		child.queue_free()
+	if animal_container:
+		for child in animal_container.get_children():
+			child.queue_free()
+
+	# --- 1. CROPS & SEEDS (BUY & SELL TABS) ---
+	# LUMANG LINE 65:
+	# for item_name in GameData.SEED_DATA.keys():
+
+	# BAGONG SAFE LINE 65:
+	if not GameData or not "SEED_DATA" in GameData:
+		return
 
 	for item_name in GameData.SEED_DATA.keys():
 		var data = GameData.SEED_DATA[item_name]
 		var buy_price = data.get("buy", 0)
 		var sell_price = data.get("sell", 0)
 		
-		# Kunin ang icon para sa binhi o para sa itinanim/harvester item
 		var seed_icon: Texture2D = seed_textures.get(item_name)
 		var crop_icon_texture: Texture2D = seed_icon
 		
-		# Kung walang seed pack icon (halimbawa Egg, Milk, Wool, Manure), gamitin ang crop_icon path
 		if not crop_icon_texture and data.has("crop_icon") and ResourceLoader.exists(data["crop_icon"]):
 			crop_icon_texture = load(data["crop_icon"])
 
-		# --- 1. BUY TAB ITEM CARD (Crops / Seeds Only) ---
-		# FILTER: Ang lalabas lang sa Buy Tab ay ang mga tunay na halaman na may buy price (> 0) at may seed pack texture!
+		# BUY TAB ITEM CARD (Seeds Only)
 		if buy_price > 0 and seed_textures.has(item_name):
 			var buy_card = _create_market_card(
 				item_name + " Seed",
@@ -78,8 +92,7 @@ func _populate_market_tabs() -> void:
 			)
 			buy_container.add_child(buy_card)
 		
-		# --- 2. SELL TAB ITEM CARD (All Crops & Animal Produce) ---
-		# FILTER: Ang lahat ng pwedeng ibenta na may sell price (> 0) ay lalabas sa Sell Tab
+		# SELL TAB ITEM CARD (All Crops & Animal Produce)
 		if sell_price > 0:
 			var sell_card = _create_market_card(
 				item_name,
@@ -91,10 +104,30 @@ func _populate_market_tabs() -> void:
 			)
 			sell_container.add_child(sell_card)
 
+	# --- 2. LIVESTOCK ANIMALS (HIWALAY NA ANIMALS TAB) ---
+	if animal_container and "ANIMAL_DATA" in GameData:
+		for animal_name in GameData.ANIMAL_DATA.keys():
+			var a_data = GameData.ANIMAL_DATA[animal_name]
+			var animal_price = a_data.get("buy", 150)
+			var animal_icon: Texture2D = null
+			
+			if a_data.has("icon") and ResourceLoader.exists(a_data["icon"]):
+				animal_icon = load(a_data["icon"])
+
+			var animal_card = _create_market_card(
+				animal_name,
+				animal_price,
+				"Buy",
+				Color(0.18, 0.35, 0.58, 1.0), # Blue button para sa livestock
+				func(): _on_buy_animal(animal_name, animal_price),
+				animal_icon
+			)
+			animal_container.add_child(animal_card)
+
 # Helper function to generate visual market cards
 func _create_market_card(item_title: String, price: int, action_text: String, btn_color: Color, on_click_callable: Callable, texture: Texture2D = null) -> PanelContainer:
 	var card = PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 54) # Height for clear visibility
+	card.custom_minimum_size = Vector2(0, 54)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	# Dark wooden card frame
@@ -114,7 +147,7 @@ func _create_market_card(item_title: String, price: int, action_text: String, bt
 	hbox.offset_bottom = -4
 	card.add_child(hbox)
 	
-	# Item Image Icon (Enlarged for clear visual recognition)
+	# Item Image Icon
 	var icon_rect = TextureRect.new()
 	icon_rect.custom_minimum_size = Vector2(40, 40)
 	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -181,12 +214,31 @@ func update_ui() -> void:
 
 func open_market() -> void:
 	update_ui()
-	_populate_market_tabs() # Re-populate tabs to sync icons & stock dynamically
+	_populate_market_tabs()
 	show()
 
 func _on_buy_seed(seed_name: String, price: int) -> void:
 	if GameData.remove_money(price):
 		GameData.add_seeds(seed_name, 1)
+
+func _on_buy_animal(animal_name: String, price: int) -> void:
+	if GameData.remove_money(price):
+		# 1. Add to animal_inventory for farm placement logic
+		if GameData.has_method("add_animal_to_inventory"):
+			GameData.add_animal_to_inventory(animal_name, 1)
+		elif "animal_inventory" in GameData:
+			GameData.animal_inventory[animal_name] = GameData.animal_inventory.get(animal_name, 0) + 1
+			
+		# 2. Add to crop_inventory/inventory so it renders inside the Inventory UI Grid!
+		if "crop_inventory" in GameData:
+			GameData.crop_inventory[animal_name] = GameData.crop_inventory.get(animal_name, 0) + 1
+		elif "inventory" in GameData:
+			GameData.inventory[animal_name] = GameData.inventory.get(animal_name, 0) + 1
+			
+		if GameData.has_signal("data_changed"):
+			GameData.data_changed.emit()
+			
+		print("[MARKET] Successfully bought 1x ", animal_name, "! Added to animal & inventory UI.")
 
 func _on_sell_crop(crop_name: String, price: int) -> void:
 	if GameData.remove_crop(crop_name, 1):
