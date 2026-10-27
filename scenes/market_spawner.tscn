@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://b15rpufexfbq4"]
+
+[ext_resource type="Script" uid="uid://cd4855qjxjvca" path="res://MarketSpawner.gd" id="1_4xcvm"]
+
+[node name="MarketSpawner" type="Node2D" unique_id=579162806]
+script = ExtResource("1_4xcvm")
+max_customers_in_scene = 7
+
+[node name="Timer" type="Timer" parent="." unique_id=1643691379]
+wait_time = 7.0
+autostart = true

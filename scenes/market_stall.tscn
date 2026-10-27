@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://cmvhxyxy2jsca"]
+
+[ext_resource type="Script" uid="uid://by534us37pxpq" path="res://MarketStall.gd" id="1_u3hhm"]
+[ext_resource type="Texture2D" uid="uid://dyx6i75ogy4hn" path="res://images/assets/for market/marketstall.png" id="2_lbq8x"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8vi88"]
+size = Vector2(10, 4.25)
+
+[node name="MarketStall" type="Node2D" unique_id=1938647048]
+script = ExtResource("1_u3hhm")
+
+[node name="StockLabel" type="Label" parent="." unique_id=1208215435]
+offset_left = -42.0
+offset_top = 66.0
+offset_right = -2.0
+offset_bottom = 89.0
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=914292589]
+z_index = 2
+position = Vector2(3, 58)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea" unique_id=842113705]
+shape = SubResource("RectangleShape2D_8vi88")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1552259251]
+position = Vector2(3, -1.0000005)
+scale = Vector2(0.5416666, 0.5622294)
+texture = ExtResource("2_lbq8x")

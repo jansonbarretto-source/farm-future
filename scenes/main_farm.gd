@@ -7,6 +7,9 @@ extends Node2D
 @onready var how_to_play_panel: Control = $CanvasLayer/CenterContainer/HowToPlayPanel
 @onready var close_button: Button = $CanvasLayer/CenterContainer/HowToPlayPanel/CloseButton
 
+# Corrected path pointing to the child AnimatedSprite2D node
+@onready var campfire: AnimatedSprite2D = $Campfire/Campfire
+
 # Packed Scenes for dynamic spawning
 var crop_scene: PackedScene = preload("res://scenes/Crop.tscn")
 @export var animal_scene: PackedScene = preload("res://scenes/animal.tscn")
@@ -22,6 +25,10 @@ const ANIMAL_NAMES = ["Chicken", "Cow", "Pig", "Sheep"]
 
 func _ready() -> void:
 	_setup_camera_limits()
+	
+	# Auto-play the campfire flickering animation
+	if campfire:
+		campfire.play("burn")
 	
 	if tile_cursor:
 		tile_cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -50,7 +57,11 @@ func _setup_camera_limits() -> void:
 	player_camera.limit_right = map_rect.end.x * tile_size.x
 	player_camera.limit_bottom = map_rect.end.y * tile_size.y
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	# --- ADVANCE GAME TIME & DAY-NIGHT CYCLE ---
+	if GameData and GameData.has_method("update_game_time"):
+		GameData.update_game_time(delta)
+		
 	_update_tile_cursor()
 
 # --- FARM BOUNDARY RESTRICTION (Tanging sa loob lang ng bakod ng farm) ---
@@ -260,8 +271,6 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 
 # --- SMOOTH POP-UP ANIMATIONS ---
 
-# --- SMOOTH POP-UP ANIMATIONS NA NAKA-CENTER SA SCREEN ---
-# --- SMOOTH POP-UP ANIMATIONS NA NAKA-CENTER SA SCREEN ---
 func _show_how_to_play_animated() -> void:
 	if not how_to_play_panel:
 		return

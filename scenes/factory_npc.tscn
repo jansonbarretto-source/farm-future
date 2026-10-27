@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://t3gihmetpot4"]
+
+[ext_resource type="Script" uid="uid://d3fvuntgldl3r" path="res://scripts/factory_npc.gd" id="1_1b8tm"]
+[ext_resource type="Texture2D" uid="uid://c5iohc73yglmu" path="res://images/assets/for factory/npc1.png" id="1_q8ea4"]
+[ext_resource type="Texture2D" uid="uid://0velcctmqdns" path="res://images/assets/for factory/npc2.png" id="2_1b8tm"]
+[ext_resource type="Texture2D" uid="uid://dglv7acrcg6j2" path="res://images/assets/for factory/npc3.png" id="3_yom70"]
+[ext_resource type="Texture2D" uid="uid://dxbaspceehx" path="res://images/assets/for factory/npc6.png" id="4_giynj"]
+[ext_resource type="Texture2D" uid="uid://ce752w2i4n5wa" path="res://images/assets/for factory/npc7.png" id="5_pewux"]
+[ext_resource type="Texture2D" uid="uid://d0huwxstd4dn0" path="res://images/assets/for factory/npc4.png" id="6_etgiq"]
+[ext_resource type="Texture2D" uid="uid://cd3gxks8ghyt0" path="res://images/assets/for factory/npc5.png" id="7_p1yau"]
+[ext_resource type="Texture2D" uid="uid://cec3o3ybetx7u" path="res://images/assets/for factory/npc8.png" id="8_rgy54"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8vi88"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_q8ea4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_1b8tm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_yom70")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_giynj")
+}, {
+"duration": 30.0,
+"texture": ExtResource("5_pewux")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_etgiq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_p1yau")
+}, {
+"duration": 0.01,
+"texture": ExtResource("8_rgy54")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_n48tv"]
+radius = 30.0
+height = 60.0
+
+[node name="FactoryNPC" type="Area2D" unique_id=384010666]
+script = ExtResource("1_1b8tm")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1071142563]
+position = Vector2(1.000001, 1.0000019)
+scale = Vector2(0.17478512, 0.12863071)
+sprite_frames = SubResource("SpriteFrames_8vi88")
+animation = &"idle"
+frame_progress = 0.9771193
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2055395278]
+position = Vector2(1, 0)
+shape = SubResource("CapsuleShape2D_n48tv")

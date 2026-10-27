@@ -2,7 +2,7 @@ extends Control
 
 @onready var grid_container: GridContainer = $GridContainer
 
-# Map crop, produce, & livestock animal names to item textures based on FileSystem paths
+# Map crop, produce, livestock, and factory names to item textures based on FileSystem paths
 @export var crop_textures: Dictionary = {
 	"Wheat": preload("res://images/assets/Inventory (Fruits)/Wheattt.png"),
 	"Carrot": preload("res://images/assets/Inventory (Fruits)/Carrots.png"),
@@ -16,8 +16,8 @@ extends Control
 	"Strawberry": preload("res://images/assets/Inventory (Fruits)/Straberry.png"),
 	
 	# LIVESTOCK PRODUCE & FERTILIZER
-	"Egg": preload("res://images/assets/Inventory (Fruits)/egg.png"),
-	"Milk": preload("res://images/assets/Inventory (Fruits)/milk.png"),
+	"Egg": preload("res://images/assets/for main (crops)/egg/egg.png"),
+	"Milk": preload("res://images/assets/for main (crops)/milk/milk.png"),
 	"Manure": preload("res://images/assets/for main (crops)/manure/manure.png"),
 	"Organic Fertilizer": preload("res://images/assets/for main (crops)/fertilizer/fertilizer.png"),
 	"Wool": preload("res://images/assets/for main (crops)/wool/wool.png"),
@@ -26,7 +26,20 @@ extends Control
 	"Chicken": preload("res://images/assets/for livestock/chicken/chicken.png"),
 	"Cow": preload("res://images/assets/for livestock/cow/cow.png"),
 	"Pig": preload("res://images/assets/for livestock/pig/pig.png"),
-	"Sheep": preload("res://images/assets/for livestock/sheep/with wool/sheep.png")
+	"Sheep": preload("res://images/assets/for livestock/sheep/with wool/sheep.png"),
+
+	# PROCESSED FACTORY GOODS
+	"Flour": preload("res://images/assets/for factory/flour.png"),
+	"Cheese": preload("res://images/assets/for factory/cheese.png"),
+	"Bread": preload("res://images/assets/for factory/bread.png"),
+	"Yarn": preload("res://images/assets/for factory/yarn.png"),
+	"Jam": preload("res://images/assets/for factory/jam.png"),
+	"French Fries": preload("res://images/assets/for factory/french_fries.png"),
+	"Tomato Ketchup": preload("res://images/assets/for factory/ketchup.png"),
+	"Popcorn": preload("res://images/assets/for factory/popcorn.png"),
+	"Banana Smoothie": preload("res://images/assets/for factory/banana_smoothie.png"),
+	"Polished Rice Box": preload("res://images/assets/for factory/polished_rice.png"),
+	"Carrot Juice": preload("res://images/assets/for factory/carrot_juice.png")
 }
 
 @export var lock_texture: Texture2D = preload("res://Lock.png") 
@@ -38,15 +51,63 @@ extends Control
 # UI Components & Animation Vars
 var bg_panel: PanelContainer
 var title_label: Label
+var toggle_label: Label
+var toggle_badge: PanelContainer
 var is_inventory_open: bool = true
 var is_animating: bool = false
+
+# Keep track of previous inventory item quantities to detect new harvests/acquisitions
+var _last_item_counts: Dictionary = {}
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_setup_code_designed_panel()
+	_setup_persistent_f_toggle_badge()
 	
 	if GameData.has_signal("data_changed"):
-		GameData.data_changed.connect(update_inventory_ui)
+		GameData.data_changed.connect(_on_game_data_changed)
+		
+	_cache_item_counts()
+	update_inventory_ui()
+
+func _cache_item_counts() -> void:
+	_last_item_counts.clear()
+	if GameData:
+		if "crop_inventory" in GameData:
+			for k in GameData.crop_inventory.keys():
+				_last_item_counts[k] = GameData.crop_inventory[k]
+		if "animal_inventory" in GameData:
+			for k in GameData.animal_inventory.keys():
+				_last_item_counts[k] = GameData.animal_inventory.get(k, 0)
+
+func _on_game_data_changed() -> void:
+	# Check if any item count increased (meaning a harvest or item addition occurred)
+	var item_increased = false
+	if GameData:
+		var current_inv = GameData.crop_inventory if "crop_inventory" in GameData else {}
+		var current_animal_inv = GameData.animal_inventory if "animal_inventory" in GameData else {}
+		
+		for k in current_inv.keys():
+			var prev_qty = _last_item_counts.get(k, 0)
+			var curr_qty = current_inv[k]
+			if curr_qty > prev_qty:
+				item_increased = true
+				break
+				
+		if not item_increased:
+			for k in current_animal_inv.keys():
+				var prev_qty = _last_item_counts.get(k, 0)
+				var curr_qty = current_animal_inv[k]
+				if curr_qty > prev_qty:
+					item_increased = true
+					break
+
+		_cache_item_counts()
+		
+		# If an item count increased, force open the inventory panel if it's currently closed
+		if item_increased and not is_inventory_open:
+			toggle_inventory() # Opens it up automatically
+
 	update_inventory_ui()
 
 func _setup_code_designed_panel() -> void:
@@ -77,14 +138,29 @@ func _setup_code_designed_panel() -> void:
 	content_vbox.add_theme_constant_override("separation", 6)
 	bg_panel.add_child(content_vbox)
 	
+	# Header HBox (Title + F Key Hint Symbol)
+	var header_hbox = HBoxContainer.new()
+	header_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	header_hbox.add_theme_constant_override("separation", 8)
+	content_vbox.add_child(header_hbox)
+	
 	title_label = Label.new()
 	title_label.text = "INVENTORY"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_size_override("font_size", 16)
+	title_label.add_theme_font_size_override("font_size", 15)
 	title_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
 	title_label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02))
 	title_label.add_theme_constant_override("outline_size", 6)
-	content_vbox.add_child(title_label)
+	header_hbox.add_child(title_label)
+	
+	# [F] Key Hide Label Symbol Header
+	toggle_label = Label.new()
+	toggle_label.text = "⌨️ [F] Hide"
+	toggle_label.add_theme_font_size_override("font_size", 10)
+	toggle_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.3))
+	toggle_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	toggle_label.add_theme_constant_override("outline_size", 3)
+	header_hbox.add_child(toggle_label)
 	
 	var divider = ColorRect.new()
 	divider.custom_minimum_size = Vector2(0, 2)
@@ -97,6 +173,36 @@ func _setup_code_designed_panel() -> void:
 	
 	if grid_container:
 		grid_container.reparent(content_vbox)
+
+# Persistent HUD badge that stays visible on HUD when inventory is closed
+func _setup_persistent_f_toggle_badge() -> void:
+	toggle_badge = PanelContainer.new()
+	toggle_badge.name = "FToggleHUDHint"
+	toggle_badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	toggle_badge.offset_left = -160
+	toggle_badge.offset_top = -45
+	toggle_badge.offset_right = -15
+	toggle_badge.offset_bottom = -15
+	
+	var badge_style = StyleBoxFlat.new()
+	badge_style.bg_color = Color(0.12, 0.08, 0.05, 0.9)
+	badge_style.border_color = Color(0.58, 0.40, 0.22, 1.0)
+	badge_style.set_border_width_all(2)
+	badge_style.set_corner_radius_all(6)
+	toggle_badge.add_theme_stylebox_override("panel", badge_style)
+	
+	var badge_label = Label.new()
+	badge_label.text = "🎒 Press [F] Inventory"
+	badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	badge_label.add_theme_font_size_override("font_size", 11)
+	badge_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
+	badge_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	badge_label.add_theme_constant_override("outline_size", 4)
+	
+	toggle_badge.add_child(badge_label)
+	add_child(toggle_badge)
+	toggle_badge.visible = false # Only visible when inventory panel is closed
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -115,6 +221,11 @@ func toggle_inventory() -> void:
 	
 	if is_inventory_open:
 		bg_panel.visible = true
+		toggle_badge.visible = false
+		if toggle_label:
+			toggle_label.text = "⌨️ [F] Hide"
+	else:
+		toggle_badge.visible = true
 	
 	var tween = create_tween().set_parallel(true)
 	if is_inventory_open:
@@ -153,7 +264,7 @@ func update_inventory_ui() -> void:
 	
 	var owned_items = []
 	
-	# 1. Collect Crops & Produce
+	# 1. Collect Crops, Produce, & Factory Goods
 	for item_name in inv.keys():
 		if inv[item_name] > 0 and not owned_items.has(item_name):
 			owned_items.append(item_name)
@@ -263,7 +374,15 @@ func update_inventory_ui() -> void:
 						if GameData.has_method("select_seed_type"):
 							GameData.select_seed_type(item_name)
 						
-						if item_name in ["Wheat", "Egg", "Milk", "Manure", "Organic Fertilizer", "Chicken", "Cow", "Pig", "Sheep"]:
+						# Items that use pointing hand cursor
+						var hand_cursor_items = [
+							"Wheat", "Egg", "Milk", "Manure", "Organic Fertilizer", "Wool",
+							"Chicken", "Cow", "Pig", "Sheep",
+							"Flour", "Cheese", "Bread", "Yarn", "Jam", "French Fries",
+							"Tomato Ketchup", "Popcorn", "Banana Smoothie", "Polished Rice Box", "Carrot Juice"
+						]
+						
+						if item_name in hand_cursor_items:
 							Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 						else:
 							Input.set_default_cursor_shape(Input.CURSOR_ARROW)

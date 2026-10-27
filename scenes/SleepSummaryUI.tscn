@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://chpgliai8niwg"]
+
+[ext_resource type="Script" uid="uid://cocgkseb7sahg" path="res://sleep_summary_ui.gd" id="1_lvctj"]
+
+[node name="SleepSummaryUI" type="Control" unique_id=1956829480]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_lvctj")

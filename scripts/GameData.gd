@@ -127,11 +127,121 @@ var SEED_DATA = {
 		"sell": 40,
 		"growth_time": 0.0,
 		"crop_icon": "res://images/assets/for main (crops)/wool/wool.png"
+	},
+
+	# --- PROCESSED FACTORY GOODS ---
+	"Flour": {
+		"buy": 0,
+		"sell": 40,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/flour.png"
+	},
+	"Cheese": {
+		"buy": 0,
+		"sell": 75,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/cheese.png"
+	},
+	"Bread": {
+		"buy": 0,
+		"sell": 120,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/bread.png"
+	},
+	"Yarn": {
+		"buy": 0,
+		"sell": 100,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/yarn.png"
+	},
+	"Jam": {
+		"buy": 0,
+		"sell": 90,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/jam.png"
+	},
+	"French Fries": {
+		"buy": 0,
+		"sell": 85,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/french_fries.png"
+	},
+	"Tomato Ketchup": {
+		"buy": 0,
+		"sell": 70,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/ketchup.png"
+	},
+	"Popcorn": {
+		"buy": 0,
+		"sell": 65,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/popcorn.png"
+	},
+	"Banana Smoothie": {
+		"buy": 0,
+		"sell": 110,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/banana_smoothie.png"
+	},
+	"Polished Rice Box": {
+		"buy": 0,
+		"sell": 60,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/polished_rice.png"
+	},
+	"Carrot Juice": {
+		"buy": 0,
+		"sell": 55,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for factory/carrot_juice.png"
 	}
 }
 
 # Player Currencies & Resources
 var money: int = 500
+
+# --- DAY & NIGHT CYCLE TIME TRACKING ---
+var current_day: int = 1
+var current_hour: int = 6 # Starts at 6:00 AM
+var time_minutes: float = 0.0
+
+@export var minutes_per_second: float = 4.0 
+
+signal time_changed(hour: int, day: int)
+signal data_changed
+
+func _ready() -> void:
+	select_seed_type("Wheat")
+	select_item(ActiveItem.SEED)
+
+func update_game_time(delta: float) -> void:
+	var prev_minute = int(time_minutes)
+	time_minutes += delta * minutes_per_second
+	
+	if time_minutes >= 60.0:
+		time_minutes -= 60.0
+		current_hour += 1
+		if current_hour >= 24:
+			current_hour = 0
+			current_day += 1
+
+	if int(time_minutes) != prev_minute:
+		time_changed.emit(current_hour, current_day)
+		data_changed.emit()
+
+# --- SLEEP & TIME FAST-FORWARD FUNCTIONS ---
+func can_sleep() -> bool:
+	return current_hour >= 20 or current_hour < 6
+
+func sleep_to_next_day() -> void:
+	current_day += 1
+	current_hour = 6
+	time_minutes = 0.0
+	
+	time_changed.emit(current_hour, current_day)
+	data_changed.emit()
+	print("[SLEEP] Woke up on Day ", current_day, " at 06:00")
 
 # Dynamic Inventories (Item Name: Quantity)
 var seed_inventory: Dictionary = {
@@ -162,21 +272,29 @@ var crop_inventory: Dictionary = {
 	"Milk": 0,
 	"Manure": 0,
 	"Organic Fertilizer": 0,
-	"Wool": 0
+	"Wool": 0,
+	# Factory Items
+	"Flour": 0,
+	"Cheese": 0,
+	"Bread": 0,
+	"Yarn": 0,
+	"Jam": 0,
+	"French Fries": 0,
+	"Tomato Ketchup": 0,
+	"Popcorn": 0,
+	"Banana Smoothie": 0,
+	"Polished Rice Box": 0,
+	"Carrot Juice": 0
 }
 
-# Getter for Inventory UI Compatibility
 var inventory: Dictionary:
 	get:
 		return crop_inventory
 
 # Hotbar Item Selection
 enum ActiveItem { HOE, WATERING_CAN, SEED }
-var selected_item: ActiveItem = ActiveItem.HOE
-var selected_seed_type: String = "Carrot"
-
-# Signal to notify UI when data changes
-signal data_changed
+var selected_item: ActiveItem = ActiveItem.SEED
+var selected_seed_type: String = "Wheat"
 
 # --- MONEY FUNCTIONS ---
 func add_money(amount: int) -> void:
@@ -252,6 +370,11 @@ func select_item(item: ActiveItem) -> void:
 
 func select_seed_type(seed_name: String) -> void:
 	selected_seed_type = seed_name
+	selected_item = ActiveItem.SEED
+	data_changed.emit()
+
+func deselect_current_item() -> void:
+	selected_seed_type = ""
 	data_changed.emit()
 
 # --- LIVESTOCK MARKET DEFINITIONS ---
@@ -278,7 +401,6 @@ var ANIMAL_DATA = {
 	}
 }
 
-# Animals owned by player but NOT YET placed on the farm
 var animal_inventory: Dictionary = {
 	"Chicken": 0,
 	"Cow": 0,
@@ -286,7 +408,6 @@ var animal_inventory: Dictionary = {
 	"Sheep": 0
 }
 
-# Helper function para sa pagbili ng hayop
 func add_animal_to_inventory(animal_name: String, amount: int = 1) -> void:
 	if animal_inventory.has(animal_name):
 		animal_inventory[animal_name] += amount
@@ -300,8 +421,3 @@ func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
 		data_changed.emit()
 		return true
 	return false
-	
-# Idagdag ito sa GameData.gd
-func deselect_current_item() -> void:
-	selected_seed_type = "" # I-clear ang selected seed/animal
-	data_changed.emit()
