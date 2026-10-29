@@ -122,6 +122,12 @@ var SEED_DATA = {
 		"growth_time": 0.0,
 		"crop_icon": "res://images/assets/for main (crops)/fertilizer/fertilizer.png"
 	},
+	"Pesticide": {
+		"buy": 0,
+		"sell": 60,
+		"growth_time": 0.0,
+		"crop_icon": "res://images/assets/for main (crops)/pest control station/pesticides.png"
+	},
 	"Wool": {
 		"buy": 0,
 		"sell": 40,
@@ -198,6 +204,12 @@ var SEED_DATA = {
 	}
 }
 
+# --- PEST CONTROL RECIPE DEFINITION ---
+var PESTICIDE_RECIPE = {
+	"Tomato": 2,
+	"Potato": 1
+}
+
 # Player Currencies & Resources
 var money: int = 500
 
@@ -212,6 +224,21 @@ var watering_can_water: float = 0.0
 var max_watering_can_cap: float = 25.0
 var water_source_is_tank: bool = false
 
+# --- WEATHER SYSTEM VARIABLES ---
+var current_weather: String = "Raining" # Pwedeng "Dry" o "Rainy"
+
+func roll_daily_weather() -> void:
+	# 30% chance na maging Rainy, 70% chance na maging Dry tuwing bagong araw
+	var roll = randf()
+	if roll <= 0.30:
+		current_weather = "Rainy"
+		print("[WEATHER] Today's weather is Rainy 🌧️! Crops will be automatically watered.")
+	else:
+		current_weather = "Dry"
+		print("[WEATHER] Today's weather is Dry ☀️.")
+	
+	data_changed.emit()
+
 # --- DAY & NIGHT CYCLE TIME TRACKING ---
 var current_day: int = 1
 var current_hour: int = 6 
@@ -225,6 +252,8 @@ signal data_changed
 func _ready() -> void:
 	select_seed_type("Wheat")
 	select_item(ActiveItem.SEED)
+	current_weather = "Rainy"
+	#roll_daily_weather() # I-generate ang simula ng weather sa unang araw
 
 func update_game_time(delta: float) -> void:
 	var prev_minute = int(time_minutes)
@@ -249,9 +278,12 @@ func sleep_to_next_day() -> void:
 	current_hour = 6
 	time_minutes = 0.0
 	
+	# Mag-roll ng bagong weather paggising sa bagong araw
+	roll_daily_weather()
+	
 	time_changed.emit(current_hour, current_day)
 	data_changed.emit()
-	print("[SLEEP] Woke up on Day ", current_day, " at 06:00")
+	print("[SLEEP] Woke up on Day ", current_day, " at 06:00. Weather is now: ", current_weather)
 
 # --- WATER MANAGEMENT FUNCTIONS ---
 func use_water_for_irrigation(amount: float = 8.34) -> bool:
@@ -291,6 +323,7 @@ var crop_inventory: Dictionary = {
 	"Milk": 0,
 	"Manure": 0,
 	"Organic Fertilizer": 0,
+	"Pesticide": 0,
 	"Wool": 0,
 	"Flour": 0,
 	"Cheese": 0,
@@ -312,7 +345,7 @@ var inventory: Dictionary:
 enum ActiveItem { HOE, WATERING_CAN, SEED }
 var selected_item: ActiveItem = ActiveItem.SEED
 var selected_seed_type: String = "Wheat"
-var selected_inventory_item: String = "" # <-- IDINAGDAG PARA SA MGA HAYOP AT PRODUKTO
+var selected_inventory_item: String = ""
 
 func add_money(amount: int) -> void:
 	money += amount
@@ -386,7 +419,7 @@ func add_crop(crop_name: String, amount: int = 1) -> void:
 	var already_owned: bool = (crop_inventory.get(crop_name, 0) > 0) or (animal_inventory.get(crop_name, 0) > 0) or (seed_inventory.get(crop_name, 0) > 0)
 	
 	if not already_owned and get_unique_item_count() >= unlocked_slots:
-		print("[INVENTORY] Puno na ang imbentaryo!")
+		print("[INVENTORY] Inventory Full!")
 		return
 		
 	if crop_inventory.has(crop_name):
@@ -408,13 +441,13 @@ func select_item(item: ActiveItem) -> void:
 
 func select_seed_type(seed_name: String) -> void:
 	selected_seed_type = seed_name
-	selected_inventory_item = "" # I-clear ang general item kapag binhi ang pinili
+	selected_inventory_item = ""
 	selected_item = ActiveItem.SEED
 	data_changed.emit()
 
 func select_inventory_item(item_name: String) -> void:
 	selected_inventory_item = item_name
-	selected_seed_type = "" # I-clear ang seed type kapag hayop o produkto ang pinili
+	selected_seed_type = ""
 	data_changed.emit()
 
 func deselect_current_item() -> void:
@@ -470,4 +503,4 @@ func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
 		animal_inventory[animal_name] -= amount
 		data_changed.emit()
 		return true
-	return false 
+	return false

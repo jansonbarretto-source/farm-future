@@ -76,6 +76,7 @@
 [ext_resource type="Texture2D" uid="uid://trjofify6pvd" path="res://images/assets/for market/e52759c9-a639-43e3-9c13-c476782b5fe8_removalai_preview.png" id="70_c4ta0"]
 [ext_resource type="Texture2D" uid="uid://by5desfq2olsr" path="res://images/assets/for market/893c1545-b64a-46b8-9488-10611c6b472f_removalai_preview.png" id="71_3nlj7"]
 [ext_resource type="Texture2D" uid="uid://cfbdwm1y2hsq3" path="res://images/assets/for factory/tank2.png" id="71_a4rm0"]
+[ext_resource type="PackedScene" uid="uid://dxs88np0aetmu" path="res://scenes/pest_control_station.tscn" id="71_ooivo"]
 [ext_resource type="Texture2D" uid="uid://y0dqsus7ktqd" path="res://images/assets/player/player house (2).png" id="72_bp2tr"]
 [ext_resource type="Texture2D" uid="uid://cijxxh8n1vdqp" path="res://images/assets/for factory/tank3.png" id="72_clm25"]
 [ext_resource type="Texture2D" uid="uid://bhjrhuxt2cd5g" path="res://images/assets/for market/4e7879bf-7074-4f9e-9701-ef625a3336e7_removalai_preview.png" id="72_ooivo"]
@@ -114,6 +115,8 @@
 [ext_resource type="Texture2D" uid="uid://bsjydm5hp5pw8" path="res://images/assets/village/592cbcdc-4eb2-42e1-b4b9-269f7deef94a_removalai_preview.png" id="97_bqfsx"]
 [ext_resource type="Texture2D" uid="uid://0dwic8qvcdhy" path="res://images/assets/for market/ec4684e5-8d39-4c1c-bd41-6153fa8ca0db_removalai_preview.png" id="112_l38ie"]
 [ext_resource type="PackedScene" uid="uid://c1q0pk65i8pyw" path="res://scenes/river_area.tscn" id="114_c4ta0"]
+[ext_resource type="Texture2D" uid="uid://eukjklpb3psq" path="res://images/assets/rain.png" id="116_ooivo"]
+[ext_resource type="Script" uid="uid://dw5ddbslrmn30" path="res://scripts/weather_effects.gd" id="116_r2cyt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0hol4"]
 texture = ExtResource("1_6ocxv")
@@ -1824,6 +1827,19 @@ animations = [{
 "speed": 4.0
 }]
 
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_c7cde"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(12000, 800, 1)
+direction = Vector3(0.2, 1, 0)
+spread = 5.0
+initial_velocity_min = 400.0
+initial_velocity_max = 600.0
+gravity = Vector3(0, 980, 0)
+scale_min = 0.06
+scale_max = 0.06
+color = Color(0.36862746, 0.84705883, 0.94509804, 0.84313726)
+
 [node name="MainFarm" type="Node2D" unique_id=1417966789]
 script = ExtResource("1_0v70v")
 
@@ -2811,6 +2827,10 @@ position = Vector2(1413, -103)
 z_index = 4
 position = Vector2(1320, -43)
 
+[node name="pest control station" parent="." unique_id=1055318404 instance=ExtResource("71_ooivo")]
+texture_filter = 1
+position = Vector2(-96, 636)
+
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1910858735]
 script = ExtResource("66_b65ha")
 
@@ -3117,5 +3137,17 @@ position = Vector2(-114, 374)
 
 [node name="RiverArea" parent="." unique_id=1619049954 instance=ExtResource("114_c4ta0")]
 position = Vector2(-546, 257)
+
+[node name="WeatherOverlay" type="CanvasLayer" parent="." unique_id=1734863327]
+script = ExtResource("116_r2cyt")
+
+[node name="RainParticles" type="GPUParticles2D" parent="WeatherOverlay" unique_id=2076820542]
+emitting = false
+amount = 1000
+texture = ExtResource("116_ooivo")
+process_material = SubResource("ParticleProcessMaterial_c7cde")
+
+[node name="WeatherModulate" type="CanvasModulate" parent="WeatherOverlay" unique_id=1195037145]
+color = Color(0.6484881, 0.6484881, 0.6484881, 1)
 
 [connection signal="pressed" from="CanvasLayer/CenterContainer/HowToPlayPanel/CloseButton" to="." method="_on_close_button_pressed"]

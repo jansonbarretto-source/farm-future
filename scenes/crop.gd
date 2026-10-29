@@ -4,7 +4,7 @@ extends Area2D
 @export var time_per_stage: float = 5.0
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var growth_timer: Timer = $GrowthTimer
+var growth_timer: Timer = null
 
 enum Stage { SEED, GROWING, HARVESTABLE }
 
@@ -12,7 +12,24 @@ var current_stage: Stage = Stage.SEED
 var is_watered: bool = false
 var is_fertilized: bool = false
 
+# --- PEST & PROTECTION SYSTEM VARIABLES ---
+var is_infected: bool = false
+var is_protected: bool = false
+var player_in_range: bool = false
+var pest_indicator_node: Control = null
+
 var harvest_particles: Node2D
+
+# --- WEATHER HAZARDS (FLOOD & WITHER MECHANICS) ---
+var harvestable_time_elapsed: float = 0.0
+@export var max_harvestable_leeway: float = 20.0 
+
+var continuous_rain_time: float = 0.0
+@export var max_rain_leeway: float = 15.0 # Para sa GROWING stage
+
+# --- BAGONG LEWAY PARA SA HARVESTABLE NA NABABA SA ULAN (1 MINUTO / 60 SEGUNDO) ---
+var harvestable_rain_time: float = 0.0
+@export var max_harvestable_rain_leeway: float = 60.0 
 
 
 # --------------------------------------------------
@@ -133,6 +150,19 @@ class PixelSparkleEffect extends Node2D:
 # INITIALIZATION
 # --------------------------------------------------
 func _ready() -> void:
+	# Awtomatiko nitong idinaragdag ang crop sa group na "crops" pagka-spawn na pagka-spawn
+	if not is_in_group("crops"):
+		add_to_group("crops")
+		
+	growth_timer = get_node_or_null("GrowthTimer")
+	if not growth_timer:
+		growth_timer = get_node_or_null("growthTimer")
+	
+	if not growth_timer:
+		growth_timer = Timer.new()
+		growth_timer.name = "GrowthTimer"
+		add_child(growth_timer)
+
 	if growth_timer and not growth_timer.timeout.is_connected(
 		_on_growth_timer_timeout
 	):
@@ -140,8 +170,19 @@ func _ready() -> void:
 
 	if not input_event.is_connected(_on_input_event):
 		input_event.connect(_on_input_event)
+		
+	if not body_entered.is_connected(_on_body_entered):
+		body_entered.connect(_on_body_entered)
+	if not body_exited.is_connected(_on_body_exited):
+		body_exited.connect(_on_body_exited)
 
 	_apply_seed_data()
+	
+	var should_water = is_watered or (GameData and GameData.current_weather == "Rainy")
+	is_watered = false 
+	if should_water:
+		water_crop()
+
 	update_crop_visual()
 
 
@@ -150,18 +191,56 @@ func setup_crop(type: String, start_watered: bool = false) -> void:
 	_apply_seed_data()
 	update_crop_visual()
 
-	if start_watered:
+	if start_watered or (GameData and GameData.current_weather == "Rainy"):
 		water_crop()
 
 
 func _apply_seed_data() -> void:
-	var formatted_type: String = seed_type.capitalize()
+	var target_key = seed_type
+	
+	if GameData and "SEED_DATA" in GameData:
+		for key in GameData.SEED_DATA.keys():
+			if key.to_lower() == seed_type.to_lower():
+				target_key = key
+				break
 
-	if GameData.SEED_DATA.has(formatted_type):
-		var info: Dictionary = GameData.SEED_DATA[formatted_type]
+		if GameData.SEED_DATA.has(target_key):
+			var info: Dictionary = GameData.SEED_DATA[target_key]
+			if info.has("growth_time"):
+				time_per_stage = info["growth_time"]
+				return
 
-		if info.has("growth_time"):
-			time_per_stage = info["growth_time"]
+	time_per_stage = 5.0
+
+
+# --------------------------------------------------
+# PROCESS (WEATHER HAZARDS MONITORING)
+# --------------------------------------------------
+func _process(delta: float) -> void:
+	if not GameData:
+		return
+		
+	if GameData.current_weather == "Rainy":
+		# 1. Kung nasa GROWING stage pa lang
+		if current_stage == Stage.GROWING:
+			continuous_rain_time += delta
+			if continuous_rain_time >= max_rain_leeway:
+				_flood_destroy_crop()
+		
+		# 2. Kung nasa HARVESTABLE stage na (Fully grown na at umuulan) -> May 1 minuto (60s) bago ma-flood
+		elif current_stage == Stage.HARVESTABLE:
+			harvestable_rain_time += delta
+			if harvestable_rain_time >= max_harvestable_rain_leeway:
+				_flood_destroy_crop()
+	else:
+		continuous_rain_time = max(0.0, continuous_rain_time - delta * 0.5)
+		harvestable_rain_time = max(0.0, harvestable_rain_time - delta * 0.5)
+
+	# 3. WITHER MECHANIC: Kapag Dry at hinayaan sa init ang tanim na hinog na
+	if current_stage == Stage.HARVESTABLE and GameData.current_weather == "Dry":
+		harvestable_time_elapsed += delta
+		if harvestable_time_elapsed >= max_harvestable_leeway:
+			_wither_crop_due_to_heat()
 
 
 # --------------------------------------------------
@@ -170,14 +249,22 @@ func _apply_seed_data() -> void:
 func water_crop() -> void:
 	if not is_watered:
 		is_watered = true
-		print(seed_type, " is watered! Growth timer started.")
-
-		_update_modulate_color()
+		
+		if not growth_timer:
+			growth_timer = get_node_or_null("GrowthTimer")
+			if not growth_timer:
+				growth_timer = Timer.new()
+				growth_timer.name = "GrowthTimer"
+				add_child(growth_timer)
+			if not growth_timer.timeout.is_connected(_on_growth_timer_timeout):
+				growth_timer.timeout.connect(_on_growth_timer_timeout)
 
 		if growth_timer:
 			growth_timer.wait_time = time_per_stage
 			growth_timer.one_shot = false
 			growth_timer.start()
+
+		_update_modulate_color()
 
 
 # --------------------------------------------------
@@ -185,7 +272,6 @@ func water_crop() -> void:
 # --------------------------------------------------
 func apply_fertilizer() -> bool:
 	if is_fertilized:
-		print("[CROP] Crop is already fertilized!")
 		return false
 
 	var owned_fertilizer: int = (
@@ -205,17 +291,84 @@ func apply_fertilizer() -> bool:
 
 		_play_fertilizer_juice_effects()
 		_spawn_sparkle_particles()
-
-		print(
-			"[CROP] Successfully applied Organic Fertilizer to ",
-			seed_type,
-			"! Harvest yield will multiply by 2x!"
-		)
-
 		return true
 
-	print("[CROP WARNING] You need Organic Fertilizer in your inventory!")
 	return false
+
+
+# --------------------------------------------------
+# PEST CONTROL / PESTICIDE LOGIC (VIA 'E' KEY)
+# --------------------------------------------------
+func _on_body_entered(body: Node) -> void:
+	if body.name == "Player" or body.is_in_group("player"):
+		player_in_range = true
+
+func _on_body_exited(body: Node) -> void:
+	if body.name == "Player" or body.is_in_group("player"):
+		player_in_range = false
+
+func _unhandled_input(event: InputEvent) -> void:
+	if player_in_range and is_infected and event.is_action_pressed("interact"):
+		apply_pesticide()
+
+
+func apply_pesticide() -> bool:
+	if not is_infected:
+		return false
+
+	var owned_pesticide: int = (
+		GameData.crop_inventory.get("Pesticide", 0)
+		if "crop_inventory" in GameData
+		else 0
+	)
+
+	if owned_pesticide > 0:
+		GameData.crop_inventory["Pesticide"] -= 1
+
+		if GameData.has_signal("data_changed"):
+			GameData.data_changed.emit()
+
+		is_infected = false
+		is_protected = true
+		
+		if is_instance_valid(pest_indicator_node):
+			pest_indicator_node.queue_free()
+
+		_update_modulate_color()
+		_play_fertilizer_juice_effects()
+		_spawn_sparkle_particles()
+		return true
+
+	return false
+
+
+func _trigger_pest_infection() -> void:
+	if is_protected or is_infected:
+		return
+
+	if randf() <= 0.25:
+		is_infected = true
+		_update_modulate_color()
+		_spawn_pest_indicator()
+
+
+func _spawn_pest_indicator() -> void:
+	if is_instance_valid(pest_indicator_node):
+		return
+
+	var bug_label = Label.new()
+	bug_label.name = "PestBugIndicator"
+	bug_label.text = "🐛"
+	bug_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bug_label.add_theme_font_size_override("font_size", 42)
+	bug_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	bug_label.add_theme_constant_override("outline_size", 6)
+	
+	bug_label.position = Vector2(-16, -55)
+	bug_label.z_index = 50
+
+	pest_indicator_node = bug_label
+	add_child(pest_indicator_node)
 
 
 func _play_fertilizer_juice_effects() -> void:
@@ -225,36 +378,17 @@ func _play_fertilizer_juice_effects() -> void:
 	var orig_scale: Vector2 = animated_sprite.scale
 	var tween: Tween = create_tween()
 
-	tween.tween_property(
-		animated_sprite,
-		"scale",
-		orig_scale * Vector2(1.25, 0.75),
-		0.08
-	)
-
-	tween.tween_property(
-		animated_sprite,
-		"scale",
-		orig_scale * Vector2(0.85, 1.2),
-		0.08
-	)
-
-	tween.tween_property(
-		animated_sprite,
-		"scale",
-		orig_scale,
-		0.1
-	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(animated_sprite, "scale", orig_scale * Vector2(1.25, 0.75), 0.08)
+	tween.tween_property(animated_sprite, "scale", orig_scale * Vector2(0.85, 1.2), 0.08)
+	tween.tween_property(animated_sprite, "scale", orig_scale, 0.1).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _spawn_sparkle_particles() -> void:
 	var sparkles := PixelSparkleEffect.new()
-
 	sparkles.name = "FertilizerSparkles"
 	sparkles.ambient = false
 	sparkles.duration = 1.8
 	sparkles.sparkle_count = 4
-
 	add_child(sparkles)
 
 
@@ -266,7 +400,6 @@ func _spawn_harvestable_sparkles() -> void:
 	harvest_particles.name = "HarvestableSparkles"
 	harvest_particles.ambient = true
 	harvest_particles.sparkle_count = 5
-
 	add_child(harvest_particles)
 
 
@@ -274,7 +407,13 @@ func _update_modulate_color() -> void:
 	if not animated_sprite:
 		return
 
-	if is_watered and is_fertilized:
+	if is_infected:
+		animated_sprite.modulate = Color(0.55, 0.45, 0.30, 1.0)
+	elif is_protected and is_fertilized:
+		animated_sprite.modulate = Color(0.40, 0.75, 0.50, 1.0)
+	elif is_protected:
+		animated_sprite.modulate = Color(0.60, 0.85, 0.70, 1.0)
+	elif is_watered and is_fertilized:
 		animated_sprite.modulate = Color(0.48, 0.72, 0.42, 1.0)
 	elif is_fertilized:
 		animated_sprite.modulate = Color(0.65, 0.55, 0.45, 1.0)
@@ -299,39 +438,45 @@ func update_crop_visual() -> void:
 		animated_sprite.stop()
 		animated_sprite.frame = current_stage
 
-		if GameData.SEED_DATA.has(formatted_type):
-			var info: Dictionary = GameData.SEED_DATA[formatted_type]
+		if GameData and "SEED_DATA" in GameData:
+			var target_key = formatted_type
+			for key in GameData.SEED_DATA.keys():
+				if key.to_lower() == seed_type.to_lower():
+					target_key = key
+					break
 
-			if (
-				info.has("stage_scales")
-				and current_stage < info["stage_scales"].size()
-			):
-				animated_sprite.scale = info["stage_scales"][current_stage]
-			elif info.has("scale"):
-				animated_sprite.scale = info["scale"]
+			if GameData.SEED_DATA.has(target_key):
+				var info: Dictionary = GameData.SEED_DATA[target_key]
 
-			if (
-				info.has("stage_offsets")
-				and current_stage < info["stage_offsets"].size()
-			):
-				animated_sprite.position = info["stage_offsets"][current_stage]
-			elif info.has("offset"):
-				animated_sprite.position = info["offset"]
-			else:
-				animated_sprite.position = Vector2.ZERO
+				if (
+					info.has("stage_scales")
+					and current_stage < info["stage_scales"].size()
+				):
+					animated_sprite.scale = info["stage_scales"][current_stage]
+				elif info.has("scale"):
+					animated_sprite.scale = info["scale"]
+
+				if (
+					info.has("stage_offsets")
+					and current_stage < info["stage_offsets"].size()
+				):
+					animated_sprite.position = info["stage_offsets"][current_stage]
+				elif info.has("offset"):
+					animated_sprite.position = info["offset"]
+				else:
+					animated_sprite.position = Vector2.ZERO
 
 		_update_modulate_color()
-	else:
-		print("Warning: Walang animation na nagngangalang ", anim_name)
 
 
 func _on_growth_timer_timeout() -> void:
 	if is_watered and current_stage < Stage.HARVESTABLE:
 		current_stage = (current_stage + 1) as Stage
 
-		update_crop_visual()
+		if current_stage > Stage.SEED:
+			_trigger_pest_infection()
 
-		print(seed_type, " grew to stage: ", current_stage)
+		update_crop_visual()
 
 		if is_fertilized and current_stage != Stage.HARVESTABLE:
 			_spawn_sparkle_particles()
@@ -351,20 +496,24 @@ func _on_input_event(
 		and event.pressed
 		and event.button_index == MOUSE_BUTTON_LEFT
 	):
-		var active_item = (
-			GameData.selected_item
-			if "selected_item" in GameData
-			else null
-		)
-
 		var selected_seed: String = (
 			GameData.selected_seed_type
-			if "selected_seed_type" in GameData
+			if GameData and "selected_seed_type" in GameData
 			else ""
 		)
 
+		var selected_inv_item: String = (
+			GameData.selected_inventory_item
+			if GameData and "selected_inventory_item" in GameData
+			else ""
+		)
+
+		var active_item = null
+		if GameData and "selected_item" in GameData:
+			active_item = GameData.selected_item
+
 		if (
-			selected_seed == "Organic Fertilizer"
+			(selected_seed == "Organic Fertilizer" or selected_inv_item == "Organic Fertilizer")
 			and current_stage != Stage.HARVESTABLE
 		):
 			apply_fertilizer()
@@ -384,11 +533,14 @@ func _on_input_event(
 # HARVEST & INVENTORY FULL CHECK
 # --------------------------------------------------
 func _harvest() -> void:
-	if "current_stage" in self and "Stage" in self:
-		if current_stage != Stage.HARVESTABLE:
-			return
+	if current_stage != Stage.HARVESTABLE:
+		return
 
-	# Suriin kung mayroon na ang item na ito sa imbentaryo o kung may count na greater than 0
+	if is_infected:
+		_show_infected_flash_text()
+		queue_free()
+		return
+
 	var already_owned: bool = false
 	if GameData:
 		var crop_count = GameData.crop_inventory.get(seed_type, 0)
@@ -396,85 +548,150 @@ func _harvest() -> void:
 		if crop_count > 0 or animal_count > 0:
 			already_owned = true
 			
-		# Kunin ang dinamikong limitasyon mula sa GameData.unlocked_slots
 		var current_limit: int = GameData.unlocked_slots if "unlocked_slots" in GameData else 6
 			
-		# Kung WALA PA sa imbentaryo at puno na ang mga na-unlock na slots, huwag ituloy ang harvest
 		if not already_owned and GameData.has_method("get_unique_item_count") and GameData.get_unique_item_count() >= current_limit:
-			print("[HARVEST] Puno na ang imbentaryo! Hindi ma-harvest ang: ", seed_type)
-			
-			# Ipakita ang pinagandang UI warning box sa gitna ng screen
 			var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
 			if inventory_ui and inventory_ui.has_method("show_inventory_full_popup"):
 				inventory_ui.show_inventory_full_popup()
 			else:
 				_trigger_fallback_inventory_full_popup()
-				
-			return # Hihinto dito at hindi mabubura ang pananim
+			return
 
-	# Base yield
 	var yield_amount: int = 1
-	if GameData and "SEED_DATA" in GameData and GameData.SEED_DATA.has(seed_type):
-		yield_amount = GameData.SEED_DATA[seed_type].get("harvest_yield", 1)
+	if GameData and "SEED_DATA" in GameData:
+		for key in GameData.SEED_DATA.keys():
+			if key.to_lower() == seed_type.to_lower():
+				yield_amount = GameData.SEED_DATA[key].get("harvest_yield", 1)
+				break
 	
-	# Fertilizer multiplier
-	if "is_fertilized" in self and is_fertilized:
+	if is_fertilized:
 		yield_amount *= 2
 
-	# Idagdag sa inventory
 	if GameData and GameData.has_method("add_crop"):
 		GameData.add_crop(seed_type, yield_amount)
 
-	print("[HARVEST] Harvested ", seed_type, " x", yield_amount)
 	queue_free()
 
-func _trigger_fallback_inventory_full_popup() -> void:
-	# Lumikha ng PanelContainer para sa magandang background box (Stardew Valley style)
+
+# --------------------------------------------------
+# HAZARD POPUPS & DESTRUCTION HANDLERS
+# --------------------------------------------------
+func _flood_destroy_crop() -> void:
+	_show_flooded_flash_text()
+	queue_free()
+
+
+func _wither_crop_due_to_heat() -> void:
+	_show_withered_flash_text()
+	queue_free()
+
+
+func _show_flooded_flash_text() -> void:
 	var panel = PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.name = "FloodedPopup"
 	panel.z_index = 1000
 	
-	# Estilo ng panel: Dark brown background na may golden/bronze border at rounded corners
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
-	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(8)
-	style.set_expand_margin_all(10)
-	style.shadow_color = Color(0, 0, 0, 0.5)
-	style.shadow_size = 8
+	style.border_color = Color(0.2, 0.5, 0.9, 1.0)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
 	panel.add_theme_stylebox_override("panel", style)
 	
-	# Lumikha ng Label para sa Text
 	var label = Label.new()
-	label.text = "⚠️ INVENTORY IS FULL\nBuy more slots to harvest!"
+	label.text = "🌊 FLOODED!"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	
-	label.add_theme_font_size_override("font_size", 18)
-	label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35, 1.0))
-	label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02, 1.0))
-	label.add_theme_constant_override("outline_size", 4)
-	
+	label.add_theme_font_size_override("font_size", 9)
+	label.add_theme_color_override("font_color", Color(0.4, 0.7, 1.0))
 	panel.add_child(label)
 	
+	panel.global_position = global_position + Vector2(-40, -50)
+	var current_scene = get_tree().current_scene
+	if current_scene:
+		current_scene.add_child(panel)
+		
+	var timer = current_scene.get_tree().create_timer(1.5)
+	timer.timeout.connect(func():
+		if is_instance_valid(panel):
+			panel.queue_free()
+	)
+
+
+func _show_withered_flash_text() -> void:
+	var panel = PanelContainer.new()
+	panel.name = "WitheredPopup"
+	panel.z_index = 1000
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+	style.border_color = Color(0.9, 0.4, 0.1, 1.0)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "🔥 WITHERED!"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 9)
+	label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3))
+	panel.add_child(label)
+	
+	panel.global_position = global_position + Vector2(-40, -50)
+	var current_scene = get_tree().current_scene
+	if current_scene:
+		current_scene.add_child(panel)
+		
+	var timer = current_scene.get_tree().create_timer(1.5)
+	timer.timeout.connect(func():
+		if is_instance_valid(panel):
+			panel.queue_free()
+	)
+
+
+func _show_infected_flash_text() -> void:
+	var panel = PanelContainer.new()
+	panel.name = "InfectedPopup"
+	panel.z_index = 1000
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+	style.border_color = Color(1.0, 0.3, 0.3, 1.0)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "⚠️ INFECTED!"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 9)
+	label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	panel.add_child(label)
+	
+	panel.global_position = global_position + Vector2(-40, -50)
+	var current_scene = get_tree().current_scene
+	if current_scene:
+		current_scene.add_child(panel)
+		
+	var timer = current_scene.get_tree().create_timer(1.5)
+	timer.timeout.connect(func():
+		if is_instance_valid(panel):
+			panel.queue_free()
+	)
+
+
+func _trigger_fallback_inventory_full_popup() -> void:
+	var panel = PanelContainer.new()
+	panel.z_index = 1000
+	var label = Label.new()
+	label.text = "⚠️ INVENTORY IS FULL!"
+	panel.add_child(label)
 	var canvas = CanvasLayer.new()
 	canvas.layer = 128
 	canvas.add_child(panel)
 	get_tree().current_scene.add_child(canvas)
-	
-	# Smooth Tween Animation (Pop-up effect na may scale at fade out sa panel sa halip na canvas)
-	panel.scale = Vector2(0.6, 0.6)
-	panel.pivot_offset = Vector2(150, 30)
-	
-	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.25)
-	
 	var timer = get_tree().create_timer(1.8)
 	timer.timeout.connect(func():
-		var fade_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-		fade_tween.tween_property(panel, "modulate:a", 0.0, 0.4)
-		fade_tween.chain().tween_callback(canvas.queue_free)
+		canvas.queue_free()
 	)

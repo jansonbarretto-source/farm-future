@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://nvin7os7c4fo"]
+
+[ext_resource type="Script" uid="uid://dw5ddbslrmn30" path="res://scripts/weather_effects.gd" id="1_r572o"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_s81aj"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_bt0nm"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1000, 600, 1)
+direction = Vector3(0.2, 1, 0)
+spread = 5.0
+initial_velocity_min = 400.0
+initial_velocity_max = 600.0
+gravity = Vector3(0, 980, 0)
+scale_min = 0.5
+color = Color(0.7019608, 0.8509804, 1, 0.7058824)
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=394290917]
+script = ExtResource("1_r572o")
+
+[node name="RainParticles" type="GPUParticles2D" parent="." unique_id=315128230]
+amount = 200
+texture = SubResource("ImageTexture_s81aj")
+lifetime = 2.0
+visibility_rect = Rect2(-500, -300, 1000, 600)
+process_material = SubResource("ParticleProcessMaterial_bt0nm")
+
+[node name="WeatherModulate" type="CanvasModulate" parent="." unique_id=980614000]

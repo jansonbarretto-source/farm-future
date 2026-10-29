@@ -11,6 +11,9 @@ var is_animating: bool = false
 var indicator_label: Label
 @export var indicator_offset_y: float = -32.0
 
+# Bilis ng pagpuno ng tangke kapag umuulan (bawat segundo)
+@export var rain_refill_speed: float = 5.0 
+
 func _ready() -> void:
 	input_pickable = true
 	body_entered.connect(_on_body_entered)
@@ -35,6 +38,15 @@ func _setup_head_indicator() -> void:
 	add_child(indicator_label)
 	indicator_label.visible = false
 
+# --- Kusang mapupuno at mag-a-update ang animation habang umuulan ---
+func _process(delta: float) -> void:
+	if GameData and GameData.current_weather == "Rainy":
+		if current_water < max_water:
+			current_water = min(max_water, current_water + rain_refill_speed * delta)
+			_update_tank_animation()
+			if player_in_range:
+				_update_indicator_text()
+
 func _on_body_entered(body: Node2D) -> void:
 	if body.name == "Player" or body.is_in_group("player"):
 		player_in_range = true
@@ -57,12 +69,14 @@ func _update_indicator_text() -> void:
 	var can_has_water = GameData.watering_can_water > 0 if GameData else false
 	
 	if current_water < max_water:
-		if can_has_water:
+		if GameData and GameData.current_weather == "Rainy":
+			indicator_label.text = "🌧️ Filling from Rain..."
+		elif can_has_water:
 			indicator_label.text = "🪣 [E] Pour Water"
 		else:
 			indicator_label.text = "⚠️ Get Water from River!"
 	else:
-		indicator_label.text = "💧 [E] Refill Can"
+		indicator_label.text = "💧 [E] Farm Auto-Water!"
 
 func _unhandled_input(event: InputEvent) -> void:
 	if player_in_range and event is InputEventKey and event.pressed and not event.echo:
@@ -74,7 +88,7 @@ func _interact_with_tank() -> void:
 	if is_animating:
 		return
 
-	# 1. KAPAG NAGBUHOS NG TUBIG MULA SA ILOG PATUNGO SA TANK (Kailangan ng 3 beses)
+	# 1. KAPAG NAGBUHOS NG TUBIG MULA SA ILOG PATUNGO SA TANK
 	if current_water < max_water:
 		if GameData and GameData.watering_can_water > 0 and not GameData.water_source_is_tank:
 			GameData.watering_can_water = max(0.0, GameData.watering_can_water - 8.34)
@@ -84,31 +98,24 @@ func _interact_with_tank() -> void:
 				GameData.water_source_is_tank = false
 			
 			is_animating = true
-			var anim_to_play = "Filling_1"
-			if current_water <= 35.0:
-				anim_to_play = "Filling_1"
-			elif current_water <= 70.0:
-				anim_to_play = "Filling_2"
-			else:
-				anim_to_play = "Filling_3"
-				
-			if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_to_play):
-				sprite.play(anim_to_play)
-				await sprite.animation_finished
+			_update_tank_animation() # Awtomatikong pipili ng filling animation base sa level
+			
+			# Maghintay sandali o hayaang mag-play ang frame
+			await get_tree().create_timer(0.3).timeout
 				
 			is_animating = false
 			_update_indicator_text()
 			_update_tank_animation()
 		else:
-			print("[WATER TANK] Kailangan ng tubig mula sa ilog na hindi pa nakatag bilang tank water!")
+			print("[WATER TANK] Kailangan ng tubig mula sa ilog!")
 			
-	# 2. KAPAG KUMUHA NG TUBIG MULA SA TANKE PATUNGO SA WATERING CAN (Para Pwede nang Pandilig)
+	# 2. KAPAG PUNO NA ANG TANKE: Pindutin ang 'E' para i-auto water ang buong farm
 	else:
 		if current_water > 0:
-			current_water = max(0.0, current_water - 33.3)
-			if GameData:
-				GameData.watering_can_water = min(GameData.max_watering_can_cap, GameData.watering_can_water + 8.34)
-				GameData.water_source_is_tank = true # Naka-set na sa true! Pwede na itong gamiting pang-dilig sa pananim.
+			current_water = 0.0 # Nakonsumo na ang tubig para sa buong farm
+			
+			# --- AUTO-WATERING LOGIC PARA SA LAHAT NG CROPS SA FARM ---
+			_trigger_auto_water_all_crops()
 			
 			is_animating = true
 			var drain_anim = "drainig_1" if sprite.sprite_frames.has_animation("drainig_1") else "draining_1"
@@ -119,9 +126,18 @@ func _interact_with_tank() -> void:
 			is_animating = false
 			_update_indicator_text()
 			_update_tank_animation()
+			print("[WATER TANK] Awtomatikong nadiligan ang buong farm gamit ang tangke!")
 		else:
 			print("[WATER TANK] Walang laman ang Water Tank!")
 
+# --- Awtomatikong didiligan ang lahat ng nakatanim sa farm nang sabay-sabay ---
+func _trigger_auto_water_all_crops() -> void:
+	var crops = get_tree().get_nodes_in_group("crops")
+	for crop in crops:
+		if crop.has_method("water_crop") and not crop.is_watered:
+			crop.water_crop()
+
+# --- DYNAMIC ANIMATION SELECTION BASE SA DAMI NG TUBIG ---
 func _update_tank_animation() -> void:
 	if is_animating or not sprite or not sprite.sprite_frames:
 		return
@@ -129,6 +145,15 @@ func _update_tank_animation() -> void:
 	if current_water <= 5.0:
 		if sprite.sprite_frames.has_animation("idle_empty"):
 			sprite.play("idle_empty")
-	elif current_water >= max_water:
+	elif current_water <= 35.0:
+		if sprite.sprite_frames.has_animation("Filling_1"):
+			sprite.play("Filling_1")
+	elif current_water <= 70.0:
+		if sprite.sprite_frames.has_animation("Filling_2"):
+			sprite.play("Filling_2")
+	elif current_water < max_water:
+		if sprite.sprite_frames.has_animation("Filling_3"):
+			sprite.play("Filling_3")
+	else:
 		if sprite.sprite_frames.has_animation("idle_full"):
 			sprite.play("idle_full")

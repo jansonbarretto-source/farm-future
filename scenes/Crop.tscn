@@ -198,7 +198,7 @@ script = ExtResource("1_7w5hp")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1985063963]
 position = Vector2(-1, -1)
 sprite_frames = SubResource("SpriteFrames_04wnd")
-animation = &"carrot"
+animation = &"wheat"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=411636897]
 position = Vector2(1.4999971, -5.999999)

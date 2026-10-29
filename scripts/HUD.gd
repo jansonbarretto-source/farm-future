@@ -101,8 +101,13 @@ func _update_resource_labels() -> void:
 		elif "money" in GameData:
 			money_label.text = "₱" + str(GameData.money)
 
-	# 2. Selected Item / Seed / Animal Info & Count
-	var current_item = GameData.selected_seed_type if "selected_seed_type" in GameData else ""
+	# 2. Selected Item / Seed / Animal / Crop Info & Count
+	var current_item = ""
+	if "selected_seed_type" in GameData and GameData.selected_seed_type != "":
+		current_item = GameData.selected_seed_type
+	elif "selected_inventory_item" in GameData and GameData.selected_inventory_item != "":
+		current_item = GameData.selected_inventory_item
+
 	var current_count = 0
 	
 	if current_item != "":
@@ -120,7 +125,7 @@ func _update_resource_labels() -> void:
 	if wheat_label:
 		wheat_label.text = current_item if current_item != "" else "None"
 
-	# 3 & 4. Dynamic Icon Updates (Checks SEED_DATA and ANIMAL_DATA)
+	# 3 & 4. Dynamic Icon Updates (Checks SEED_DATA, ANIMAL_DATA, and CROP_TEXTURES / CROP_ICON)
 	var icon_path = ""
 	var crop_icon_path = ""
 
@@ -133,6 +138,21 @@ func _update_resource_labels() -> void:
 			var data = GameData.ANIMAL_DATA[current_item]
 			icon_path = data.get("icon", "")
 			crop_icon_path = data.get("icon", "")
+		elif "SEED_DATA" in GameData and GameData.SEED_DATA.has(current_item): # Backup check
+			pass
+		# Kung ang item ay nasa crop_inventory (tulad ng Pesticide, Fertilizer, Produce, etc.)
+		elif "crop_inventory" in GameData and GameData.crop_inventory.has(current_item):
+			if "SEED_DATA" in GameData and GameData.SEED_DATA.has(current_item):
+				crop_icon_path = GameData.SEED_DATA[current_item].get("crop_icon", "")
+			# O kaya kung nakatabi sa inventory_ui textures, pwede rin nating direktang ilagay ang path:
+			elif current_item == "Pesticide":
+				crop_icon_path = "res://images/assets/for main (crops)/pest control station/pesticides.png"
+			elif current_item == "Organic Fertilizer":
+				crop_icon_path = "res://images/assets/for main (crops)/fertilizer/fertilizer.png"
+			elif current_item == "Egg":
+				crop_icon_path = "res://images/assets/for main (crops)/egg/egg.png"
+			elif current_item == "Milk":
+				crop_icon_path = "res://images/assets/for main (crops)/milk/milk.png"
 
 	# Set Middle Icon (Seed Pack / Item Icon)
 	if seed_icon:
@@ -142,7 +162,7 @@ func _update_resource_labels() -> void:
 		else:
 			seed_icon.texture = null
 
-	# Set Rightmost Icon (Crop / Animal Sprite)
+	# Set Rightmost Icon (Crop / Animal / Pesticide Sprite)
 	if wheat_icon:
 		if crop_icon_path != "" and ResourceLoader.exists(crop_icon_path):
 			wheat_icon.texture = load(crop_icon_path)

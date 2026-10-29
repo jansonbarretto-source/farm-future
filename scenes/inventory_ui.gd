@@ -20,6 +20,7 @@ extends Control
 	"Manure": preload("res://images/assets/for main (crops)/manure/manure.png"),
 	"Organic Fertilizer": preload("res://images/assets/for main (crops)/fertilizer/fertilizer.png"),
 	"Wool": preload("res://images/assets/for main (crops)/wool/wool.png"),
+	"Pesticide": preload("res://images/assets/for main (crops)/pest control station/pesticides.png"),
 
 	# LIVESTOCK ANIMALS (BOUGHT FROM MARKET)
 	"Chicken": preload("res://images/assets/for livestock/chicken/chicken.png"),
@@ -189,6 +190,65 @@ func show_buy_slot_confirmation() -> void:
 	
 	canvas.add_child(panel)
 	get_tree().current_scene.add_child(canvas)
+
+func show_pesticide_hint() -> void:
+	# Hanapin ang Player node sa scene
+	var player = get_tree().get_first_node_in_group("player")
+	if not player:
+		player = get_tree().current_scene.find_node("Player", true, false)
+
+	if not player:
+		return
+
+	# Alisin muna ang lumang hint kung meron man para hindi magpatong-patong sa player
+	var existing = player.find_child("PesticideHintPopup", false, false)
+	if existing:
+		existing.queue_free()
+
+	var panel = PanelContainer.new()
+	panel.name = "PesticideHintPopup"
+	panel.z_index = 2000
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "🧴 Press [E] to apply"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	label.add_theme_constant_override("outline_size", 3)
+	panel.add_child(label)
+	
+	# Pwesto sa ibabaw mismo ng ulo/katawan ng player (local offset)
+	panel.position = Vector2(-40, -55)
+	
+	panel.scale = Vector2(0.4, 0.4)
+	panel.pivot_offset = Vector2(40, 15)
+	
+	# Ilagay DIRECTLY bilang child ng player para sumunod kahit saan magpunta ang player sa map
+	player.add_child(panel)
+	
+	var tween = panel.create_tween()
+	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	var timer = get_tree().create_timer(2.0)
+	timer.timeout.connect(func():
+		if is_instance_valid(panel):
+			var fade_tween = panel.create_tween().set_parallel(true)
+			fade_tween.tween_property(panel, "modulate:a", 0.0, 0.4)
+			fade_tween.tween_property(panel, "position:y", panel.position.y - 15, 0.4)
+			fade_tween.chain().tween_callback(panel.queue_free)
+	)
 
 func _setup_code_designed_panel() -> void:
 	bg_panel = PanelContainer.new()
@@ -485,6 +545,10 @@ func update_inventory_ui() -> void:
 									GameData.selected_inventory_item = item_name
 									GameData.selected_seed_type = ""
 									GameData.data_changed.emit()
+							
+							# I-trigger ang hint directly sa ibabaw ng player kung nasaan man siya sa map
+							if item_name == "Pesticide":
+								show_pesticide_hint()
 							
 							print("[INVENTORY] Na-select ang item/hayop: ", item_name)
 						
