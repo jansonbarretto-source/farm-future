@@ -1,6 +1,5 @@
 extends Area2D
 
-# Master Recipe Dictionary for all Factory Goods
 const RECIPES = {
 	"French Fries": { "input": "Potato", "in_qty": 1, "out_qty": 1, "time": 8.0 },
 	"Flour": { "input": "Wheat", "in_qty": 1, "out_qty": 1, "time": 5.0 },
@@ -17,14 +16,12 @@ const RECIPES = {
 
 @export var machine_name: String = "Factory Processing Station"
 
-# Processing State
 var is_processing: bool = false
 var is_product_ready: bool = false
 
 var current_product: String = ""
 var current_output_qty: int = 1
 
-# Internal Nodes
 var process_timer: Timer
 var status_label: Label
 var float_tween: Tween
@@ -35,10 +32,8 @@ var pulse_tween: Tween
 
 func _ready() -> void:
 	input_pickable = true
-	
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
-	
 	_setup_timer()
 	_setup_status_label()
 	
@@ -64,11 +59,9 @@ func _setup_status_label() -> void:
 	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status_label.position = Vector2(-30, label_offset_y)
 	status_label.custom_minimum_size = Vector2(60, 20)
-	
 	status_label.add_theme_font_size_override("font_size", 11)
 	status_label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02))
 	status_label.add_theme_constant_override("outline_size", 4)
-	
 	add_child(status_label)
 	status_label.visible = false
 
@@ -112,21 +105,21 @@ func _open_input_panel() -> void:
 	else:
 		print("[FACTORY ERROR] Could not find MachineInputUI.gd at res://scripts/MachineInputUI.gd!")
 
-func start_specific_production(product_name: String, recipe: Dictionary, multiplier: int = 1) -> void:
-	print("[DEBUG] Processing product: ", product_name, " | Multiplier received: ", multiplier)
-	
+func start_specific_production(product_name: String, recipe: Dictionary, batches: int) -> void:
 	var ingredient = recipe["input"]
-	var req_amount = recipe["in_qty"] * multiplier
+	var req_amount = recipe["in_qty"] * batches
 	
 	if "crop_inventory" in GameData and GameData.crop_inventory.get(ingredient, 0) >= req_amount:
+		# Kukunin at uubusin ang lahat ng kailangang sangkap nang sabay-sabay
 		GameData.crop_inventory[ingredient] -= req_amount
 		GameData.data_changed.emit()
 		
 		current_product = product_name
-		current_output_qty = recipe["out_qty"] * multiplier
+		# Awtomatikong ita-times ang output sa dami ng batches (hal. 10 tomatoes / 2 = 5 batches * 1 = 5 ketchup)
+		current_output_qty = recipe["out_qty"] * batches
 		
 		is_processing = true
-		process_timer.wait_time = recipe["time"] * multiplier
+		process_timer.wait_time = recipe["time"] * batches
 		process_timer.start()
 		
 		if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("working"):
@@ -135,7 +128,7 @@ func start_specific_production(product_name: String, recipe: Dictionary, multipl
 		_set_status_text("⚙️ PROCESSING...", Color(0.9, 0.7, 0.2))
 		print("[FACTORY] Started making ", current_product, " (x", current_output_qty, ") in ", machine_name)
 	else:
-		print("[FACTORY WARNING] Not enough ", ingredient, " to process ", product_name, " x", multiplier, "!")
+		print("[FACTORY WARNING] Not enough ", ingredient, " to process!")
 
 func _on_processing_finished() -> void:
 	is_processing = false
@@ -153,6 +146,21 @@ func _on_processing_finished() -> void:
 	print("[FACTORY] ", current_product, " is ready to collect in ", machine_name, "!")
 
 func _collect_product() -> void:
+	if GameData:
+		var already_owned = (GameData.crop_inventory.get(current_product, 0) > 0) or (GameData.animal_inventory.get(current_product, 0) > 0)
+		var current_limit = GameData.unlocked_slots if "unlocked_slots" in GameData else 6
+		
+		if not already_owned and GameData.has_method("get_unique_item_count") and GameData.get_unique_item_count() >= current_limit:
+			print("[FACTORY] Puno na ang imbentaryo! Hindi makolekta ang: ", current_product)
+			
+			var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
+			if inventory_ui and inventory_ui.has_method("show_inventory_full_popup"):
+				inventory_ui.show_inventory_full_popup()
+			else:
+				_trigger_fallback_inventory_full_popup()
+				
+			return
+
 	is_product_ready = false
 	_stop_label_animations()
 	
@@ -167,6 +175,51 @@ func _collect_product() -> void:
 	tween.chain().tween_callback(func(): status_label.visible = false)
 	
 	_open_inventory_ui()
+
+func _trigger_fallback_inventory_full_popup() -> void:
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.z_index = 1000
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(8)
+	style.set_expand_margin_all(10)
+	style.shadow_color = Color(0, 0, 0, 0.5)
+	style.shadow_size = 8
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "⚠️ INVENTORY IS FULL\nBuy more slots to collect!"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02, 1.0))
+	label.add_theme_constant_override("outline_size", 4)
+	panel.add_child(label)
+	
+	var canvas = CanvasLayer.new()
+	canvas.layer = 128
+	canvas.add_child(panel)
+	get_tree().current_scene.add_child(canvas)
+	
+	panel.scale = Vector2(0.6, 0.6)
+	panel.pivot_offset = Vector2(150, 30)
+	
+	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.25)
+	
+	var timer = get_tree().create_timer(1.8)
+	timer.timeout.connect(func():
+		var fade_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		fade_tween.tween_property(panel, "modulate:a", 0.0, 0.4)
+		fade_tween.chain().tween_callback(canvas.queue_free)
+	)
 
 func _open_inventory_ui() -> void:
 	var main_scene = get_tree().current_scene

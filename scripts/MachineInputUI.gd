@@ -1,6 +1,5 @@
 extends Control
 
-# Master Recipe List
 const RECIPES = {
 	"French Fries": { "input": "Potato", "in_qty": 1, "out_qty": 1, "time": 8.0 },
 	"Flour": { "input": "Wheat", "in_qty": 1, "out_qty": 1, "time": 5.0 },
@@ -22,7 +21,6 @@ func setup(machine: Node) -> void:
 	_build_ui()
 
 func _ready() -> void:
-	# Force root control to cover the entire screen viewport
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	if get_child_count() == 0 and target_machine:
 		_build_ui()
@@ -37,7 +35,6 @@ func _build_ui() -> void:
 	for child in get_children():
 		child.queue_free()
 		
-	# 1. Background Dim Overlay
 	var bg = ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.color = Color(0, 0, 0, 0.7)
@@ -47,14 +44,12 @@ func _build_ui() -> void:
 	)
 	add_child(bg)
 	
-	# 2. Center Container (Forces everything to the exact middle)
 	var center = CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(center)
 	
-	# 3. Main Panel Box
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(500, 360)
 	
@@ -69,7 +64,6 @@ func _build_ui() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
 	
-	# 4. Margins & VBox Layout
 	var margin = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 18)
 	margin.add_theme_constant_override("margin_right", 18)
@@ -81,7 +75,6 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 12)
 	margin.add_child(vbox)
 	
-	# Title Header
 	var title = Label.new()
 	title.text = "⚙️ FACTORY PRODUCTION TERMINAL"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -96,7 +89,6 @@ func _build_ui() -> void:
 	divider.color = Color(0.68, 0.48, 0.28, 0.8)
 	vbox.add_child(divider)
 	
-	# Scroll Container for recipes
 	var scroll = ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(454, 240)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -107,7 +99,6 @@ func _build_ui() -> void:
 	list_vbox.add_theme_constant_override("separation", 8)
 	scroll.add_child(list_vbox)
 	
-	# Check Player Inventory
 	var inventory = GameData.crop_inventory if GameData and "crop_inventory" in GameData else {}
 	var items_found: int = 0
 	
@@ -118,7 +109,7 @@ func _build_ui() -> void:
 		
 		if available_qty >= recipe["in_qty"]:
 			items_found += 1
-			var row = _create_recipe_load_row(product_name, recipe, available_qty)
+			var row = _create_recipe_row(product_name, recipe, available_qty)
 			list_vbox.add_child(row)
 			
 	if items_found == 0:
@@ -129,7 +120,6 @@ func _build_ui() -> void:
 		empty_lbl.add_theme_color_override("font_color", Color(0.85, 0.65, 0.5))
 		list_vbox.add_child(empty_lbl)
 			
-	# Close Hint
 	var hint = Label.new()
 	hint.text = "Click anywhere outside or press [Esc] to exit"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -137,7 +127,7 @@ func _build_ui() -> void:
 	hint.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
 	vbox.add_child(hint)
 
-func _create_recipe_load_row(product_name: String, recipe: Dictionary, available_qty: int) -> PanelContainer:
+func _create_recipe_row(product_name: String, recipe: Dictionary, available_qty: int) -> PanelContainer:
 	var row_panel = PanelContainer.new()
 	row_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
@@ -160,7 +150,6 @@ func _create_recipe_load_row(product_name: String, recipe: Dictionary, available
 	hbox.add_theme_constant_override("separation", 10)
 	margin.add_child(hbox)
 	
-	# Product Texture Preview Icon
 	var icon_rect = TextureRect.new()
 	icon_rect.custom_minimum_size = Vector2(36, 36)
 	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -172,7 +161,6 @@ func _create_recipe_load_row(product_name: String, recipe: Dictionary, available
 			icon_rect.texture = load(p_data["crop_icon"])
 	hbox.add_child(icon_rect)
 	
-	# Description Label
 	var label = Label.new()
 	var input_name = recipe["input"]
 	var req_qty = recipe["in_qty"]
@@ -184,59 +172,13 @@ func _create_recipe_load_row(product_name: String, recipe: Dictionary, available
 	label.add_theme_constant_override("outline_size", 3)
 	hbox.add_child(label)
 	
-	# Right Controls Container (Quantity Selector + Process Button)
-	var right_controls = HBoxContainer.new()
-	right_controls.add_theme_constant_override("separation", 6)
-	right_controls.alignment = BoxContainer.ALIGNMENT_END
+	# Kalkulahin kung ilang batch ang magagawa at ang kabuuang oras
+	var batches = int(available_qty / recipe["in_qty"])
+	var total_time = recipe["time"] * batches
 	
-	# Calculate maximum possible batches based on available inventory / required quantity per batch
-	var max_multiplier = int(available_qty / req_qty)
-	if max_multiplier < 1:
-		max_multiplier = 1
-	var current_multiplier = 1
-	
-	# Quantity Container (- [qty] +)
-	var qty_container = HBoxContainer.new()
-	qty_container.add_theme_constant_override("separation", 2)
-	
-	var minus_btn = Button.new()
-	minus_btn.text = "-"
-	minus_btn.custom_minimum_size = Vector2(24, 24)
-	minus_btn.add_theme_font_size_override("font_size", 10)
-	
-	var qty_lbl = Label.new()
-	qty_lbl.text = str(current_multiplier)
-	qty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	qty_lbl.custom_minimum_size = Vector2(28, 0)
-	qty_lbl.add_theme_font_size_override("font_size", 11)
-	
-	var plus_btn = Button.new()
-	plus_btn.text = "+"
-	plus_btn.custom_minimum_size = Vector2(24, 24)
-	plus_btn.add_theme_font_size_override("font_size", 10)
-	
-	minus_btn.pressed.connect(func():
-		current_multiplier = max(1, current_multiplier - 1)
-		qty_lbl.text = str(current_multiplier)
-	)
-	
-	plus_btn.pressed.connect(func():
-		current_multiplier = min(max_multiplier, current_multiplier + 1)
-		qty_lbl.text = str(current_multiplier)
-	)
-	
-	qty_container.add_child(minus_btn)
-	qty_container.add_child(qty_lbl)
-	qty_container.add_child(plus_btn)
-	right_controls.add_child(qty_container)
-	
-	# Process / Load Button
 	var process_btn = Button.new()
-	process_btn.text = "Process (" + str(recipe["time"] * current_multiplier) + "s)"
+	process_btn.text = "Process All (" + str(total_time) + "s)"
 	process_btn.add_theme_font_size_override("font_size", 11)
-	
-	minus_btn.pressed.connect(func(): process_btn.text = "Process (" + str(recipe["time"] * current_multiplier) + "s)")
-	plus_btn.pressed.connect(func(): process_btn.text = "Process (" + str(recipe["time"] * current_multiplier) + "s)")
 	
 	var btn_style = StyleBoxFlat.new()
 	btn_style.bg_color = Color(0.25, 0.45, 0.25, 1.0)
@@ -245,11 +187,11 @@ func _create_recipe_load_row(product_name: String, recipe: Dictionary, available
 	
 	process_btn.pressed.connect(func():
 		if target_machine and target_machine.has_method("start_specific_production"):
-			target_machine.start_specific_production(product_name, recipe, current_multiplier)
+			# Ipasa ang batches bilang multiplier para ubusin at iproseso lahat
+			target_machine.start_specific_production(product_name, recipe, batches)
 		_close_panel()
 	)
-	right_controls.add_child(process_btn)
-	hbox.add_child(right_controls)
+	hbox.add_child(process_btn)
 	
 	return row_panel
 

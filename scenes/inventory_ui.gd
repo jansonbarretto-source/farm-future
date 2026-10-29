@@ -6,14 +6,14 @@ extends Control
 @export var crop_textures: Dictionary = {
 	"Wheat": preload("res://images/assets/Inventory (Fruits)/Wheattt.png"),
 	"Carrot": preload("res://images/assets/Inventory (Fruits)/Carrots.png"),
-	"Potato": preload("res://images/assets/Inventory (Fruits)/Potato.png"),
-	"Tomato": preload("res://images/assets/Inventory (Fruits)/Tomato.png"),
-	"Apple": preload("res://images/assets/Inventory (Fruits)/Apple.png"),
-	"Banana": preload("res://images/assets/Inventory (Fruits)/Banana.png"),
-	"Corn": preload("res://images/assets/Inventory (Fruits)/Corn.png"),
-	"Mango": preload("res://images/assets/Inventory (Fruits)/Mango.png"),
-	"Rice": preload("res://images/assets/Inventory (Fruits)/Rice.png"),
-	"Strawberry": preload("res://images/assets/Inventory (Fruits)/Straberry.png"),
+	"Potato": preload("res://images/assets/for main (crops)/potato/potato.png"),
+	"Tomato": preload("res://images/assets/for main (crops)/tomato/tomato.png"),
+	"Apple": preload("res://images/assets/for main (crops)/apple/apple.png"),
+	"Banana": preload("res://images/assets/for main (crops)/banana/banana.png"),
+	"Corn": preload("res://images/assets/for main (crops)/corn/corn.png"),
+	"Mango": preload("res://images/assets/for main (crops)/mango/mango.png"),
+	"Rice": preload("res://images/assets/for main (crops)/rice/rice.png"),
+	"Strawberry": preload("res://images/assets/for main (crops)/strawberry/strawberry.png"),
 	
 	# LIVESTOCK PRODUCE & FERTILIZER
 	"Egg": preload("res://images/assets/for main (crops)/egg/egg.png"),
@@ -47,6 +47,7 @@ extends Control
 # Slot Configuration: 6 Available + 6 Locked = 12 Total Slots
 @export var max_slots: int = 12 
 @export var unlocked_slots: int = 6 
+@export var slot_cost: int = 100 
 
 # UI Components & Animation Vars
 var bg_panel: PanelContainer
@@ -56,11 +57,16 @@ var toggle_badge: PanelContainer
 var is_inventory_open: bool = true
 var is_animating: bool = false
 
-# Keep track of previous inventory item quantities to detect new harvests/acquisitions
 var _last_item_counts: Dictionary = {}
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	
+	if GameData and "unlocked_slots" in GameData:
+		unlocked_slots = GameData.unlocked_slots
+	elif GameData:
+		GameData.unlocked_slots = unlocked_slots
+		
 	_setup_code_designed_panel()
 	_setup_persistent_f_toggle_badge()
 	
@@ -80,10 +86,32 @@ func _cache_item_counts() -> void:
 			for k in GameData.animal_inventory.keys():
 				_last_item_counts[k] = GameData.animal_inventory.get(k, 0)
 
+func _get_unique_item_count() -> int:
+	var unique_items = []
+	var inv = GameData.crop_inventory if GameData and "crop_inventory" in GameData else {}
+	var animal_inv = GameData.animal_inventory if GameData and "animal_inventory" in GameData else {}
+	
+	for k in inv.keys():
+		if inv[k] > 0 and not unique_items.has(k):
+			unique_items.append(k)
+	for k in animal_inv.keys():
+		if animal_inv[k] > 0 and not unique_items.has(k):
+			unique_items.append(k)
+			
+	return unique_items.size()
+
+func _is_inventory_full() -> bool:
+	var current_limit = GameData.unlocked_slots if GameData and "unlocked_slots" in GameData else unlocked_slots
+	return _get_unique_item_count() >= current_limit
+
 func _on_game_data_changed() -> void:
-	# Check if any item count increased (meaning a harvest or item addition occurred)
 	var item_increased = false
+	var newly_added_item = ""
+	
 	if GameData:
+		if "unlocked_slots" in GameData:
+			unlocked_slots = GameData.unlocked_slots
+			
 		var current_inv = GameData.crop_inventory if "crop_inventory" in GameData else {}
 		var current_animal_inv = GameData.animal_inventory if "animal_inventory" in GameData else {}
 		
@@ -92,6 +120,8 @@ func _on_game_data_changed() -> void:
 			var curr_qty = current_inv[k]
 			if curr_qty > prev_qty:
 				item_increased = true
+				if prev_qty == 0 and not _last_item_counts.has(k):
+					newly_added_item = k
 				break
 				
 		if not item_increased:
@@ -100,15 +130,215 @@ func _on_game_data_changed() -> void:
 				var curr_qty = current_animal_inv[k]
 				if curr_qty > prev_qty:
 					item_increased = true
+					if prev_qty == 0 and not _last_item_counts.has(k):
+						newly_added_item = k
 					break
+
+		if item_increased and newly_added_item != "" and not _last_item_counts.has(newly_added_item) and _is_inventory_full():
+			if GameData.crop_inventory.has(newly_added_item):
+				GameData.crop_inventory[newly_added_item] = 0
+			if GameData.animal_inventory.has(newly_added_item):
+				GameData.animal_inventory[newly_added_item] = 0
+				
+			show_inventory_full_popup()
+			_cache_item_counts()
+			update_inventory_ui()
+			return
 
 		_cache_item_counts()
 		
-		# If an item count increased, force open the inventory panel if it's currently closed
 		if item_increased and not is_inventory_open:
-			toggle_inventory() # Opens it up automatically
+			toggle_inventory()
 
 	update_inventory_ui()
+
+func show_inventory_full_popup() -> void:
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.z_index = 1000
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(8)
+	style.set_expand_margin_all(10)
+	style.shadow_color = Color(0, 0, 0, 0.5)
+	style.shadow_size = 8
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "⚠️ INVENTORY IS FULL\nBuy more slots to harvest!"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02, 1.0))
+	label.add_theme_constant_override("outline_size", 4)
+	panel.add_child(label)
+	
+	var canvas = CanvasLayer.new()
+	canvas.layer = 128
+	canvas.add_child(panel)
+	get_tree().current_scene.add_child(canvas)
+	
+	panel.scale = Vector2(0.6, 0.6)
+	panel.pivot_offset = Vector2(150, 30)
+	
+	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.25)
+	
+	var timer = get_tree().create_timer(1.8)
+	timer.timeout.connect(func():
+		var fade_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		fade_tween.tween_property(canvas, "modulate:a", 0.0, 0.4)
+		fade_tween.chain().tween_callback(canvas.queue_free)
+	)
+
+func show_slot_unlocked_popup() -> void:
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.z_index = 1000
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.16, 0.08, 0.96)
+	style.border_color = Color(0.4, 1.0, 0.5, 1.0)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(10)
+	style.set_expand_margin_all(14)
+	style.shadow_color = Color(0, 0, 0, 0.6)
+	style.shadow_size = 10
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "✨ NEW SLOT UNLOCKED! ✨\nInventory capacity expanded!"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.65, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.08, 0.03, 1.0))
+	label.add_theme_constant_override("outline_size", 5)
+	panel.add_child(label)
+	
+	var canvas = CanvasLayer.new()
+	canvas.layer = 128
+	canvas.add_child(panel)
+	get_tree().current_scene.add_child(canvas)
+	
+	panel.scale = Vector2(0.5, 0.5)
+	panel.pivot_offset = Vector2(160, 35)
+	
+	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2(1.1, 1.1), 0.3)
+	
+	var timer = get_tree().create_timer(1.8)
+	timer.timeout.connect(func():
+		var fade_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		fade_tween.tween_property(canvas, "modulate:a", 0.0, 0.4)
+		fade_tween.chain().tween_callback(canvas.queue_free)
+	)
+
+func show_buy_slot_confirmation() -> void:
+	var canvas = CanvasLayer.new()
+	canvas.layer = 129
+	
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.98)
+	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(10)
+	style.set_expand_margin_all(18)
+	style.shadow_color = Color(0, 0, 0, 0.7)
+	style.shadow_size = 12
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 14)
+	panel.add_child(vbox)
+	
+	var msg_label = Label.new()
+	msg_label.text = "🔒 UNLOCK INVENTORY SLOT?\n\nAre you sure you want to buy this slot\nfor ₱" + str(slot_cost) + "?"
+	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	msg_label.add_theme_font_size_override("font_size", 15)
+	msg_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
+	msg_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	msg_label.add_theme_constant_override("outline_size", 4)
+	vbox.add_child(msg_label)
+	
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.add_theme_constant_override("separation", 16)
+	vbox.add_child(hbox)
+	
+	var yes_btn = Button.new()
+	yes_btn.text = "Yes, Buy"
+	yes_btn.custom_minimum_size = Vector2(90, 36)
+	
+	var yes_style = StyleBoxFlat.new()
+	yes_style.bg_color = Color(0.2, 0.5, 0.25, 1.0)
+	yes_style.border_color = Color(0.4, 0.8, 0.45, 1.0)
+	yes_style.set_border_width_all(2)
+	yes_style.set_corner_radius_all(6)
+	yes_btn.add_theme_stylebox_override("normal", yes_style)
+	
+	var yes_hover = yes_style.duplicate()
+	yes_hover.bg_color = Color(0.25, 0.6, 0.3, 1.0)
+	yes_btn.add_theme_stylebox_override("hover", yes_hover)
+	yes_btn.add_theme_color_override("font_color", Color(1, 1, 1))
+	
+	yes_btn.pressed.connect(func():
+		var cost: int = 100
+		if GameData and GameData.has_method("remove_money"):
+			if GameData.remove_money(cost):
+				unlocked_slots = min(unlocked_slots + 1, max_slots)
+				if GameData:
+					GameData.unlocked_slots = unlocked_slots 
+				print("[INVENTORY] Successfully unlocked new slot! Total unlocked: ", unlocked_slots)
+				update_inventory_ui()
+				show_slot_unlocked_popup()
+			else:
+				print("[INVENTORY] Not enough money to buy slot!")
+		canvas.queue_free()
+	)
+	hbox.add_child(yes_btn)
+	
+	var cancel_btn = Button.new()
+	cancel_btn.text = "Cancel"
+	cancel_btn.custom_minimum_size = Vector2(90, 36)
+	
+	var cancel_style = StyleBoxFlat.new()
+	cancel_style.bg_color = Color(0.45, 0.2, 0.2, 1.0)
+	cancel_style.border_color = Color(0.8, 0.4, 0.4, 1.0)
+	cancel_style.set_border_width_all(2)
+	cancel_style.set_corner_radius_all(6)
+	cancel_btn.add_theme_stylebox_override("normal", cancel_style)
+	
+	var cancel_hover = cancel_style.duplicate()
+	cancel_hover.bg_color = Color(0.55, 0.25, 0.25, 1.0)
+	cancel_btn.add_theme_stylebox_override("hover", cancel_hover)
+	cancel_btn.add_theme_color_override("font_color", Color(1, 1, 1))
+	
+	cancel_btn.pressed.connect(func():
+		canvas.queue_free()
+	)
+	hbox.add_child(cancel_btn)
+	
+	canvas.add_child(panel)
+	get_tree().current_scene.add_child(canvas)
+	
+	panel.scale = Vector2(0.6, 0.6)
+	panel.pivot_offset = Vector2(140, 60)
+	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.25)
 
 func _setup_code_designed_panel() -> void:
 	bg_panel = PanelContainer.new()
@@ -138,7 +368,6 @@ func _setup_code_designed_panel() -> void:
 	content_vbox.add_theme_constant_override("separation", 6)
 	bg_panel.add_child(content_vbox)
 	
-	# Header HBox (Title + F Key Hint Symbol)
 	var header_hbox = HBoxContainer.new()
 	header_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	header_hbox.add_theme_constant_override("separation", 8)
@@ -153,7 +382,6 @@ func _setup_code_designed_panel() -> void:
 	title_label.add_theme_constant_override("outline_size", 6)
 	header_hbox.add_child(title_label)
 	
-	# [F] Key Hide Label Symbol Header
 	toggle_label = Label.new()
 	toggle_label.text = "⌨️ [F] Hide"
 	toggle_label.add_theme_font_size_override("font_size", 10)
@@ -174,7 +402,6 @@ func _setup_code_designed_panel() -> void:
 	if grid_container:
 		grid_container.reparent(content_vbox)
 
-# Persistent HUD badge that stays visible on HUD when inventory is closed
 func _setup_persistent_f_toggle_badge() -> void:
 	toggle_badge = PanelContainer.new()
 	toggle_badge.name = "FToggleHUDHint"
@@ -202,7 +429,7 @@ func _setup_persistent_f_toggle_badge() -> void:
 	
 	toggle_badge.add_child(badge_label)
 	add_child(toggle_badge)
-	toggle_badge.visible = false # Only visible when inventory panel is closed
+	toggle_badge.visible = false
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -264,12 +491,10 @@ func update_inventory_ui() -> void:
 	
 	var owned_items = []
 	
-	# 1. Collect Crops, Produce, & Factory Goods
 	for item_name in inv.keys():
 		if inv[item_name] > 0 and not owned_items.has(item_name):
 			owned_items.append(item_name)
 
-	# 2. Collect Bought Animals
 	for animal_name in animal_inv.keys():
 		if animal_inv[animal_name] > 0 and not owned_items.has(animal_name):
 			owned_items.append(animal_name)
@@ -287,32 +512,71 @@ func update_inventory_ui() -> void:
 		slot_panel.add_theme_stylebox_override("panel", default_style)
 
 		if i >= unlocked_slots:
-			# --- LOCKED SLOT ---
 			var locked_style = StyleBoxFlat.new()
-			locked_style.bg_color = Color(0.04, 0.03, 0.02, 0.95)
-			locked_style.border_color = Color(0.2, 0.13, 0.08, 1.0)
+			locked_style.bg_color = Color(0.05, 0.035, 0.025, 0.95)
+			locked_style.border_color = Color(0.25, 0.17, 0.11, 1.0)
 			locked_style.set_border_width_all(2)
 			locked_style.set_corner_radius_all(6)
 			slot_panel.add_theme_stylebox_override("panel", locked_style)
 
+			var vbox = VBoxContainer.new()
+			vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+			vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+			vbox.add_theme_constant_override("separation", 3)
+			vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot_panel.add_child(vbox)
+
 			var lock_rect = TextureRect.new()
-			lock_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+			lock_rect.custom_minimum_size = Vector2(14, 14)
 			lock_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			lock_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			lock_rect.modulate = Color(0.5, 0.5, 0.5, 0.6)
+			lock_rect.modulate = Color(0.85, 0.75, 0.55, 0.9)
+			lock_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			if lock_texture:
 				lock_rect.texture = lock_texture
-			slot_panel.add_child(lock_rect)
+			vbox.add_child(lock_rect)
+
+			var buy_btn = Button.new()
+			buy_btn.text = "Buy Slot"
+			buy_btn.add_theme_font_size_override("font_size", 9)
+			buy_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+			
+			var btn_style = StyleBoxFlat.new()
+			btn_style.bg_color = Color(0.3, 0.19, 0.11, 1.0)
+			btn_style.border_color = Color(0.75, 0.55, 0.3, 1.0)
+			btn_style.set_border_width_all(1)
+			btn_style.set_corner_radius_all(4)
+			buy_btn.add_theme_stylebox_override("normal", btn_style)
+			
+			var hover_style = btn_style.duplicate()
+			hover_style.bg_color = Color(0.45, 0.29, 0.16, 1.0)
+			hover_style.border_color = Color(1.0, 0.85, 0.4, 1.0)
+			buy_btn.add_theme_stylebox_override("hover", hover_style)
+			buy_btn.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
+			
+			buy_btn.pressed.connect(func():
+				show_buy_slot_confirmation()
+			)
+			vbox.add_child(buy_btn)
+			
+			slot_panel.gui_input.connect(func(event: InputEvent):
+				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+					show_buy_slot_confirmation()
+			)
 			
 		elif i < owned_items.size():
-			# --- UNLOCKED & FILLED SLOT ---
 			var item_name = owned_items[i]
 			var count = inv.get(item_name, animal_inv.get(item_name, 0))
 			
 			slot_panel.tooltip_text = item_name + " (x" + str(count) + ")"
 			
-			# Check if selected
-			var is_selected = ("selected_seed_type" in GameData and GameData.selected_seed_type == item_name)
+			# Sinusuri kung ang item na ito ang kasalukuyang pinili sa GameData (pwedeng general item o seed)
+			var is_selected = false
+			if GameData:
+				if "selected_seed_type" in GameData and GameData.selected_seed_type == item_name:
+					is_selected = true
+				elif "selected_inventory_item" in GameData and GameData.selected_inventory_item == item_name:
+					is_selected = true
 			
 			var slot_style = default_style.duplicate()
 			if is_selected:
@@ -320,7 +584,6 @@ func update_inventory_ui() -> void:
 				slot_style.set_border_width_all(2)
 			slot_panel.add_theme_stylebox_override("panel", slot_style)
 			
-			# Icon Texture
 			var icon_rect = TextureRect.new()
 			icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 			icon_rect.offset_left = 4
@@ -329,12 +592,12 @@ func update_inventory_ui() -> void:
 			icon_rect.offset_bottom = -4
 			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			
 			if crop_textures.has(item_name):
 				icon_rect.texture = crop_textures[item_name]
 			slot_panel.add_child(icon_rect)
 			
-			# Count Label
 			var label = Label.new()
 			label.text = "x" + str(count)
 			label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -348,9 +611,9 @@ func update_inventory_ui() -> void:
 			label.add_theme_color_override("font_color", Color(1, 1, 1))
 			label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 			label.add_theme_constant_override("outline_size", 4)
+			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			slot_panel.add_child(label)
 			
-			# Hover Style
 			var hover_style = slot_style.duplicate()
 			hover_style.border_color = Color(0.95, 0.75, 0.35, 1.0)
 			hover_style.set_border_width_all(2)
@@ -367,34 +630,33 @@ func update_inventory_ui() -> void:
 				tween.tween_property(slot_panel, "scale", Vector2.ONE, 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			)
 
-			# Click slot to select item/animal or Right-Click to deselect
+			# Pinapayagan nang ma-select ang ANUMANG ITEM sa inventory kapag na-click
 			slot_panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed:
 					if event.button_index == MOUSE_BUTTON_LEFT:
-						if GameData.has_method("select_seed_type"):
-							GameData.select_seed_type(item_name)
-						
-						# Items that use pointing hand cursor
-						var hand_cursor_items = [
-							"Wheat", "Egg", "Milk", "Manure", "Organic Fertilizer", "Wool",
-							"Chicken", "Cow", "Pig", "Sheep",
-							"Flour", "Cheese", "Bread", "Yarn", "Jam", "French Fries",
-							"Tomato Ketchup", "Popcorn", "Banana Smoothie", "Polished Rice Box", "Carrot Juice"
-						]
-						
-						if item_name in hand_cursor_items:
-							Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
-						else:
-							Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+						if GameData:
+							# Kung ito ay seed, i-set din natin ang seed type para magpatuloy ang pagtatanim
+							if GameData.has_method("select_seed_type") and GameData.seed_inventory.has(item_name):
+								GameData.select_seed_type(item_name)
 							
-						print("Selected item from inventory: ", item_name)
+							# I-save ang kasalukuyang piniling item sa pangkalahatang inventory selection variable
+							if "selected_inventory_item" in GameData:
+								GameData.selected_inventory_item = item_name
+							
+							GameData.data_changed.emit()
+							print("[INVENTORY] Pinili ang item: ", item_name)
 						
+						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
+							
 					elif event.button_index == MOUSE_BUTTON_RIGHT:
 						if GameData:
-							GameData.selected_seed_type = ""
+							if "selected_inventory_item" in GameData:
+								GameData.selected_inventory_item = ""
+							if "selected_seed_type" in GameData:
+								GameData.selected_seed_type = ""
 							GameData.data_changed.emit()
-							Input.set_default_cursor_shape(Input.CURSOR_ARROW)
-							print("[INVENTORY] Item deselected via right-click.")
+							print("[INVENTORY] Na-deselect ang item.")
+						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			)
 
 		grid_container.add_child(slot_panel)

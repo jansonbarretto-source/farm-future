@@ -1,0 +1,96 @@
+[gd_scene format=3 uid="uid://bsfiysl14dgut"]
+
+[ext_resource type="Script" uid="uid://cwmlc3s3d0x8m" path="res://water_tank.gd" id="1_unwxn"]
+[ext_resource type="Texture2D" uid="uid://bwwl36ri457oy" path="res://images/assets/for water resource/filling1.png" id="2_0gqns"]
+[ext_resource type="Texture2D" uid="uid://ws8i45m5v0bx" path="res://images/assets/for water resource/filling2.png" id="3_3kutw"]
+[ext_resource type="Texture2D" uid="uid://cj1d3n1obv67m" path="res://images/assets/for water resource/filling3.png" id="4_cuy8b"]
+[ext_resource type="Texture2D" uid="uid://dcu77bru711eb" path="res://images/assets/for water resource/empty.png" id="5_ctp3u"]
+[ext_resource type="Texture2D" uid="uid://d2jocce815nv5" path="res://images/assets/for water resource/full (2).png" id="6_kl7eo"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8vi88"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_0gqns")
+}],
+"loop": 0,
+"name": &"Filling_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_3kutw")
+}],
+"loop": 0,
+"name": &"Filling_2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_cuy8b")
+}],
+"loop": 0,
+"name": &"Filling_3",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_cuy8b")
+}],
+"loop": 0,
+"name": &"drainig_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_3kutw")
+}],
+"loop": 0,
+"name": &"draining_2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_0gqns")
+}],
+"loop": 0,
+"name": &"draining_3",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": 1,
+"name": &"draining_4",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_ctp3u")
+}],
+"loop": 0,
+"name": &"idle_empty",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_kl7eo")
+}],
+"loop": 0,
+"name": &"idle_full",
+"speed": 1.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q8oox"]
+size = Vector2(73, 123)
+
+[node name="WaterTank" type="Area2D" unique_id=2014160698]
+script = ExtResource("1_unwxn")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1996721280]
+position = Vector2(1, 2.9999924)
+scale = Vector2(0.39787233, 0.4243986)
+sprite_frames = SubResource("SpriteFrames_8vi88")
+animation = &"Filling_2"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=627420849]
+position = Vector2(2, -4)
+shape = SubResource("RectangleShape2D_q8oox")

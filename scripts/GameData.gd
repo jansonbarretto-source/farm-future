@@ -201,12 +201,23 @@ var SEED_DATA = {
 # Player Currencies & Resources
 var money: int = 500
 
+# --- INVENTORY SLOT CONFIGURATION ---
+var unlocked_slots: int = 6
+var max_slots: int = 12
+
+# --- WATER MANAGEMENT SYSTEM VARIABLES ---
+var water_tank_level: float = 0.0      # Kasalukuyang dami ng tubig sa tanke (0.0 hanggang 100.0)
+var max_water_capacity: float = 100.0  # Max capacity ng water tank
+var watering_can_water: float = 0.0    # Tubig na dala ng watering can ng player
+var max_watering_can_cap: float = 25.0 # Max capacity ng watering can
+var water_source_is_tank: bool = false # Tumatukoy kung galing sa Water Tank ang tubig (true = pwedeng pandilig)
+
 # --- DAY & NIGHT CYCLE TIME TRACKING ---
 var current_day: int = 1
-var current_hour: int = 6 # Starts at 6:00 AM
+var current_hour: int = 6 
 var time_minutes: float = 0.0
 
-@export var minutes_per_second: float = 4.0 
+@export var minutes_per_second: float = 6.0 
 
 signal time_changed(hour: int, day: int)
 signal data_changed
@@ -230,7 +241,6 @@ func update_game_time(delta: float) -> void:
 		time_changed.emit(current_hour, current_day)
 		data_changed.emit()
 
-# --- SLEEP & TIME FAST-FORWARD FUNCTIONS ---
 func can_sleep() -> bool:
 	return current_hour >= 20 or current_hour < 6
 
@@ -243,7 +253,16 @@ func sleep_to_next_day() -> void:
 	data_changed.emit()
 	print("[SLEEP] Woke up on Day ", current_day, " at 06:00")
 
-# Dynamic Inventories (Item Name: Quantity)
+# --- WATER MANAGEMENT FUNCTIONS ---
+func use_water_for_irrigation(amount: float = 8.34) -> bool:
+	if watering_can_water > 0 and water_source_is_tank:
+		watering_can_water = max(0.0, watering_can_water - amount)
+		if watering_can_water <= 0.0:
+			water_source_is_tank = false # Nawalan na ng tubig, tanggalin ang tank flag
+		data_changed.emit()
+		return true
+	return false
+
 var seed_inventory: Dictionary = {
 	"Wheat": 10,
 	"Carrot": 0,
@@ -273,7 +292,6 @@ var crop_inventory: Dictionary = {
 	"Manure": 0,
 	"Organic Fertilizer": 0,
 	"Wool": 0,
-	# Factory Items
 	"Flour": 0,
 	"Cheese": 0,
 	"Bread": 0,
@@ -291,12 +309,10 @@ var inventory: Dictionary:
 	get:
 		return crop_inventory
 
-# Hotbar Item Selection
 enum ActiveItem { HOE, WATERING_CAN, SEED }
 var selected_item: ActiveItem = ActiveItem.SEED
 var selected_seed_type: String = "Wheat"
 
-# --- MONEY FUNCTIONS ---
 func add_money(amount: int) -> void:
 	money += amount
 	data_changed.emit()
@@ -308,7 +324,6 @@ func remove_money(amount: int) -> bool:
 		return true
 	return false
 
-# --- GENERAL ITEM CHECKING & REMOVAL ---
 func has_item(item_name: String, amount: int = 1) -> bool:
 	if crop_inventory.get(item_name, 0) >= amount:
 		return true
@@ -327,7 +342,6 @@ func remove_item(item_name: String, amount: int = 1) -> bool:
 		return true
 	return false
 
-# --- SEED INVENTORY FUNCTIONS ---
 func add_seeds(seed_name: String, amount: int) -> void:
 	if seed_inventory.has(seed_name):
 		seed_inventory[seed_name] += amount
@@ -349,7 +363,23 @@ func get_total_seeds() -> int:
 	return total
 
 # --- CROP & PRODUCE INVENTORY FUNCTIONS ---
+func get_unique_item_count() -> int:
+	var unique_items = []
+	for k in crop_inventory.keys():
+		if crop_inventory[k] > 0 and not unique_items.has(k):
+			unique_items.append(k)
+	for k in animal_inventory.keys():
+		if animal_inventory[k] > 0 and not unique_items.has(k):
+			unique_items.append(k)
+	return unique_items.size()
+
 func add_crop(crop_name: String, amount: int = 1) -> void:
+	var already_owned: bool = (crop_inventory.get(crop_name, 0) > 0) or (animal_inventory.get(crop_name, 0) > 0)
+	
+	if not already_owned and get_unique_item_count() >= unlocked_slots:
+		print("[INVENTORY] Puno na ang imbentaryo! Maximum slots reached.")
+		return
+		
 	if crop_inventory.has(crop_name):
 		crop_inventory[crop_name] += amount
 	else:
@@ -363,7 +393,6 @@ func remove_crop(crop_name: String, amount: int = 1) -> bool:
 		return true
 	return false
 
-# --- ITEM SELECTION FUNCTIONS ---
 func select_item(item: ActiveItem) -> void:
 	selected_item = item
 	data_changed.emit()
@@ -377,7 +406,6 @@ func deselect_current_item() -> void:
 	selected_seed_type = ""
 	data_changed.emit()
 
-# --- LIVESTOCK MARKET DEFINITIONS ---
 var ANIMAL_DATA = {
 	"Chicken": {
 		"buy": 150,
@@ -409,6 +437,12 @@ var animal_inventory: Dictionary = {
 }
 
 func add_animal_to_inventory(animal_name: String, amount: int = 1) -> void:
+	var already_owned: bool = (crop_inventory.get(animal_name, 0) > 0) or (animal_inventory.get(animal_name, 0) > 0)
+	
+	if not already_owned and get_unique_item_count() >= unlocked_slots:
+		print("[INVENTORY] Puno na ang imbentaryo! Hindi maaaring idagdag ang hayop: ", animal_name)
+		return
+		
 	if animal_inventory.has(animal_name):
 		animal_inventory[animal_name] += amount
 	else:

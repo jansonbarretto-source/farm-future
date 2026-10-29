@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://c1q0pk65i8pyw"]
+
+[ext_resource type="Script" uid="uid://bpj6atnlt4xil" path="res://river_area.gd" id="1_igcar"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8vi88"]
+size = Vector2(137, 77)
+
+[node name="RiverArea" type="Area2D" unique_id=1619049954]
+script = ExtResource("1_igcar")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1962278847]
+position = Vector2(58.5, 28.5)
+shape = SubResource("RectangleShape2D_8vi88")

@@ -17,13 +17,12 @@ var harvest_particles: Node2D
 
 # --------------------------------------------------
 # PIXEL SPARKLE EFFECT
-# Bigger, faster, and fewer Silver-White sparkles.
 # --------------------------------------------------
 class PixelSparkleEffect extends Node2D:
 	var ambient: bool = false
 	var elapsed: float = 0.0
 	var duration: float = 1.8
-	var sparkle_count: int = 4 # BINAWASAN: Konti lang para malinis ang visual
+	var sparkle_count: int = 4
 
 	var sparkles: Array[Dictionary] = []
 
@@ -41,7 +40,7 @@ class PixelSparkleEffect extends Node2D:
 					sin(angle) * radius_y - 6.0
 				),
 				"phase": randf_range(0.0, TAU),
-				"speed": randf_range(4.5, 8.0), # PINAMABILIS: Mabilis na twilch/twinkle animation
+				"speed": randf_range(4.5, 8.0),
 				"size": randi_range(5, 8)
 			})
 
@@ -76,10 +75,8 @@ class PixelSparkleEffect extends Node2D:
 			var pos: Vector2 = sparkle["position"]
 			var size: float = float(sparkle["size"])
 
-			# Metallic Silver White Palette
 			var silver := Color(0.88, 0.94, 1.0, alpha)
 
-			# Vertical arm
 			draw_rect(
 				Rect2(
 					pos.x - 2.2,
@@ -90,7 +87,6 @@ class PixelSparkleEffect extends Node2D:
 				silver
 			)
 
-			# Horizontal arm
 			draw_rect(
 				Rect2(
 					pos.x - size * 2.8,
@@ -101,7 +97,6 @@ class PixelSparkleEffect extends Node2D:
 				silver
 			)
 
-			# Pure White Center Pixel
 			draw_rect(
 				Rect2(
 					pos.x - 3.0,
@@ -112,7 +107,6 @@ class PixelSparkleEffect extends Node2D:
 				Color(1.0, 1.0, 1.0, alpha)
 			)
 
-			# Detached Accent Pixels
 			if size >= 6.0:
 				draw_rect(
 					Rect2(
@@ -253,23 +247,17 @@ func _play_fertilizer_juice_effects() -> void:
 	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
-# --------------------------------------------------
-# TEMPORARY FERTILIZER SPARKLES
-# --------------------------------------------------
 func _spawn_sparkle_particles() -> void:
 	var sparkles := PixelSparkleEffect.new()
 
 	sparkles.name = "FertilizerSparkles"
 	sparkles.ambient = false
 	sparkles.duration = 1.8
-	sparkles.sparkle_count = 4 # Kakaunti rin para sa fertilizer
+	sparkles.sparkle_count = 4
 
 	add_child(sparkles)
 
 
-# --------------------------------------------------
-# CONTINUOUS HARVESTABLE SPARKLES
-# --------------------------------------------------
 func _spawn_harvestable_sparkles() -> void:
 	if is_instance_valid(harvest_particles):
 		harvest_particles.queue_free()
@@ -277,14 +265,11 @@ func _spawn_harvestable_sparkles() -> void:
 	harvest_particles = PixelSparkleEffect.new()
 	harvest_particles.name = "HarvestableSparkles"
 	harvest_particles.ambient = true
-	harvest_particles.sparkle_count = 5 # Sakto lang para sa fully grown crop
+	harvest_particles.sparkle_count = 5
 
 	add_child(harvest_particles)
 
 
-# --------------------------------------------------
-# CROP COLOR
-# --------------------------------------------------
 func _update_modulate_color() -> void:
 	if not animated_sprite:
 		return
@@ -299,9 +284,6 @@ func _update_modulate_color() -> void:
 		animated_sprite.modulate = Color.WHITE
 
 
-# --------------------------------------------------
-# UPDATE CROP VISUAL
-# --------------------------------------------------
 func update_crop_visual() -> void:
 	if not animated_sprite:
 		return
@@ -343,9 +325,6 @@ func update_crop_visual() -> void:
 		print("Warning: Walang animation na nagngangalang ", anim_name)
 
 
-# --------------------------------------------------
-# CROP GROWTH
-# --------------------------------------------------
 func _on_growth_timer_timeout() -> void:
 	if is_watered and current_stage < Stage.HARVESTABLE:
 		current_stage = (current_stage + 1) as Stage
@@ -362,9 +341,6 @@ func _on_growth_timer_timeout() -> void:
 			_spawn_harvestable_sparkles()
 
 
-# --------------------------------------------------
-# PLAYER INTERACTION
-# --------------------------------------------------
 func _on_input_event(
 	_viewport: Node,
 	event: InputEvent,
@@ -405,34 +381,100 @@ func _on_input_event(
 
 
 # --------------------------------------------------
-# HARVEST
+# HARVEST & INVENTORY FULL CHECK
 # --------------------------------------------------
-var _is_harvested: bool = false # Guard flag para maiwasan ang duplicate harvest
-
 func _harvest() -> void:
-	# Kung na-harvest na sa frame na ito, huwag nang ulitin
-	if _is_harvested:
-		return
-		
 	if "current_stage" in self and "Stage" in self:
 		if current_stage != Stage.HARVESTABLE:
 			return
 
-	# Markahan agad na na-harvest na
-	_is_harvested = true
-	
-	# 1. Base yield
+	# Suriin kung mayroon na ang item na ito sa imbentaryo o kung may count na greater than 0
+	var already_owned: bool = false
+	if GameData:
+		var crop_count = GameData.crop_inventory.get(seed_type, 0)
+		var animal_count = GameData.animal_inventory.get(seed_type, 0)
+		if crop_count > 0 or animal_count > 0:
+			already_owned = true
+			
+		# Kunin ang dinamikong limitasyon mula sa GameData.unlocked_slots
+		var current_limit: int = GameData.unlocked_slots if "unlocked_slots" in GameData else 6
+			
+		# Kung WALA PA sa imbentaryo at puno na ang mga na-unlock na slots, huwag ituloy ang harvest
+		if not already_owned and GameData.has_method("get_unique_item_count") and GameData.get_unique_item_count() >= current_limit:
+			print("[HARVEST] Puno na ang imbentaryo! Hindi ma-harvest ang: ", seed_type)
+			
+			# Ipakita ang pinagandang UI warning box sa gitna ng screen
+			var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
+			if inventory_ui and inventory_ui.has_method("show_inventory_full_popup"):
+				inventory_ui.show_inventory_full_popup()
+			else:
+				_trigger_fallback_inventory_full_popup()
+				
+			return # Hihinto dito at hindi mabubura ang pananim
+
+	# Base yield
 	var yield_amount: int = 1
 	if GameData and "SEED_DATA" in GameData and GameData.SEED_DATA.has(seed_type):
 		yield_amount = GameData.SEED_DATA[seed_type].get("harvest_yield", 1)
 	
-	# 2. Fertilizer multiplier
+	# Fertilizer multiplier
 	if "is_fertilized" in self and is_fertilized:
 		yield_amount *= 2
 
-	# 3. Idagdag sa inventory nang ISANG BESES LANG
+	# Idagdag sa inventory
 	if GameData and GameData.has_method("add_crop"):
 		GameData.add_crop(seed_type, yield_amount)
 
 	print("[HARVEST] Harvested ", seed_type, " x", yield_amount)
 	queue_free()
+
+func _trigger_fallback_inventory_full_popup() -> void:
+	# Lumikha ng PanelContainer para sa magandang background box (Stardew Valley style)
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.z_index = 1000
+	
+	# Estilo ng panel: Dark brown background na may golden/bronze border at rounded corners
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(8)
+	style.set_expand_margin_all(10)
+	style.shadow_color = Color(0, 0, 0, 0.5)
+	style.shadow_size = 8
+	panel.add_theme_stylebox_override("panel", style)
+	
+	# Lumikha ng Label para sa Text
+	var label = Label.new()
+	label.text = "⚠️ INVENTORY IS FULL\nBuy more slots to harvest!"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02, 1.0))
+	label.add_theme_constant_override("outline_size", 4)
+	
+	panel.add_child(label)
+	
+	var canvas = CanvasLayer.new()
+	canvas.layer = 128
+	canvas.add_child(panel)
+	get_tree().current_scene.add_child(canvas)
+	
+	# Smooth Tween Animation (Pop-up effect na may scale at fade out sa panel sa halip na canvas)
+	panel.scale = Vector2(0.6, 0.6)
+	panel.pivot_offset = Vector2(150, 30)
+	
+	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.25)
+	
+	var timer = get_tree().create_timer(1.8)
+	timer.timeout.connect(func():
+		var fade_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		fade_tween.tween_property(panel, "modulate:a", 0.0, 0.4)
+		fade_tween.chain().tween_callback(canvas.queue_free)
+	)

@@ -44,7 +44,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_open_stock_menu()
 
-# Pop-up Panel displaying current stocked product icon, count, and restock options
 func _open_stock_menu() -> void:
 	if is_instance_valid(stock_panel_instance):
 		return
@@ -59,7 +58,7 @@ func _open_stock_menu() -> void:
 	panel.custom_minimum_size = Vector2(360, 320)
 	
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color("#2d1b0e") # Rustic wood theme
+	panel_style.bg_color = Color("#2d1b0e")
 	panel_style.border_color = Color("#8b5a2b")
 	panel_style.set_border_width_all(3)
 	panel_style.set_corner_radius_all(8)
@@ -72,7 +71,6 @@ func _open_stock_menu() -> void:
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 12)
 	
-	# Header
 	var title = Label.new()
 	title.text = "📦 MARKET STALL MANAGEMENT"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -91,20 +89,21 @@ func _open_stock_menu() -> void:
 	var curr_hbox = HBoxContainer.new()
 	curr_hbox.add_theme_constant_override("separation", 12)
 	
-	# Product Image Texture
+	# Product Image Texture (Dynamic Loading from GameData)
 	var item_icon = TextureRect.new()
 	item_icon.custom_minimum_size = Vector2(48, 48)
 	item_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	item_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	
-	if displayed_item != "":
-		# Attempt loading product texture from your project folder
-		var tex_path = "res://assets/items/" + displayed_item.to_lower().replace(" ", "_") + ".png"
-		if ResourceLoader.exists(tex_path):
-			item_icon.texture = load(tex_path)
+	if displayed_item != "" and stock_count > 0:
+		var formatted_item = displayed_item.capitalize()
+		if GameData.SEED_DATA.has(formatted_item) and GameData.SEED_DATA[formatted_item].has("crop_icon"):
+			var icon_path = GameData.SEED_DATA[formatted_item]["crop_icon"]
+			if ResourceLoader.exists(icon_path):
+				item_icon.texture = load(icon_path)
 	curr_hbox.add_child(item_icon)
 	
-	# Currently Stocked Details Label
+	# Currently Stocked Details Label (Quantity & Name)
 	var curr_info = Label.new()
 	if displayed_item != "" and stock_count > 0:
 		curr_info.text = "Currently Stocked:\n" + displayed_item + " (x" + str(stock_count) + ")"
@@ -117,16 +116,17 @@ func _open_stock_menu() -> void:
 	current_stock_panel.add_child(curr_hbox)
 	vbox.add_child(current_stock_panel)
 	
-	# Factory Items Selection Dropdown & Quantity Control
 	var factory_items = [
 		"Bread", "Cheese", "Flour", "Jam", "Yarn", 
 		"French Fries", "Tomato Ketchup", "Popcorn", 
-		"Banana Smoothie", "Polished Rice Box", "Carrot Juice"
+		"Banana Smoothie", "Polished Rice Box", "Carrot Juice",
+		"Wheat", "Carrot", "Potato", "Tomato", "Rice", "Corn", "Strawberry", "Banana", "Apple", "Mango"
 	]
 	
 	var available_items: Array = []
 	for item_name in factory_items:
-		if GameData.crop_inventory.get(item_name, 0) > 0:
+		var total_inv = GameData.crop_inventory.get(item_name, 0)
+		if total_inv > 0 and not available_items.has(item_name):
 			available_items.append(item_name)
 			
 	if available_items.size() == 0:
@@ -143,7 +143,6 @@ func _open_stock_menu() -> void:
 			item_select.add_item(item + " (In Inventory: " + str(inv_count) + ")")
 		vbox.add_child(item_select)
 		
-		# Quantity adjustment box
 		var qty_wrapper = HBoxContainer.new()
 		qty_wrapper.alignment = BoxContainer.ALIGNMENT_CENTER
 		qty_wrapper.add_theme_constant_override("separation", 10)
@@ -186,7 +185,6 @@ func _open_stock_menu() -> void:
 		qty_wrapper.add_child(btn_up)
 		vbox.add_child(qty_wrapper)
 		
-		# Confirm Stock Button
 		var stock_btn = Button.new()
 		stock_btn.text = "Add Goods To Stall"
 		stock_btn.custom_minimum_size = Vector2(0, 38)
@@ -208,7 +206,6 @@ func _open_stock_menu() -> void:
 		)
 		vbox.add_child(stock_btn)
 	
-	# Close Button
 	var close_btn = Button.new()
 	close_btn.text = "Close [E]"
 	close_btn.custom_minimum_size = Vector2(0, 34)
@@ -311,7 +308,7 @@ func _spawn_stall_sold_text(text: String) -> void:
 	label.z_index = 10
 	get_parent().add_child(label)
 	
-	var tween = create_tween().set_parallel(true)
+	var tween = label.create_tween().set_parallel(true)
 	tween.tween_property(label, "global_position:y", label.global_position.y - 20.0, 1.0)
 	tween.tween_property(label, "modulate:a", 0.0, 1.0)
 	tween.chain().tween_callback(label.queue_free)
@@ -319,7 +316,5 @@ func _spawn_stall_sold_text(text: String) -> void:
 func _update_display() -> void:
 	if not stock_label:
 		return
-		
-	# World space label clean hint
 	stock_label.text = "[E] Market Stall"
 	stock_label.show()
