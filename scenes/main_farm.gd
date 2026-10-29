@@ -89,7 +89,13 @@ func _update_tile_cursor() -> void:
 	var global_mouse_pos = get_global_mouse_position()
 	var map_pos = ground_terrain.local_to_map(ground_terrain.to_local(global_mouse_pos))
 	
-	var current_item = GameData.selected_seed_type if (GameData and "selected_seed_type" in GameData) else ""
+	# Sinusuri ang parehong seed type at general inventory item (para sa mga hayop)
+	var current_item = ""
+	if GameData:
+		if "selected_seed_type" in GameData and GameData.selected_seed_type != "":
+			current_item = GameData.selected_seed_type
+		elif "selected_inventory_item" in GameData:
+			current_item = GameData.selected_inventory_item
 	
 	# Kung naglalagay ng hayop, icheck ang livestock boundary; kung nagtatanim, icheck ang farm boundary
 	if current_item in ANIMAL_NAMES:
@@ -180,7 +186,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		var global_click_pos = get_global_mouse_position()
 		var map_pos = ground_terrain.local_to_map(ground_terrain.to_local(global_click_pos))
 		
-		var active_selected = GameData.selected_seed_type if (GameData and "selected_seed_type" in GameData) else ""
+		# Kunin ang active selected item mula sa seed o inventory item
+		var active_selected = ""
+		if GameData:
+			if "selected_seed_type" in GameData and GameData.selected_seed_type != "":
+				active_selected = GameData.selected_seed_type
+			elif "selected_inventory_item" in GameData:
+				active_selected = GameData.selected_inventory_item
+
 		var current_tool = GameData.selected_item if (GameData and "selected_item" in GameData) else -1
 		
 		if event.button_index == MOUSE_BUTTON_LEFT:
@@ -237,9 +250,6 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 		has_animal = true
 
 	if has_animal:
-		if GameData and "crop_inventory" in GameData and GameData.crop_inventory.get(animal_name, 0) > 0:
-			GameData.crop_inventory[animal_name] -= 1
-
 		var new_animal = animal_scene.instantiate()
 		
 		if "animal_type" in new_animal and "AnimalType" in new_animal:
@@ -259,7 +269,8 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 		# --- AUTO-RESET SELECTION KAPAG NAILAPAG NA ANG HAYOP O NAUBOS NA ---
 		if GameData:
 			if GameData.animal_inventory.get(animal_name, 0) <= 0:
-				GameData.selected_seed_type = "" # I-clear lang kung naubos na ang hayop na ito
+				GameData.selected_inventory_item = ""
+				GameData.selected_seed_type = ""
 			if GameData.has_signal("data_changed"):
 				GameData.data_changed.emit()
 			
@@ -432,4 +443,4 @@ func _spawn_crop(map_pos: Vector2i, seed_type: String, start_watered: bool = fal
 	if crop_instance.has_method("setup_crop"):
 		crop_instance.setup_crop(seed_type, start_watered)
 		
-	add_child(crop_instance)
+	add_child(crop_instance)	
