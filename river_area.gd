@@ -53,6 +53,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			if GameData:
 				GameData.watering_can_water = GameData.max_watering_can_cap
 				GameData.water_source_is_tank = false # Galing ilog, kaya bawal pang-dilig direkta
+				
+				# --- TUGTUGIN ANG WATER REFILL SOUND ---
+				if has_node("/root/AudioManager"):
+					AudioManager.play_sfx("water_refill")
+					
 				print("[RIVER] Puno na ang Watering Can mula sa ilog! Kailangan itong ilipat muna sa Water Tank.")
 				_show_green_feedback()
 			get_viewport().set_input_as_handled()

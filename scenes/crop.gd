@@ -150,7 +150,6 @@ class PixelSparkleEffect extends Node2D:
 # INITIALIZATION
 # --------------------------------------------------
 func _ready() -> void:
-	# Awtomatiko nitong idinaragdag ang crop sa group na "crops" pagka-spawn na pagka-spawn
 	if not is_in_group("crops"):
 		add_to_group("crops")
 		
@@ -221,13 +220,11 @@ func _process(delta: float) -> void:
 		return
 		
 	if GameData.current_weather == "Rainy":
-		# 1. Kung nasa GROWING stage pa lang
 		if current_stage == Stage.GROWING:
 			continuous_rain_time += delta
 			if continuous_rain_time >= max_rain_leeway:
 				_flood_destroy_crop()
 		
-		# 2. Kung nasa HARVESTABLE stage na (Fully grown na at umuulan) -> May 1 minuto (60s) bago ma-flood
 		elif current_stage == Stage.HARVESTABLE:
 			harvestable_rain_time += delta
 			if harvestable_rain_time >= max_harvestable_rain_leeway:
@@ -236,7 +233,6 @@ func _process(delta: float) -> void:
 		continuous_rain_time = max(0.0, continuous_rain_time - delta * 0.5)
 		harvestable_rain_time = max(0.0, harvestable_rain_time - delta * 0.5)
 
-	# 3. WITHER MECHANIC: Kapag Dry at hinayaan sa init ang tanim na hinog na
 	if current_stage == Stage.HARVESTABLE and GameData.current_weather == "Dry":
 		harvestable_time_elapsed += delta
 		if harvestable_time_elapsed >= max_harvestable_leeway:
@@ -265,8 +261,6 @@ func water_crop() -> void:
 			growth_timer.start()
 
 		_update_modulate_color()
-
-
 # --------------------------------------------------
 # FERTILIZER LOGIC
 # --------------------------------------------------
@@ -578,11 +572,19 @@ func _harvest() -> void:
 # HAZARD POPUPS & DESTRUCTION HANDLERS
 # --------------------------------------------------
 func _flood_destroy_crop() -> void:
+	# --- TUGTUGIN ANG CROP FLOODED SOUND ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("crop_flooded")
+		
 	_show_flooded_flash_text()
 	queue_free()
 
 
 func _wither_crop_due_to_heat() -> void:
+	# --- TUGTUGIN ANG CROP WITHER SOUND ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("crop_wither")
+		
 	_show_withered_flash_text()
 	queue_free()
 

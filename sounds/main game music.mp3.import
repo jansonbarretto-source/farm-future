@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bokxkr60ewel4"
+path="res://.godot/imported/main game music.mp3-7f93e9838e9b425e9cce0ae6f18f0a9e.mp3str"
+
+[deps]
+
+source_file="res://sounds/main game music.mp3"
+dest_files=["res://.godot/imported/main game music.mp3-7f93e9838e9b425e9cce0ae6f18f0a9e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

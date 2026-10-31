@@ -14,9 +14,14 @@ config/name="FarmFuture"
 run/main_scene="uid://qvsetlm7ml3u"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[audio]
+
+buses/default_bus_layout="uid://cgx8nm7lkw7ap"
+
 [autoload]
 
 GameData="*uid://da433ynl0w4vq"
+AudioManager="*uid://b8wgwqrpml03o"
 
 [display]
 

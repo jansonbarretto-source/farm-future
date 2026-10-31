@@ -6,6 +6,10 @@ extends Control
 @onready var animal_container: VBoxContainer = $Panel/MarketTabs/Animals/AnimalListContainer if $Panel/MarketTabs.has_node("Animals/AnimalListContainer") else null
 @onready var close_button: Button = $Panel/CloseButton
 
+# Store Operating Hours (6:00 AM to 8:00 PM / 20:00)
+const OPEN_HOUR: int = 6
+const CLOSE_HOUR: int = 20
+
 # Seed Pack Image Textures (located inside res://images/assets/seeds/)
 @export var seed_textures: Dictionary = {
 	"Wheat": preload("res://images/assets/seeds/wheat seed pack.png"),
@@ -27,16 +31,29 @@ func _ready() -> void:
 		close_button.pressed.connect(_on_close_pressed)
 	
 	if GameData.has_signal("data_changed"):
-		GameData.data_changed.connect(update_ui)
+		GameData.data_changed.connect(_on_game_data_changed)
 		
 	_adjust_container_sizes()
 	_populate_market_tabs()
 
-# Forces the scrollable area and containers to expand cleanly inside the market window
+func is_store_open() -> bool:
+	if GameData and "current_hour" in GameData:
+		var hour = GameData.current_hour
+		return hour >= OPEN_HOUR and hour < CLOSE_HOUR
+	return true
+
+func _on_game_data_changed() -> void:
+	update_ui()
+	if visible and not is_store_open():
+		hide()
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
+		_spawn_market_notification("❌ Store is now Closed! (Opens at 6:00 AM)")
+
 func _adjust_container_sizes() -> void:
 	var tabs = $Panel/MarketTabs
 	if tabs:
-		tabs.custom_minimum_size = Vector2(280, 200) # Expands tab view area
+		tabs.custom_minimum_size = Vector2(280, 200)
 		tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 	if buy_container:
@@ -52,7 +69,6 @@ func _adjust_container_sizes() -> void:
 		animal_container.add_theme_constant_override("separation", 8)
 
 func _populate_market_tabs() -> void:
-	# Linisin muna ang lumang UI entries sa containers
 	for child in buy_container.get_children():
 		child.queue_free()
 	for child in sell_container.get_children():
@@ -61,11 +77,6 @@ func _populate_market_tabs() -> void:
 		for child in animal_container.get_children():
 			child.queue_free()
 
-	# --- 1. CROPS & SEEDS (BUY & SELL TABS) ---
-	# LUMANG LINE 65:
-	# for item_name in GameData.SEED_DATA.keys():
-
-	# BAGONG SAFE LINE 65:
 	if not GameData or not "SEED_DATA" in GameData:
 		return
 
@@ -80,31 +91,28 @@ func _populate_market_tabs() -> void:
 		if not crop_icon_texture and data.has("crop_icon") and ResourceLoader.exists(data["crop_icon"]):
 			crop_icon_texture = load(data["crop_icon"])
 
-		# BUY TAB ITEM CARD (Seeds Only)
 		if buy_price > 0 and seed_textures.has(item_name):
 			var buy_card = _create_market_card(
 				item_name + " Seed",
 				buy_price,
 				"Buy",
-				Color(0.18, 0.42, 0.22, 1.0), # Green button
+				Color(0.18, 0.42, 0.22, 1.0),
 				func(): _on_buy_seed(item_name, buy_price),
 				seed_icon
 			)
 			buy_container.add_child(buy_card)
 		
-		# SELL TAB ITEM CARD (All Crops & Animal Produce)
 		if sell_price > 0:
 			var sell_card = _create_market_card(
 				item_name,
 				sell_price,
 				"Sell",
-				Color(0.55, 0.22, 0.18, 1.0), # Red/Brown button
+				Color(0.55, 0.22, 0.18, 1.0),
 				func(): _on_sell_crop(item_name, sell_price),
 				crop_icon_texture
 			)
 			sell_container.add_child(sell_card)
 
-	# --- 2. LIVESTOCK ANIMALS (HIWALAY NA ANIMALS TAB) ---
 	if animal_container and "ANIMAL_DATA" in GameData:
 		for animal_name in GameData.ANIMAL_DATA.keys():
 			var a_data = GameData.ANIMAL_DATA[animal_name]
@@ -118,19 +126,17 @@ func _populate_market_tabs() -> void:
 				animal_name,
 				animal_price,
 				"Buy",
-				Color(0.18, 0.35, 0.58, 1.0), # Blue button para sa livestock
+				Color(0.18, 0.35, 0.58, 1.0),
 				func(): _on_buy_animal(animal_name, animal_price),
 				animal_icon
 			)
 			animal_container.add_child(animal_card)
 
-# Helper function to generate visual market cards
 func _create_market_card(item_title: String, price: int, action_text: String, btn_color: Color, on_click_callable: Callable, texture: Texture2D = null) -> PanelContainer:
 	var card = PanelContainer.new()
 	card.custom_minimum_size = Vector2(0, 54)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
-	# Dark wooden card frame
 	var card_style = StyleBoxFlat.new()
 	card_style.bg_color = Color(0.1, 0.07, 0.04, 0.9)
 	card_style.border_color = Color(0.38, 0.25, 0.15, 1.0)
@@ -147,7 +153,6 @@ func _create_market_card(item_title: String, price: int, action_text: String, bt
 	hbox.offset_bottom = -4
 	card.add_child(hbox)
 	
-	# Item Image Icon
 	var icon_rect = TextureRect.new()
 	icon_rect.custom_minimum_size = Vector2(40, 40)
 	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -158,7 +163,6 @@ func _create_market_card(item_title: String, price: int, action_text: String, bt
 		
 	hbox.add_child(icon_rect)
 	
-	# Text Info
 	var vbox = VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -181,7 +185,6 @@ func _create_market_card(item_title: String, price: int, action_text: String, bt
 	
 	hbox.add_child(vbox)
 	
-	# Buy / Sell Button
 	var action_btn = Button.new()
 	action_btn.text = action_text
 	action_btn.custom_minimum_size = Vector2(64, 34)
@@ -213,23 +216,62 @@ func update_ui() -> void:
 		money_label.text = "Money: ₱" + str(GameData.money) + " | Total Seeds: " + str(GameData.get_total_seeds())
 
 func open_market() -> void:
+	if not is_store_open():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
+		_spawn_market_notification("❌ Store is Closed! Opens at 6:00 AM")
+		return
+		
 	update_ui()
 	_populate_market_tabs()
 	show()
 
+func _spawn_market_notification(text: String) -> void:
+	var label = Label.new()
+	label.text = text
+	label.add_theme_color_override("font_color", Color("#ef4444"))
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.add_theme_constant_override("outline_size", 4)
+	label.add_theme_font_size_override("font_size", 16)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	
+	var canvas = CanvasLayer.new()
+	canvas.layer = 150
+	
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.add_child(label)
+	canvas.add_child(center)
+	get_tree().root.add_child(canvas)
+	
+	var tween = create_tween()
+	tween.tween_property(label, "scale", Vector2(1.2, 1.2), 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_interval(1.0)
+	# --- NAINDAHAN NA: I-fade ang label sa halip na canvas para mawala ang error ---
+	tween.tween_property(label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(canvas.queue_free)
+
 func _on_buy_seed(seed_name: String, price: int) -> void:
+	if not is_store_open():
+		return
 	if GameData.remove_money(price):
 		GameData.add_seeds(seed_name, 1)
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("buy")
+	else:
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
+		_spawn_market_notification("⚠️ Not enough money!")
 
 func _on_buy_animal(animal_name: String, price: int) -> void:
+	if not is_store_open():
+		return
 	if GameData.remove_money(price):
-		# 1. Add to animal_inventory for farm placement logic
 		if GameData.has_method("add_animal_to_inventory"):
 			GameData.add_animal_to_inventory(animal_name, 1)
 		elif "animal_inventory" in GameData:
 			GameData.animal_inventory[animal_name] = GameData.animal_inventory.get(animal_name, 0) + 1
 			
-		# 2. Add to crop_inventory/inventory so it renders inside the Inventory UI Grid!
 		if "crop_inventory" in GameData:
 			GameData.crop_inventory[animal_name] = GameData.crop_inventory.get(animal_name, 0) + 1
 		elif "inventory" in GameData:
@@ -238,11 +280,26 @@ func _on_buy_animal(animal_name: String, price: int) -> void:
 		if GameData.has_signal("data_changed"):
 			GameData.data_changed.emit()
 			
-		print("[MARKET] Successfully bought 1x ", animal_name, "! Added to animal & inventory UI.")
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("buy")
+	else:
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
+		_spawn_market_notification("⚠️ Not enough money!")
 
 func _on_sell_crop(crop_name: String, price: int) -> void:
+	if not is_store_open():
+		return
 	if GameData.remove_crop(crop_name, 1):
 		GameData.add_money(price)
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("coin")
+	else:
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
+		_spawn_market_notification("⚠️ No item to sell!")
 
 func _on_close_pressed() -> void:
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("click") # Pinalitan ng click sound para sa close button
 	hide()

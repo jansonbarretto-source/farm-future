@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ecb4245r2rr8"
+path="res://.godot/imported/rain sound.mp3-9138c1b1dc2d772dc6029d4054709922.mp3str"
+
+[deps]
+
+source_file="res://sounds/rain sound.mp3"
+dest_files=["res://.godot/imported/rain sound.mp3-9138c1b1dc2d772dc6029d4054709922.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

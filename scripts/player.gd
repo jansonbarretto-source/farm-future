@@ -6,12 +6,16 @@ extends CharacterBody2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var is_acting: bool = false
+var walk_sound_timer: float = 0.0
+@export var walk_sound_interval: float = 0.4 # Bilis ng pagitan ng mga tunog habang naglalakad
 
 func _ready() -> void:
-	# Connect signal to unlock movement after action animations complete
-	sprite.animation_finished.connect(_on_animation_finished)
+	# Ligtas na pag-connect ng signal kung hindi pa nakakonekta
+	if sprite and sprite.has_signal("animation_finished"):
+		if not sprite.animation_finished.is_connected(_on_animation_finished):
+			sprite.animation_finished.connect(_on_animation_finished)
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	# Lock player in place while performing an action
 	if is_acting:
 		velocity = Vector2.ZERO
@@ -32,9 +36,18 @@ func _physics_process(_delta: float) -> void:
 	if input_dir != Vector2.ZERO:
 		velocity = input_dir.normalized() * speed
 		update_walk_animation(input_dir)
+		
+		# --- TUGTUGIN ANG WALKING SOUND KUNG GUMAGALAW ---
+		walk_sound_timer -= delta
+		if walk_sound_timer <= 0.0:
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("walking")
+			walk_sound_timer = walk_sound_interval
 	else:
 		velocity = Vector2.ZERO
 		update_idle_animation()
+		# Agad na i-reset ang timer para hinto ang tunog pagka-release ng keys
+		walk_sound_timer = 0.0
 
 	move_and_slide()
 

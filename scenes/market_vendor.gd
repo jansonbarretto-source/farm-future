@@ -36,9 +36,15 @@ func open_market() -> void:
 		ui = get_tree().root.find_child("MarketUI", true, false)
 		
 	if ui:
+		# --- TUGTUGIN ANG OPEN SOUND KAPAG PININDOT ANG E ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("open")
+			
 		if ui.has_method("open_market"):
 			ui.open_market()
 		elif ui.has_method("show"):
 			ui.show()
 	else:
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
 		print("Error: MarketUI node not found in scene tree!")

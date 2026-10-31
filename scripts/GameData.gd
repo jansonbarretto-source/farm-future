@@ -213,6 +213,21 @@ var PESTICIDE_RECIPE = {
 # Player Currencies & Resources
 var money: int = 500
 
+# Getter/Alias para maging compatible ang 'player_money' sa mga bagong scripts gaya ng locked gates
+var player_money: int:
+	get:
+		return money
+	set(value):
+		money = value
+
+# --- UNLOCKED AREAS & PROGRESSION SYSTEM ---
+var unlocked_areas: Dictionary = {
+	"Farm": true,          # Day 1: Bukas na agad
+	"Market": true,        # Day 1: Bukas na agad
+	"Factory": false,      # Day 5 i-aunlock (May bayad na 3,000)
+	"Livestock": false     # Day 10 i-aunlock (May bayad na 3,000)
+}
+
 # --- INVENTORY SLOT CONFIGURATION ---
 var unlocked_slots: int = 6
 var max_slots: int = 12
@@ -228,7 +243,6 @@ var water_source_is_tank: bool = false
 var current_weather: String = "Raining" # Pwedeng "Dry" o "Rainy"
 
 func roll_daily_weather() -> void:
-	# 30% chance na maging Rainy, 70% chance na maging Dry tuwing bagong araw
 	var roll = randf()
 	if roll <= 0.30:
 		current_weather = "Rainy"
@@ -253,7 +267,6 @@ func _ready() -> void:
 	select_seed_type("Wheat")
 	select_item(ActiveItem.SEED)
 	current_weather = "Rainy"
-	#roll_daily_weather() # I-generate ang simula ng weather sa unang araw
 
 func update_game_time(delta: float) -> void:
 	var prev_minute = int(time_minutes)
@@ -278,7 +291,6 @@ func sleep_to_next_day() -> void:
 	current_hour = 6
 	time_minutes = 0.0
 	
-	# Mag-roll ng bagong weather paggising sa bagong araw
 	roll_daily_weather()
 	
 	time_changed.emit(current_hour, current_day)

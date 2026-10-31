@@ -95,11 +95,17 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.is_echo():
 		if event.keycode == KEY_1:
 			GameData.select_item(GameData.ActiveItem.HOE)
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("tool_swap")
 		elif event.keycode == KEY_2:
 			GameData.select_item(GameData.ActiveItem.WATERING_CAN)
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("tool_swap")
 		elif event.keycode == KEY_3:
 			GameData.select_item(GameData.ActiveItem.SEED)
-		elif event.keycode == KEY_TAB: # Inalis na ang KEY_E dito para malayang magamit sa Market Stall
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("tool_swap")
+		elif event.keycode == KEY_TAB: 
 			_cycle_seed(1)
 
 	if is_popup_open and event is InputEventMouseButton and event.pressed:
@@ -112,12 +118,17 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_tool_slot_gui_input(event: InputEvent, item: GameData.ActiveItem) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		GameData.select_item(item)
+		# --- TUGTUGIN ANG TOOL SWAP SOUND ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("tool_swap")
 
 func _on_slot_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if GameData:
 				GameData.select_item(GameData.ActiveItem.SEED)
+				if has_node("/root/AudioManager"):
+					AudioManager.play_sfx("tool_swap")
 				
 			if is_popup_open:
 				_hide_popup()
@@ -152,6 +163,11 @@ func _cycle_seed(direction: int) -> void:
 	var next_seed = owned_seeds[current_index]
 	GameData.select_seed_type(next_seed)
 	GameData.select_item(GameData.ActiveItem.SEED)
+	
+	# --- TUGTUGIN ANG TOOL SWAP SOUND KAPAG NAG-CYCLE NG SEEDS ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("tool_swap")
+		
 	print("[HOTBAR] Equipped Seed: ", next_seed)
 
 func _show_popup() -> void:
@@ -248,6 +264,10 @@ func _on_seed_button_pressed(seed_name: String) -> void:
 	if GameData:
 		GameData.select_seed_type(seed_name)
 		GameData.select_item(GameData.ActiveItem.SEED)
+		
+		# --- TUGTUGIN ANG TOOL SWAP SOUND KAPAG NAMILI NG SEED SA POPUP ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("tool_swap")
 		
 	print("[UI] Successfully Selected and Equipped Seed: ", seed_name)
 	_update_slot_icon()

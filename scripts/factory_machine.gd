@@ -71,6 +71,13 @@ func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> vo
 		get_viewport().set_input_as_handled()
 
 func _handle_interaction() -> void:
+	# --- SURIN KUNG SARADO NA ANG MACHINE (8:00 PM HANGGANG 6:00 AM) ---
+	if GameData and "current_hour" in GameData:
+		var current_hour = GameData.current_hour
+		if current_hour >= 20 or current_hour < 6:
+			_show_closed_popup()
+			return
+
 	if is_product_ready:
 		_collect_product()
 		return
@@ -81,6 +88,55 @@ func _handle_interaction() -> void:
 		return
 		
 	_open_input_panel()
+
+func _show_closed_popup() -> void:
+	var canvas = CanvasLayer.new()
+	canvas.layer = 200
+	
+	var panel = PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	panel.modulate.a = 0.0 # Magsisimula sa transparent para sa smooth fade-in
+	
+	# Pinalinis at pinaganda ang UI Design (Modern Aesthetic)
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.10, 0.07, 0.15, 0.96) # Mas malalim at eleganteng kulay
+	style.border_color = Color(1.0, 0.82, 0.40, 1.0) # Ginintuang border para mas lutang
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.set_content_margin_all(22)
+	style.shadow_color = Color(0, 0, 0, 0.6)
+	style.shadow_size = 12
+	panel.add_theme_stylebox_override("panel", style)
+	
+	var label = Label.new()
+	label.text = "🔒  FACTORY IS CLOSED  🔒\n\nOperating Hours:\n6:00 AM – 8:00 PM"
+	label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.08))
+	label.add_theme_constant_override("outline_size", 4)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(label)
+	
+	canvas.add_child(panel)
+	get_tree().root.add_child(canvas)
+	
+	# Eksaktong nakagitna ang pivot para sa smooth scaling mula center
+	panel.scale = Vector2(0.8, 0.8)
+	panel.pivot_offset = Vector2(140, 45)
+	
+	# Makinis at mas pinabilis na transition para sa panel
+	var tween = create_tween().set_parallel(true)
+	tween.tween_property(panel, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# Timer para sa awtomatikong pagkawala pagkalipas ng 3 segundo na may smooth fade-out
+	var timer = get_tree().create_timer(3.0)
+	timer.timeout.connect(func():
+		var fade = create_tween().set_parallel(true)
+		fade.tween_property(panel, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		fade.tween_property(panel, "scale", Vector2(0.9, 0.9), 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		fade.chain().tween_callback(canvas.queue_free)
+	)
 
 func _open_input_panel() -> void:
 	var main_scene = get_tree().current_scene
@@ -110,12 +166,10 @@ func start_specific_production(product_name: String, recipe: Dictionary, batches
 	var req_amount = recipe["in_qty"] * batches
 	
 	if "crop_inventory" in GameData and GameData.crop_inventory.get(ingredient, 0) >= req_amount:
-		# Kukunin at uubusin ang lahat ng kailangang sangkap nang sabay-sabay
 		GameData.crop_inventory[ingredient] -= req_amount
 		GameData.data_changed.emit()
 		
 		current_product = product_name
-		# Awtomatikong ita-times ang output sa dami ng batches (hal. 10 tomatoes / 2 = 5 batches * 1 = 5 ketchup)
 		current_output_qty = recipe["out_qty"] * batches
 		
 		is_processing = true

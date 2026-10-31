@@ -1,3 +1,4 @@
+# WaterTank.gd (I-attach sa Water Tank Area2D)
 extends Area2D
 
 @export var tank_name: String = "Water Tank"
@@ -97,6 +98,10 @@ func _interact_with_tank() -> void:
 			if GameData.watering_can_water <= 0.0:
 				GameData.water_source_is_tank = false
 			
+			# --- TUGTUGIN ANG WATER TANK FILL SOUND ---
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("water_tank_fill")
+			
 			is_animating = true
 			_update_tank_animation() # Awtomatikong pipili ng filling animation base sa level
 			
@@ -108,11 +113,17 @@ func _interact_with_tank() -> void:
 			_update_tank_animation()
 		else:
 			print("[WATER TANK] Kailangan ng tubig mula sa ilog!")
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("error")
 			
 	# 2. KAPAG PUNO NA ANG TANKE: Pindutin ang 'E' para i-auto water ang buong farm
 	else:
 		if current_water > 0:
 			current_water = 0.0 # Nakonsumo na ang tubig para sa buong farm
+			
+			# --- TUGTUGIN ANG WATER TANK FILL O UNLOCK SOUND SA AUTO-WATER ---
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("water_tank_fill")
 			
 			# --- AUTO-WATERING LOGIC PARA SA LAHAT NG CROPS SA FARM ---
 			_trigger_auto_water_all_crops()
@@ -129,6 +140,8 @@ func _interact_with_tank() -> void:
 			print("[WATER TANK] Awtomatikong nadiligan ang buong farm gamit ang tangke!")
 		else:
 			print("[WATER TANK] Walang laman ang Water Tank!")
+			if has_node("/root/AudioManager"):
+				AudioManager.play_sfx("error")
 
 # --- Awtomatikong didiligan ang lahat ng nakatanim sa farm nang sabay-sabay ---
 func _trigger_auto_water_all_crops() -> void:
@@ -156,4 +169,4 @@ func _update_tank_animation() -> void:
 			sprite.play("Filling_3")
 	else:
 		if sprite.sprite_frames.has_animation("idle_full"):
-			sprite.play("idle_full")
+			sprite.play("idle_full") 

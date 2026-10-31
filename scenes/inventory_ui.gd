@@ -113,6 +113,10 @@ func _on_game_data_changed() -> void:
 	update_inventory_ui()
 
 func show_buy_slot_confirmation() -> void:
+	# --- TUGTUGIN ANG CLICK SOUND KUMIKILOS SA SLOT ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("click")
+
 	var canvas = CanvasLayer.new()
 	canvas.layer = 129
 	
@@ -161,6 +165,8 @@ func show_buy_slot_confirmation() -> void:
 	yes_btn.add_theme_stylebox_override("normal", yes_style)
 	
 	yes_btn.pressed.connect(func():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
 		var cost: int = 100
 		if GameData and GameData.has_method("remove_money"):
 			if GameData.remove_money(cost):
@@ -184,6 +190,8 @@ func show_buy_slot_confirmation() -> void:
 	cancel_btn.add_theme_stylebox_override("normal", cancel_style)
 	
 	cancel_btn.pressed.connect(func():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
 		canvas.queue_free()
 	)
 	hbox.add_child(cancel_btn)
@@ -192,7 +200,6 @@ func show_buy_slot_confirmation() -> void:
 	get_tree().current_scene.add_child(canvas)
 
 func show_pesticide_hint() -> void:
-	# Hanapin ang Player node sa scene
 	var player = get_tree().get_first_node_in_group("player")
 	if not player:
 		player = get_tree().current_scene.find_node("Player", true, false)
@@ -200,7 +207,6 @@ func show_pesticide_hint() -> void:
 	if not player:
 		return
 
-	# Alisin muna ang lumang hint kung meron man para hindi magpatong-patong sa player
 	var existing = player.find_child("PesticideHintPopup", false, false)
 	if existing:
 		existing.queue_free()
@@ -229,17 +235,14 @@ func show_pesticide_hint() -> void:
 	label.add_theme_constant_override("outline_size", 3)
 	panel.add_child(label)
 	
-	# Pwesto sa ibabaw mismo ng ulo/katawan ng player (local offset)
 	panel.position = Vector2(-40, -55)
-	
 	panel.scale = Vector2(0.4, 0.4)
 	panel.pivot_offset = Vector2(40, 15)
 	
-	# Ilagay DIRECTLY bilang child ng player para sumunod kahit saan magpunta ang player sa map
 	player.add_child(panel)
 	
 	var tween = panel.create_tween()
-	tween.tween_property(panel, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(panel, "scale", Vector2.ONE, 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
 	var timer = get_tree().create_timer(2.0)
 	timer.timeout.connect(func():
@@ -352,6 +355,10 @@ func toggle_inventory() -> void:
 		
 	is_animating = true
 	is_inventory_open = not is_inventory_open
+	
+	# --- TUGTUGIN ANG OPEN INVENTORY SOUND KAPAG BINUKSAN O ITINAGO ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("open_inventory")
 	
 	var target_alpha: float = 1.0 if is_inventory_open else 0.0
 	var target_scale: Vector2 = Vector2.ONE if is_inventory_open else Vector2(0.8, 0.8)
@@ -534,6 +541,10 @@ func update_inventory_ui() -> void:
 			slot_panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed:
 					if event.button_index == MOUSE_BUTTON_LEFT:
+						# --- TUGTUGIN ANG BUTTON CLICK SOUND KAPAG NAG-SELECT NG ITEM O HAYOP ---
+						if has_node("/root/AudioManager"):
+							AudioManager.play_sfx("click")
+
 						if GameData:
 							if seed_inv.has(item_name):
 								if GameData.has_method("select_seed_type"):
@@ -546,7 +557,6 @@ func update_inventory_ui() -> void:
 									GameData.selected_seed_type = ""
 									GameData.data_changed.emit()
 							
-							# I-trigger ang hint directly sa ibabaw ng player kung nasaan man siya sa map
 							if item_name == "Pesticide":
 								show_pesticide_hint()
 							
@@ -555,6 +565,10 @@ func update_inventory_ui() -> void:
 						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 							
 					elif event.button_index == MOUSE_BUTTON_RIGHT:
+						# --- TUGTUGIN ANG CLICK SOUND KAPAG NAG-DESELECT ---
+						if has_node("/root/AudioManager"):
+							AudioManager.play_sfx("click")
+
 						if GameData:
 							if GameData.has_method("deselect_current_item"):
 								GameData.deselect_current_item()
@@ -568,4 +582,4 @@ func update_inventory_ui() -> void:
 						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			)
 
-		grid_container.add_child(slot_panel)
+		grid_container.add_child(slot_panel)	

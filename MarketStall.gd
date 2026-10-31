@@ -7,6 +7,10 @@ var player_in_range: bool = false
 var customer_queue: Array = []
 @export var line_spacing: float = 24.0
 
+# Store Operating Hours (6:00 AM to 8:00 PM / 20:00)
+const OPEN_HOUR: int = 6
+const CLOSE_HOUR: int = 20
+
 @onready var stock_label: Label = $StockLabel
 @onready var interaction_area: Area2D = $InteractionArea
 
@@ -20,21 +24,38 @@ func _ready() -> void:
 		interaction_area.body_exited.connect(_on_body_exited)
 	
 	if stock_label:
-		stock_label.add_theme_color_override("font_color", Color.LIGHT_YELLOW)
 		stock_label.add_theme_color_override("font_outline_color", Color.DARK_BLUE)
 		stock_label.add_theme_constant_override("outline_size", 4)
 		stock_label.add_theme_font_size_override("font_size", 14)
 		
+	if GameData and GameData.has_signal("data_changed"):
+		GameData.data_changed.connect(_on_game_data_changed)
+		
 	_update_display()
+
+func is_store_open() -> bool:
+	if GameData and "current_hour" in GameData:
+		var hour = GameData.current_hour
+		# Bukas mula 6:00 AM hanggang bago mag-8:00 PM (20:00)
+		return hour >= OPEN_HOUR and hour < CLOSE_HOUR
+	return true
+
+func _on_game_data_changed() -> void:
+	_update_display()
+	# Kung bukas ang menu pero sumapit na ang 8:00 PM, awtomatikong isara ito
+	if not is_store_open() and is_instance_valid(stock_panel_instance):
+		_close_stock_menu()
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.name == "Player" or body.is_in_group("player"):
 		player_in_range = true
+		_update_display()
 
 func _on_body_exited(body: Node2D) -> void:
 	if body.name == "Player" or body.is_in_group("player"):
 		player_in_range = false
 		_close_stock_menu()
+		_update_display()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if player_in_range and event is InputEventKey and event.pressed and not event.is_echo():
@@ -42,11 +63,23 @@ func _unhandled_input(event: InputEvent) -> void:
 			if is_instance_valid(stock_panel_instance):
 				_close_stock_menu()
 			else:
-				_open_stock_menu()
+				if is_store_open():
+					_open_stock_menu()
+				else:
+					if has_node("/root/AudioManager"):
+						AudioManager.play_sfx("error")
+					_spawn_stall_sold_text("❌ Stall is Closed! Opens at 6:00 AM")
 
 func _open_stock_menu() -> void:
+	if not is_store_open():
+		return
+		
 	if is_instance_valid(stock_panel_instance):
 		return
+		
+	# --- TUGTUGIN ANG OPEN SOUND KAPAG BINUKSAN ANG MARKET STALL MENU ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("open")
 		
 	var canvas_layer = CanvasLayer.new()
 	canvas_layer.name = "StockMenuLayer"
@@ -233,7 +266,10 @@ func _close_stock_menu() -> void:
 		stock_panel_instance = null
 
 func _stock_selected_item(item_name: String, amount: int) -> void:
-	stock_item(item_name, amount)
+	if stock_item(item_name, amount):
+		# --- TUGTUGIN ANG BUY/STOCK SOUND KAPAG NAGDAGDAG NG PANINDA ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("buy")
 
 func register_customer(customer: Node2D) -> Vector2:
 	if not customer in customer_queue:
@@ -264,6 +300,9 @@ func _update_queue_positions() -> void:
 			customer.update_target_position(global_position + Vector2(0, (i + 1) * line_spacing))
 
 func stock_item(item_name: String, amount: int = 1) -> bool:
+	if not is_store_open():
+		return false
+		
 	if GameData.has_item(item_name, amount):
 		GameData.remove_item(item_name, amount)
 		if displayed_item == item_name:
@@ -284,12 +323,21 @@ func get_item_price() -> int:
 	return price
 
 func buy_item() -> bool:
+	# Bawal ding bumili ang mga NPC kapag sarado ang tindahan
+	if not is_store_open():
+		return false
+
 	if stock_count > 0:
 		stock_count -= 1
 		var item_sold = displayed_item
 		var price = get_item_price()
 			
 		GameData.add_money(price)
+		
+		# --- TUGTUGIN ANG COIN SOUND KAPAG BUMILI ANG NPC/CUSTOMER ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("coin")
+			
 		_spawn_stall_sold_text("Sold " + item_sold + " (+₱" + str(price) + ")")
 		
 		stock_changed.emit(displayed_item, stock_count)
@@ -303,7 +351,7 @@ func buy_item() -> bool:
 func _spawn_stall_sold_text(text: String) -> void:
 	var label = Label.new()
 	label.text = text
-	label.modulate = Color.GOLD
+	label.modulate = Color.GOLD if "Sold" in text else Color.CORAL
 	label.global_position = global_position + Vector2(-30, -35)
 	label.z_index = 10
 	get_parent().add_child(label)
@@ -316,5 +364,12 @@ func _spawn_stall_sold_text(text: String) -> void:
 func _update_display() -> void:
 	if not stock_label:
 		return
-	stock_label.text = "[E] Market Stall"
-	stock_label.show()
+		
+	if not is_store_open():
+		stock_label.text = "🔒 STORE CLOSED\n(Opens at 6:00 AM)"
+		stock_label.add_theme_color_override("font_color", Color("#ef4444")) # Red color
+		stock_label.show()
+	else:
+		stock_label.text = "[E] Market Stall"
+		stock_label.add_theme_color_override("font_color", Color.LIGHT_YELLOW)
+		stock_label.show()

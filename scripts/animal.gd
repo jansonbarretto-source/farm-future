@@ -19,7 +19,7 @@ enum State { IDLE, EATING, WALKING }
 
 @export var move_speed: float = 20.0
 @export var feed_required: String = "Wheat" # What food item this animal eats
-@export var hunger_cooldown: float = 30.0   # Specific hunger time per animal (seconds)
+@export var hunger_cooldown: float = 30.0    # Specific hunger time per animal (seconds)
 
 var current_state: State = State.IDLE
 var walk_direction: Vector2 = Vector2.DOWN
@@ -142,6 +142,17 @@ func _on_harvest_ready() -> void:
 	_set_status_text(produce_text, Color(1.0, 0.9, 0.3))
 	_start_ready_animations()
 	
+	# --- TUGTUGIN ANG ANIMAL O PRODUCE SOUND KAPAG HANDA NA ANG ANI ---
+	if has_node("/root/AudioManager"):
+		if animal_type == AnimalType.CHICKEN:
+			AudioManager.play_sfx("chicken")
+		elif animal_type == AnimalType.COW:
+			AudioManager.play_sfx("cow")
+		elif animal_type == AnimalType.PIG:
+			AudioManager.play_sfx("pig")
+		elif animal_type == AnimalType.SHEEP:
+			AudioManager.play_sfx("sheep")
+	
 	print(AnimalType.keys()[animal_type], " has produced a ", harvest_item, "!")
 
 func _on_became_hungry() -> void:
@@ -224,6 +235,8 @@ func _handle_interaction() -> void:
 		_try_feed_animal()
 	else:
 		print("[LIVESTOCK] ", AnimalType.keys()[animal_type], " is already fed! Wait for produce to spawn.")
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
 
 func _try_feed_animal() -> void:
 	var required_food = feed_required.capitalize()
@@ -241,23 +254,22 @@ func _try_feed_animal() -> void:
 		GameData.data_changed.emit()
 		_feed_success()
 	else:
-		# Tama ang napiling item pero zero ang quantity sa inventory
 		_show_wrong_food_warning(required_food)
 
 func _show_wrong_food_warning(required_food: String) -> void:
-	# Mabilis na yugyog/shake effect para sa feedback
 	var tween = create_tween()
 	tween.tween_property(self, "rotation_degrees", 8.0, 0.05)
 	tween.tween_property(self, "rotation_degrees", -8.0, 0.05)
 	tween.tween_property(self, "rotation_degrees", 0.0, 0.05)
 	
-	# Ipakita sa status label ang kailangang pagkain (e.g., "NEED CARROT!")
 	var warning_text = "NEED " + required_food.to_upper() + "!"
-	_set_status_text(warning_text, Color(1.0, 0.5, 0.2)) # Orange Warning Color
+	_set_status_text(warning_text, Color(1.0, 0.5, 0.2))
 	
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("error")
+		
 	print("[LIVESTOCK WARNING] ", AnimalType.keys()[animal_type], " needs 1x ", required_food, "!")
 	
-	# Pagkaraan ng 1.8 seconds, ibalik sa dating status label (e.g., "❗" hungry sign)
 	get_tree().create_timer(1.8).timeout.connect(func():
 		if not is_fed and not is_ready_for_harvest:
 			_set_status_text("❗", Color(1.0, 0.2, 0.2))
@@ -267,6 +279,17 @@ func _feed_success() -> void:
 	is_fed = true
 	print("[LIVESTOCK] Successfully fed ", AnimalType.keys()[animal_type], "!")
 	
+	# --- TUGTUGIN ANG ANIMAL SOUND KAPAG PINAKAIN ---
+	if has_node("/root/AudioManager"):
+		if animal_type == AnimalType.CHICKEN:
+			AudioManager.play_sfx("chicken")
+		elif animal_type == AnimalType.COW:
+			AudioManager.play_sfx("cow")
+		elif animal_type == AnimalType.PIG:
+			AudioManager.play_sfx("pig")
+		elif animal_type == AnimalType.SHEEP:
+			AudioManager.play_sfx("sheep")
+
 	_play_happy_animation()
 	_set_status_text("❤️ FED", Color(1.0, 0.85, 0.85))
 	
@@ -283,6 +306,13 @@ func _harvest_produce() -> void:
 		if animal_type == AnimalType.SHEEP:
 			has_wool = false
 			_switch_state(current_state)
+			
+	# --- TUGTUGIN ANG MANURE SOUND O HARVEST SOUND KAPAG KINUHA ANG PRODUKTO ---
+	if has_node("/root/AudioManager"):
+		if harvest_item == "Manure":
+			AudioManager.play_sfx("manure")
+		else:
+			AudioManager.play_sfx("coin")
 			
 	print("[LIVESTOCK] Successfully harvested 1x ", harvest_item, "!")
 	

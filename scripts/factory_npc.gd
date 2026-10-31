@@ -75,8 +75,14 @@ func _toggle_factory_info_panel() -> void:
 	
 	if existing_layer:
 		existing_layer.queue_free()
+		# --- TUGTUGIN ANG CLICK SOUND KAPAG SINARA ANG PANEL ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
 	else:
 		_show_recipe_popup_panel(main_node)
+		# --- TUGTUGIN ANG COIN O OPEN INVENTORY SOUND KAPAG BINUKSAN ANG PANEL ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("coin")
 
 func _show_recipe_popup_panel(parent_node: Node) -> void:
 	var canvas_layer = CanvasLayer.new()

@@ -56,6 +56,8 @@ func _handle_interaction() -> void:
 	if not is_processing:
 		_try_deposit_manure()
 	else:
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
 		print("[COMPOST] Composting in progress... Time remaining: ", int(process_timer.time_left), "s")
 
 func _try_deposit_manure() -> void:
@@ -71,6 +73,10 @@ func _try_deposit_manure() -> void:
 		process_timer.wait_time = process_time
 		process_timer.start()
 		
+		# --- TUGTUGIN ANG MANURE SOUND ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("manure")
+		
 		_play_bounce_animation()
 		print("[COMPOST] Deposited ", manure_required, "x Manure. Composting started!")
 		_update_station_state()
@@ -78,6 +84,9 @@ func _try_deposit_manure() -> void:
 		_show_insufficient_manure_disclaimer(owned_manure)
 
 func _show_insufficient_manure_disclaimer(current_amount: int) -> void:
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("error")
+		
 	print("[COMPOST WARNING] Need 2x Manure! You currently have ", current_amount, "x.")
 	
 	if not status_label:
@@ -102,6 +111,11 @@ func _show_insufficient_manure_disclaimer(current_amount: int) -> void:
 func _on_process_complete() -> void:
 	is_processing = false
 	is_ready_to_collect = true
+	
+	# --- TUGTUGIN ANG UNLOCK SOUND KAPAG HANDA NA ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("unlock")
+		
 	_play_bounce_animation()
 	_update_station_state()
 	print("[COMPOST] Organic Fertilizer is ready to harvest!")
@@ -114,7 +128,10 @@ func _collect_fertilizer() -> void:
 	if GameData.has_method("add_crop"):
 		GameData.add_crop(result_item, 1)
 	
-	# Patakbuhin ang bounce at tiyaking babalik sa tamang state
+	# --- TUGTUGIN ANG COIN/HARVEST SOUND KAPAG NAKUHA NA ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("coin")
+		
 	_play_bounce_animation()
 	
 	print("[COMPOST] Harvested 1x ", result_item, "!")
@@ -125,25 +142,19 @@ func _play_bounce_animation() -> void:
 	if not sprite:
 		return
 		
-	# Patayin ang anumang tumatakbong bounce tween para hindi mag-conflict
 	if active_bounce_tween and active_bounce_tween.is_valid():
 		active_bounce_tween.kill()
 		
 	active_bounce_tween = create_tween().set_parallel(false)
 	
-	# 1. Squash
 	active_bounce_tween.tween_property(sprite, "scale", base_sprite_scale * Vector2(1.22, 0.78), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	# 2. Stretch
 	active_bounce_tween.tween_property(sprite, "scale", base_sprite_scale * Vector2(0.82, 1.25), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	# 3. Tiyak na babalik sa base_sprite_scale
 	active_bounce_tween.tween_property(sprite, "scale", base_sprite_scale, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _update_station_state() -> void:
-	# I-stop muna ang anumang umiikot na label animation
 	if active_label_tween and active_label_tween.is_valid():
 		active_label_tween.kill()
 
-	# I-reset ang scale ng sprite at status label
 	if sprite:
 		sprite.scale = base_sprite_scale
 	if status_label:

@@ -18,11 +18,27 @@ const RECIPES = {
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build_ui()
+	
+	# --- TUGTUGIN ANG OPEN INVENTORY SOUND KAPAG BINUKSAN ANG MACHINE UI ---
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("open_inventory")
 
 func set_recipe(_product_name: String) -> void:
 	pass
 
+# --- AUDIO HELPER FUNCTIONS PARA SA MACHINE PROCESSING ---
+func play_machine_process_sfx() -> void:
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("machine_process")
+
+func play_processing_done_sfx() -> void:
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("ting")
+
 func _close_panel() -> void:
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("click")
+		
 	if get_parent() is CanvasLayer:
 		get_parent().queue_free()
 	else:

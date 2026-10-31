@@ -46,7 +46,7 @@ func _setup_hint_label() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Listen for 'E' key press when the player is standing inside the door zone after 8 PM
-	if player_inside and event.is_action_pressed("interact"): # Or use event.is_keycode_pressed(KEY_E)
+	if player_inside and event.is_action_pressed("interact"):
 		_try_to_sleep()
 
 func _on_body_entered(body: Node2D) -> void:
@@ -78,9 +78,19 @@ func _try_to_sleep() -> void:
 	# Strict 8:00 PM (20:00) check
 	if GameData.has_method("can_sleep") and GameData.can_sleep():
 		print("[DOOR] Opening sleep summary UI...")
+		
+		# --- TUGTUGIN ANG DOOR SLEEP SOUND ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("door_sleep")
+			
 		_open_sleep_transition()
 	else:
 		print("[DOOR] Too early to sleep. Current game hour is: ", GameData.current_hour)
+		
+		# --- TUGTUGIN ANG ERROR SOUND KUNG KULANG SA ORAS (Optional) ---
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("error")
+			
 		_update_hint_text() # Refresh text in case time changed while standing there
 
 func _open_sleep_transition() -> void:

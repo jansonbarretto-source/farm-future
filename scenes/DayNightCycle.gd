@@ -2,9 +2,12 @@ extends CanvasModulate
 
 # Color gradients for different times of day (RGB)
 const MORNING_COLOR = Color(1.0, 0.95, 0.85, 1.0)  # Soft warm morning light
-const DAY_COLOR = Color(1.0, 1.0, 1.0, 1.0)       # Bright daylight
+const DAY_COLOR = Color(1.0, 1.0, 1.0, 1.0)        # Bright daylight
 const SUNSET_COLOR = Color(0.9, 0.6, 0.4, 1.0)    # Orange/Pink sunset
-const NIGHT_COLOR = Color(0.15, 0.2, 0.35, 1.0)   # Deep dark blue night
+const NIGHT_COLOR = Color(0.15, 0.2, 0.35, 1.0)    # Deep dark blue night
+
+# Variable para maiwasan na mag-play nang paulit-ulit ang night sound sa loob ng isang araw
+var _last_night_sound_day: int = -1
 
 func _process(_delta: float) -> void:
 	if not GameData:
@@ -18,6 +21,13 @@ func _process(_delta: float) -> void:
 	
 	# Update CanvasModulate tint
 	color = _get_time_color(time_fraction)
+	
+	# --- TUGTUGIN ANG NIGHT TIME SOUND KAPAG GABI NA (Halimbawa: 7:00 PM / 19:00) ---
+	var current_day = GameData.current_day if "current_day" in GameData else 1
+	if GameData.current_hour >= 19 and _last_night_sound_day != current_day:
+		_last_night_sound_day = current_day
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("night_time")
 
 func _get_time_color(t: float) -> Color:
 	# 0.0 to 0.25 = Morning (Sunrise to Day)
