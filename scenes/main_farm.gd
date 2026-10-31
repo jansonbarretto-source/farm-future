@@ -210,7 +210,7 @@ func _open_fullscreen_map() -> void:
 	header_hbox.add_child(title_lbl)
 	
 	var close_btn = Button.new()
-	close_btn.text = "   ✕ CLOSE   "
+	close_btn.text = "    ✕ CLOSE    "
 	close_btn.custom_minimum_size = Vector2(80, 32)
 	
 	var btn_style = StyleBoxFlat.new()
@@ -351,7 +351,7 @@ func _on_ingame_settings_pressed() -> void:
 	settings_ui.add_child(center)
 	
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(440, 380)
+	panel.custom_minimum_size = Vector2(440, 500) # Sapat na taas para sa lahat ng volume at buttons
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.18, 0.11, 0.07, 0.98)
@@ -361,15 +361,15 @@ func _on_ingame_settings_pressed() -> void:
 	style.set_corner_radius_all(14)
 	style.content_margin_left = 24
 	style.content_margin_right = 24
-	style.content_margin_top = 22
-	style.content_margin_bottom = 22
+	style.content_margin_top = 18
+	style.content_margin_bottom = 18
 	style.shadow_color = Color(0, 0, 0, 0.85)
 	style.shadow_size = 16
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
 	
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 16)
+	vbox.add_theme_constant_override("separation", 10)
 	panel.add_child(vbox)
 	
 	var title = Label.new()
@@ -400,9 +400,10 @@ func _on_ingame_settings_pressed() -> void:
 	spacer.custom_minimum_size = Vector2(0, 5)
 	vbox.add_child(spacer)
 	
+	# --- CLOSE SETTINGS BUTTON ---
 	var close_btn = Button.new()
 	close_btn.text = "CLOSE SETTINGS"
-	close_btn.custom_minimum_size = Vector2(0, 42)
+	close_btn.custom_minimum_size = Vector2(0, 40)
 	close_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	var close_style = StyleBoxFlat.new()
@@ -412,7 +413,7 @@ func _on_ingame_settings_pressed() -> void:
 	close_style.set_corner_radius_all(8)
 	close_btn.add_theme_stylebox_override("normal", close_style)
 	close_btn.add_theme_color_override("font_color", Color.WHITE)
-	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.add_theme_font_size_override("font_size", 13)
 	
 	close_btn.pressed.connect(func():
 		if has_node("/root/AudioManager"):
@@ -421,12 +422,34 @@ func _on_ingame_settings_pressed() -> void:
 	)
 	vbox.add_child(close_btn)
 	
+	# --- QUIT GAME BUTTON ---
+	var quit_btn = Button.new()
+	quit_btn.text = "🚪 QUIT GAME"
+	quit_btn.custom_minimum_size = Vector2(0, 40)
+	quit_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var quit_style = StyleBoxFlat.new()
+	quit_style.bg_color = Color(0.65, 0.15, 0.15)
+	quit_style.border_color = Color(0.95, 0.5, 0.5)
+	quit_style.set_border_width_all(2)
+	quit_style.set_corner_radius_all(8)
+	quit_btn.add_theme_stylebox_override("normal", quit_style)
+	quit_btn.add_theme_color_override("font_color", Color.WHITE)
+	quit_btn.add_theme_font_size_override("font_size", 13)
+	
+	quit_btn.pressed.connect(func():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
+		get_tree().quit()
+	)
+	vbox.add_child(quit_btn)
+	
 	canvas_layer.add_child(settings_ui)
 	get_tree().current_scene.add_child(canvas_layer)
 
 func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	var container = VBoxContainer.new()
-	container.add_theme_constant_override("separation", 6)
+	container.add_theme_constant_override("separation", 4)
 	
 	var hbox = HBoxContainer.new()
 	
@@ -566,8 +589,7 @@ func _is_inside_farm_boundary(map_pos: Vector2i) -> bool:
 	
 	return map_pos.x >= min_x and map_pos.x <= max_x and map_pos.y >= min_y and map_pos.y <= max_y
 
-# --- ORIHINAL NA LIVESTOCK BOUNDARY NA MAY DEBUG PRINT ---
-# --- LIVESTOCK BOUNDARY (Wala nang spam sa bawat frame) ---
+# --- LIVESTOCK BOUNDARY ---
 func _is_inside_livestock_boundary(map_pos: Vector2i) -> bool:
 	var min_x = 30
 	var max_x = 45
@@ -729,7 +751,6 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 
 	var has_animal = false
 	if GameData:
-		# Suriin at bawasan sa animal_inventory kung mayroon man
 		if "animal_inventory" in GameData:
 			var count_anim = GameData.animal_inventory.get(animal_name, 0)
 			if count_anim > 0:
@@ -738,7 +759,6 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 				if GameData.animal_inventory[animal_name] <= 0:
 					GameData.animal_inventory.erase(animal_name)
 		
-		# Suriin at bawasan din sa crop_inventory sakaling doon ito nai-save ng Market
 		if "crop_inventory" in GameData:
 			var count_crop = GameData.crop_inventory.get(animal_name, 0)
 			if count_crop > 0:
@@ -860,7 +880,6 @@ func _handle_farm_interaction(map_pos: Vector2i) -> void:
 
 				var is_soil_watered = (current_tile_coords == WATERED_DIRT_COORDS)
 				
-				# --- FIX PARA SA ISYU 2: Siguraduhing SEED ang binabawasan at hindi ang crop/bunga ---
 				if GameData.has_method("remove_seeds") and GameData.remove_seeds(current_seed, 1):
 					_spawn_crop(map_pos, current_seed, is_soil_watered)
 					

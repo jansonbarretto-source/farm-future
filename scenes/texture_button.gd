@@ -3,7 +3,6 @@ extends TextureButton
 const SETTINGS_ICON_PATH = "res://Settings button.png"
 
 func _ready() -> void:
-	# Sinisiguro na mare-register ang mouse click input
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	
 	position = Vector2(20, 85)
@@ -48,38 +47,40 @@ func _on_pressed() -> void:
 	settings_ui.add_child(center)
 	
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(440, 380)
+	# Ginawang mas compact at eksaktong akma sa nilalaman
+	panel.custom_minimum_size = Vector2(360, 310)
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.18, 0.11, 0.07, 0.98)
 	style.border_color = Color(0.9, 0.63, 0.27, 1.0)
-	style.set_border_width_all(5)
-	style.border_width_top = 7
-	style.set_corner_radius_all(14)
-	style.content_margin_left = 24
-	style.content_margin_right = 24
-	style.content_margin_top = 22
-	style.content_margin_bottom = 22
+	style.set_border_width_all(4)
+	style.border_width_top = 6
+	style.set_corner_radius_all(12)
+	# Mas manipis na margins para mawala ang patlang sa gilid
+	style.content_margin_left = 16
+	style.content_margin_right = 16
+	style.content_margin_top = 12
+	style.content_margin_bottom = 12
 	style.shadow_color = Color(0, 0, 0, 0.85)
-	style.shadow_size = 16
+	style.shadow_size = 14
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
 	
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 16)
+	vbox.add_theme_constant_override("separation", 6)
 	panel.add_child(vbox)
 	
 	var title = Label.new()
 	title.text = "🌿 GAME SETTINGS 🌿"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 20)
+	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8))
 	title.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02))
-	title.add_theme_constant_override("outline_size", 5)
+	title.add_theme_constant_override("outline_size", 4)
 	vbox.add_child(title)
 	
 	var divider = ColorRect.new()
-	divider.custom_minimum_size = Vector2(0, 3)
+	divider.custom_minimum_size = Vector2(0, 2)
 	divider.color = Color(0.9, 0.63, 0.27, 0.8)
 	vbox.add_child(divider)
 	
@@ -93,23 +94,20 @@ func _on_pressed() -> void:
 	vbox.add_child(_create_volume_slider("🎵 Music / BGM Volume", bgm_idx))
 	vbox.add_child(_create_volume_slider("🔔 SFX Volume", sfx_idx))
 	
-	var spacer = Control.new()
-	spacer.custom_minimum_size = Vector2(0, 5)
-	vbox.add_child(spacer)
-	
+	# --- CLOSE SETTINGS BUTTON ---
 	var close_btn = Button.new()
 	close_btn.text = "CLOSE SETTINGS"
-	close_btn.custom_minimum_size = Vector2(0, 42)
+	close_btn.custom_minimum_size = Vector2(0, 30)
 	close_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	var close_style = StyleBoxFlat.new()
 	close_style.bg_color = Color(0.82, 0.35, 0.12)
 	close_style.border_color = Color(0.98, 0.8, 0.4)
 	close_style.set_border_width_all(2)
-	close_style.set_corner_radius_all(8)
+	close_style.set_corner_radius_all(6)
 	close_btn.add_theme_stylebox_override("normal", close_style)
 	close_btn.add_theme_color_override("font_color", Color.WHITE)
-	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.add_theme_font_size_override("font_size", 11)
 	
 	close_btn.pressed.connect(func():
 		if has_node("/root/AudioManager"):
@@ -118,18 +116,40 @@ func _on_pressed() -> void:
 	)
 	vbox.add_child(close_btn)
 	
+	# --- QUIT GAME BUTTON ---
+	var quit_btn = Button.new()
+	quit_btn.text = "🚪 QUIT GAME"
+	quit_btn.custom_minimum_size = Vector2(0, 30)
+	quit_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var quit_style = StyleBoxFlat.new()
+	quit_style.bg_color = Color(0.65, 0.15, 0.15)
+	quit_style.border_color = Color(0.95, 0.5, 0.5)
+	quit_style.set_border_width_all(2)
+	quit_style.set_corner_radius_all(6)
+	quit_btn.add_theme_stylebox_override("normal", quit_style)
+	quit_btn.add_theme_color_override("font_color", Color.WHITE)
+	quit_btn.add_theme_font_size_override("font_size", 11)
+	
+	quit_btn.pressed.connect(func():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
+		get_tree().quit()
+	)
+	vbox.add_child(quit_btn)
+	
 	canvas_layer.add_child(settings_ui)
 	get_tree().current_scene.add_child(canvas_layer)
 
 func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	var container = VBoxContainer.new()
-	container.add_theme_constant_override("separation", 6)
+	container.add_theme_constant_override("separation", 1)
 	
 	var hbox = HBoxContainer.new()
 	
 	var name_lbl = Label.new()
 	name_lbl.text = label_text
-	name_lbl.add_theme_font_size_override("font_size", 13)
+	name_lbl.add_theme_font_size_override("font_size", 11)
 	name_lbl.add_theme_color_override("font_color", Color(0.95, 0.9, 0.8))
 	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(name_lbl)
@@ -139,7 +159,7 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	
 	var val_lbl = Label.new()
 	val_lbl.text = str(current_pct) + "%"
-	val_lbl.add_theme_font_size_override("font_size", 13)
+	val_lbl.add_theme_font_size_override("font_size", 11)
 	val_lbl.add_theme_color_override("font_color", Color(0.5, 0.95, 0.5))
 	hbox.add_child(val_lbl)
 	
