@@ -26,7 +26,6 @@ AudioManager="*uid://b8wgwqrpml03o"
 [display]
 
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
 
 [input]
 
