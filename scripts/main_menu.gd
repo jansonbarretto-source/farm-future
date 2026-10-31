@@ -162,4 +162,11 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 func _on_quit_button_pressed() -> void:
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("click")
-	get_tree().quit()
+		
+	if has_node("/root/GameData") and GameData.has_method("exit_to_dashboard"):
+		GameData.exit_to_dashboard()
+	else:
+		if OS.has_feature("web"):
+			JavaScriptBridge.eval("window.location.href = '../dashboard.php';")
+		else:
+			get_tree().quit()

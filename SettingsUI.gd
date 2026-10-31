@@ -4,7 +4,6 @@ func _ready() -> void:
 	_build_settings_ui()
 
 func _build_settings_ui() -> void:
-	# Background Dimmer
 	var bg = ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.color = Color(0.05, 0.03, 0.02, 0.75)
@@ -19,7 +18,6 @@ func _build_settings_ui() -> void:
 	add_child(center)
 	
 	var panel = PanelContainer.new()
-	# Pinalaki ang taas sa 500 para magkasya nang sabay ang Close at Quit buttons
 	panel.custom_minimum_size = Vector2(440, 500)
 	
 	var style = StyleBoxFlat.new()
@@ -91,7 +89,7 @@ func _build_settings_ui() -> void:
 	)
 	vbox.add_child(close_btn)
 	
-	# --- QUIT GAME BUTTON ---
+	# --- QUIT GAME BUTTON (Safe Deferred Main Menu Transition) ---
 	var quit_btn = Button.new()
 	quit_btn.text = "🚪 QUIT GAME"
 	quit_btn.custom_minimum_size = Vector2(0, 40)
@@ -109,7 +107,9 @@ func _build_settings_ui() -> void:
 	quit_btn.pressed.connect(func():
 		if get_tree().root.has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
-		get_tree().quit()
+			
+		# Safely execute the scene switch on the next engine cycle to prevent tree crash exits
+		get_tree().call_deferred("change_scene_to_file", "res://scenes/Main_Menu.tscn")
 	)
 	vbox.add_child(quit_btn)
 

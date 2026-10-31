@@ -1,49 +1,7 @@
 extends Control
 
 @onready var grid_container: GridContainer = $GridContainer
-
-@export var crop_textures: Dictionary = {
-	"Wheat": preload("res://images/assets/Inventory (Fruits)/Wheattt.png"),
-	"Carrot": preload("res://images/assets/Inventory (Fruits)/Carrots.png"),
-	"Potato": preload("res://images/assets/for main (crops)/potato/potato.png"),
-	"Tomato": preload("res://images/assets/for main (crops)/tomato/tomato.png"),
-	"Apple": preload("res://images/assets/for main (crops)/apple/apple.png"),
-	"Banana": preload("res://images/assets/for main (crops)/banana/banana.png"),
-	"Corn": preload("res://images/assets/for main (crops)/corn/corn.png"),
-	"Mango": preload("res://images/assets/for main (crops)/mango/mango.png"),
-	"Rice": preload("res://images/assets/for main (crops)/rice/rice.png"),
-	"Strawberry": preload("res://images/assets/for main (crops)/strawberry/strawberry.png"),
-	
-	# LIVESTOCK PRODUCE & FERTILIZER
-	"Egg": preload("res://images/assets/for main (crops)/egg/egg.png"),
-	"Milk": preload("res://images/assets/for main (crops)/milk/milk.png"),
-	"Manure": preload("res://images/assets/for main (crops)/manure/manure.png"),
-	"Organic Fertilizer": preload("res://images/assets/for main (crops)/fertilizer/fertilizer.png"),
-	"Wool": preload("res://images/assets/for main (crops)/wool/wool.png"),
-	"Pesticide": preload("res://images/assets/for main (crops)/pest control station/pesticides.png"),
-
-	# LIVESTOCK ANIMALS (BOUGHT FROM MARKET)
-	"Chicken": preload("res://images/assets/for livestock/chicken/chicken.png"),
-	"Cow": preload("res://images/assets/for livestock/cow/cow.png"),
-	"Pig": preload("res://images/assets/for livestock/pig/pig.png"),
-	"Sheep": preload("res://images/assets/for livestock/sheep/with wool/sheep.png"),
-
-	# PROCESSED FACTORY GOODS
-	"Flour": preload("res://images/assets/for factory/flour.png"),
-	"Cheese": preload("res://images/assets/for factory/cheese.png"),
-	"Bread": preload("res://images/assets/for factory/bread.png"),
-	"Yarn": preload("res://images/assets/for factory/yarn.png"),
-	"Jam": preload("res://images/assets/for factory/jam.png"),
-	"French Fries": preload("res://images/assets/for factory/french_fries.png"),
-	"Tomato Ketchup": preload("res://images/assets/for factory/ketchup.png"),
-	"Popcorn": preload("res://images/assets/for factory/popcorn.png"),
-	"Banana Smoothie": preload("res://images/assets/for factory/banana_smoothie.png"),
-	"Polished Rice Box": preload("res://images/assets/for factory/polished_rice.png"),
-	"Carrot Juice": preload("res://images/assets/for factory/carrot_juice.png")
-}
-
 @export var lock_texture: Texture2D = preload("res://Lock.png") 
-
 @export var max_slots: int = 12 
 @export var unlocked_slots: int = 6 
 @export var slot_cost: int = 100 
@@ -52,13 +10,13 @@ var bg_panel: PanelContainer
 var title_label: Label
 var toggle_label: Label
 var toggle_badge: PanelContainer
-var is_inventory_open: bool = true
+var is_inventory_open: bool = false
 var is_animating: bool = false
-
 var _last_item_counts: Dictionary = {}
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE # Prevent full-screen control from blocking game clicks
 	
 	if GameData and "unlocked_slots" in GameData:
 		unlocked_slots = GameData.unlocked_slots
@@ -112,10 +70,49 @@ func _is_inventory_full() -> bool:
 func _on_game_data_changed() -> void:
 	update_inventory_ui()
 
+# Safe texture lookup function designed specifically for web export compatibility
+func get_item_texture(item_name: String) -> Texture2D:
+	var path = ""
+	match item_name:
+		"Wheat": path = "res://images/assets/Inventory (Fruits)/Wheattt.png"
+		"Carrot": path = "res://images/assets/Inventory (Fruits)/Carrots.png"
+		"Potato": path = "res://images/assets/for main (crops)/potato/potato.png"
+		"Tomato": path = "res://images/assets/for main (crops)/tomato/tomato.png"
+		"Apple": path = "res://images/assets/for main (crops)/apple/apple.png"
+		"Banana": path = "res://images/assets/for main (crops)/banana/banana.png"
+		"Corn": path = "res://images/assets/for main (crops)/corn/corn.png"
+		"Mango": path = "res://images/assets/for main (crops)/mango/mango.png"
+		"Rice": path = "res://images/assets/for main (crops)/rice/rice.png"
+		"Strawberry": path = "res://images/assets/for main (crops)/strawberry/strawberry.png"
+		"Egg": path = "res://images/assets/for main (crops)/egg/egg.png"
+		"Milk": path = "res://images/assets/for main (crops)/milk/milk.png"
+		"Manure": path = "res://images/assets/for main (crops)/manure/manure.png"
+		"Organic Fertilizer": path = "res://images/assets/for main (crops)/fertilizer/fertilizer.png"
+		"Wool": path = "res://images/assets/for main (crops)/wool/wool.png"
+		"Pesticide": path = "res://images/assets/for main (crops)/pest control station/pesticides.png"
+		"Chicken": path = "res://images/assets/for livestock/chicken/chicken.png"
+		"Cow": path = "res://images/assets/for livestock/cow/cow.png"
+		"Pig": path = "res://images/assets/for livestock/pig/pig.png"
+		"Sheep": path = "res://images/assets/for livestock/sheep/with wool/sheep.png"
+		"Flour": path = "res://images/assets/for factory/flour.png"
+		"Cheese": path = "res://images/assets/for factory/cheese.png"
+		"Bread": path = "res://images/assets/for factory/bread.png"
+		"Yarn": path = "res://images/assets/for factory/yarn.png"
+		"Jam": path = "res://images/assets/for factory/jam.png"
+		"French Fries": path = "res://images/assets/for factory/french_fries.png"
+		"Tomato Ketchup": path = "res://images/assets/for factory/ketchup.png"
+		"Popcorn": path = "res://images/assets/for factory/popcorn.png"
+		"Banana Smoothie": path = "res://images/assets/for factory/banana_smoothie.png"
+		"Polished Rice Box": path = "res://images/assets/for factory/polished_rice.png"
+		"Carrot Juice": path = "res://images/assets/for factory/carrot_juice.png"
+	
+	if path != "" and ResourceLoader.exists(path):
+		return load(path)
+	return null
+
 func show_buy_slot_confirmation() -> void:
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("click")
-
 	var canvas = CanvasLayer.new()
 	canvas.layer = 129
 	
@@ -202,14 +199,11 @@ func show_pesticide_hint() -> void:
 	var player = get_tree().get_first_node_in_group("player")
 	if not player:
 		player = get_tree().current_scene.find_node("Player", true, false)
-
 	if not player:
 		return
-
 	var existing = player.find_child("PesticideHintPopup", false, false)
 	if existing:
 		existing.queue_free()
-
 	var panel = PanelContainer.new()
 	panel.name = "PesticideHintPopup"
 	panel.z_index = 2000
@@ -313,6 +307,10 @@ func _setup_code_designed_panel() -> void:
 	
 	if grid_container:
 		grid_container.reparent(content_vbox)
+		
+	# Start closed by default
+	bg_panel.visible = false
+	is_inventory_open = false
 
 func _setup_persistent_f_toggle_badge() -> void:
 	toggle_badge = PanelContainer.new()
@@ -341,11 +339,11 @@ func _setup_persistent_f_toggle_badge() -> void:
 	
 	toggle_badge.add_child(badge_label)
 	add_child(toggle_badge)
-	toggle_badge.visible = false
+	toggle_badge.visible = true # Show hint badge by default
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F or event.physical_keycode == KEY_F:
+		if event.keycode == KEY_F or event.physical_keycode == KEY_F or event.keycode == KEY_I or event.physical_keycode == KEY_I:
 			toggle_inventory()
 
 func toggle_inventory() -> void:
@@ -369,6 +367,8 @@ func toggle_inventory() -> void:
 	
 	var tween = create_tween().set_parallel(true)
 	if is_inventory_open:
+		bg_panel.modulate.a = 0.0
+		bg_panel.scale = Vector2(0.8, 0.8)
 		tween.tween_property(bg_panel, "modulate:a", target_alpha, 0.25)
 		tween.tween_property(bg_panel, "scale", target_scale, 0.25)
 	else:
@@ -384,33 +384,27 @@ func toggle_inventory() -> void:
 func update_inventory_ui() -> void:
 	if not grid_container:
 		return
-
 	for child in grid_container.get_children():
 		child.queue_free()
-
 	grid_container.columns = 3
 	grid_container.add_theme_constant_override("h_separation", 8)
 	grid_container.add_theme_constant_override("v_separation", 8)
-
 	var inv: Dictionary = GameData.crop_inventory if GameData and "crop_inventory" in GameData else {}
 	var animal_inv: Dictionary = GameData.animal_inventory if GameData and "animal_inventory" in GameData else {}
 	var seed_inv: Dictionary = GameData.seed_inventory if GameData and "seed_inventory" in GameData else {}
 	
 	var owned_items = []
 	
-	# --- MAHIGPIT NA FILTER: Tanging ang may quantity na higit sa 0 ang ipapakita ---
 	for item_name in inv.keys():
 		if inv[item_name] > 0 and not owned_items.has(item_name):
 			owned_items.append(item_name)
-
 	for animal_name in animal_inv.keys():
 		if animal_inv[animal_name] > 0 and not owned_items.has(animal_name):
 			owned_items.append(animal_name)
-
 	for seed_name in seed_inv.keys():
 		if seed_inv[seed_name] > 0 and not owned_items.has(seed_name):
 			owned_items.append(seed_name)
-
+			
 	for i in range(max_slots):
 		var slot_panel = PanelContainer.new()
 		slot_panel.custom_minimum_size = Vector2(58, 58)
@@ -422,7 +416,7 @@ func update_inventory_ui() -> void:
 		default_style.set_border_width_all(2)
 		default_style.set_corner_radius_all(6)
 		slot_panel.add_theme_stylebox_override("panel", default_style)
-
+		
 		if i >= unlocked_slots:
 			var locked_style = StyleBoxFlat.new()
 			locked_style.bg_color = Color(0.05, 0.035, 0.025, 0.95)
@@ -430,14 +424,14 @@ func update_inventory_ui() -> void:
 			locked_style.set_border_width_all(2)
 			locked_style.set_corner_radius_all(6)
 			slot_panel.add_theme_stylebox_override("panel", locked_style)
-
+			
 			var vbox = VBoxContainer.new()
 			vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 			vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 			vbox.add_theme_constant_override("separation", 3)
 			vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			slot_panel.add_child(vbox)
-
+			
 			var lock_rect = TextureRect.new()
 			lock_rect.custom_minimum_size = Vector2(14, 14)
 			lock_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -447,7 +441,7 @@ func update_inventory_ui() -> void:
 			if lock_texture:
 				lock_rect.texture = lock_texture
 			vbox.add_child(lock_rect)
-
+			
 			var buy_btn = Button.new()
 			buy_btn.text = "Buy Slot"
 			buy_btn.add_theme_font_size_override("font_size", 9)
@@ -501,8 +495,9 @@ func update_inventory_ui() -> void:
 			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			
-			if crop_textures.has(item_name):
-				icon_rect.texture = crop_textures[item_name]
+			var tex = get_item_texture(item_name)
+			if tex:
+				icon_rect.texture = tex
 			slot_panel.add_child(icon_rect)
 			
 			var label = Label.new()
@@ -524,7 +519,6 @@ func update_inventory_ui() -> void:
 			var hover_style = slot_style.duplicate()
 			hover_style.border_color = Color(0.95, 0.75, 0.35, 1.0)
 			hover_style.set_border_width_all(3)
-
 			slot_panel.mouse_entered.connect(func():
 				slot_panel.add_theme_stylebox_override("panel", hover_style)
 				var tween = create_tween()
@@ -536,13 +530,11 @@ func update_inventory_ui() -> void:
 				var tween = create_tween()
 				tween.tween_property(slot_panel, "scale", Vector2.ONE, 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			)
-
 			slot_panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed:
 					if event.button_index == MOUSE_BUTTON_LEFT:
 						if has_node("/root/AudioManager"):
 							AudioManager.play_sfx("click")
-
 						if GameData:
 							if seed_inv.has(item_name):
 								if GameData.has_method("select_seed_type"):
@@ -565,7 +557,6 @@ func update_inventory_ui() -> void:
 					elif event.button_index == MOUSE_BUTTON_RIGHT:
 						if has_node("/root/AudioManager"):
 							AudioManager.play_sfx("click")
-
 						if GameData:
 							if GameData.has_method("deselect_current_item"):
 								GameData.deselect_current_item()
@@ -578,5 +569,4 @@ func update_inventory_ui() -> void:
 							print("[INVENTORY] Na-deselect ang item.")
 						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			)
-
 		grid_container.add_child(slot_panel)
