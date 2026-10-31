@@ -113,7 +113,6 @@ func _on_game_data_changed() -> void:
 	update_inventory_ui()
 
 func show_buy_slot_confirmation() -> void:
-	# --- TUGTUGIN ANG CLICK SOUND KUMIKILOS SA SLOT ---
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("click")
 
@@ -356,7 +355,6 @@ func toggle_inventory() -> void:
 	is_animating = true
 	is_inventory_open = not is_inventory_open
 	
-	# --- TUGTUGIN ANG OPEN INVENTORY SOUND KAPAG BINUKSAN O ITINAGO ---
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("open_inventory")
 	
@@ -400,6 +398,7 @@ func update_inventory_ui() -> void:
 	
 	var owned_items = []
 	
+	# --- MAHIGPIT NA FILTER: Tanging ang may quantity na higit sa 0 ang ipapakita ---
 	for item_name in inv.keys():
 		if inv[item_name] > 0 and not owned_items.has(item_name):
 			owned_items.append(item_name)
@@ -541,7 +540,6 @@ func update_inventory_ui() -> void:
 			slot_panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed:
 					if event.button_index == MOUSE_BUTTON_LEFT:
-						# --- TUGTUGIN ANG BUTTON CLICK SOUND KAPAG NAG-SELECT NG ITEM O HAYOP ---
 						if has_node("/root/AudioManager"):
 							AudioManager.play_sfx("click")
 
@@ -565,7 +563,6 @@ func update_inventory_ui() -> void:
 						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 							
 					elif event.button_index == MOUSE_BUTTON_RIGHT:
-						# --- TUGTUGIN ANG CLICK SOUND KAPAG NAG-DESELECT ---
 						if has_node("/root/AudioManager"):
 							AudioManager.play_sfx("click")
 
@@ -582,4 +579,4 @@ func update_inventory_ui() -> void:
 						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			)
 
-		grid_container.add_child(slot_panel)	
+		grid_container.add_child(slot_panel)

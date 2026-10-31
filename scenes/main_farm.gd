@@ -210,7 +210,7 @@ func _open_fullscreen_map() -> void:
 	header_hbox.add_child(title_lbl)
 	
 	var close_btn = Button.new()
-	close_btn.text = "  ✕ CLOSE  "
+	close_btn.text = "   ✕ CLOSE   "
 	close_btn.custom_minimum_size = Vector2(80, 32)
 	
 	var btn_style = StyleBoxFlat.new()
@@ -566,7 +566,8 @@ func _is_inside_farm_boundary(map_pos: Vector2i) -> bool:
 	
 	return map_pos.x >= min_x and map_pos.x <= max_x and map_pos.y >= min_y and map_pos.y <= max_y
 
-# --- LIVESTOCK BOUNDARY RESTRICTION ---
+# --- ORIHINAL NA LIVESTOCK BOUNDARY NA MAY DEBUG PRINT ---
+# --- LIVESTOCK BOUNDARY (Wala nang spam sa bawat frame) ---
 func _is_inside_livestock_boundary(map_pos: Vector2i) -> bool:
 	var min_x = 30
 	var max_x = 45
@@ -717,6 +718,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 	var map_pos = ground_terrain.local_to_map(ground_terrain.to_local(click_pos))
+	
 	if not _is_inside_livestock_boundary(map_pos):
 		print("[LIVESTOCK] Dito lang pwedeng ilagay ang hayop sa Livestock Area!")
 		return false
@@ -726,9 +728,24 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 		return false
 
 	var has_animal = false
-	if GameData and "animal_inventory" in GameData and GameData.animal_inventory.get(animal_name, 0) > 0:
-		GameData.animal_inventory[animal_name] -= 1
-		has_animal = true
+	if GameData:
+		# Suriin at bawasan sa animal_inventory kung mayroon man
+		if "animal_inventory" in GameData:
+			var count_anim = GameData.animal_inventory.get(animal_name, 0)
+			if count_anim > 0:
+				GameData.animal_inventory[animal_name] = count_anim - 1
+				has_animal = true
+				if GameData.animal_inventory[animal_name] <= 0:
+					GameData.animal_inventory.erase(animal_name)
+		
+		# Suriin at bawasan din sa crop_inventory sakaling doon ito nai-save ng Market
+		if "crop_inventory" in GameData:
+			var count_crop = GameData.crop_inventory.get(animal_name, 0)
+			if count_crop > 0:
+				GameData.crop_inventory[animal_name] = count_crop - 1
+				has_animal = true
+				if GameData.crop_inventory[animal_name] <= 0:
+					GameData.crop_inventory.erase(animal_name)
 
 	if has_animal:
 		var new_animal = animal_scene.instantiate()
@@ -748,9 +765,9 @@ func _try_place_animal(animal_name: String, click_pos: Vector2) -> bool:
 		add_child(new_animal)
 		
 		if GameData:
-			if GameData.animal_inventory.get(animal_name, 0) <= 0:
-				GameData.selected_inventory_item = ""
-				GameData.selected_seed_type = ""
+			GameData.selected_inventory_item = ""
+			GameData.selected_seed_type = ""
+			
 			if GameData.has_signal("data_changed"):
 				GameData.data_changed.emit()
 			
@@ -843,6 +860,7 @@ func _handle_farm_interaction(map_pos: Vector2i) -> void:
 
 				var is_soil_watered = (current_tile_coords == WATERED_DIRT_COORDS)
 				
+				# --- FIX PARA SA ISYU 2: Siguraduhing SEED ang binabawasan at hindi ang crop/bunga ---
 				if GameData.has_method("remove_seeds") and GameData.remove_seeds(current_seed, 1):
 					_spawn_crop(map_pos, current_seed, is_soil_watered)
 					
