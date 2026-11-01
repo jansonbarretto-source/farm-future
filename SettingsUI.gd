@@ -67,7 +67,6 @@ func _build_settings_ui() -> void:
 	spacer.custom_minimum_size = Vector2(0, 5)
 	vbox.add_child(spacer)
 	
-	# --- CLOSE SETTINGS BUTTON ---
 	var close_btn = Button.new()
 	close_btn.text = "CLOSE SETTINGS"
 	close_btn.custom_minimum_size = Vector2(0, 40)
@@ -83,15 +82,16 @@ func _build_settings_ui() -> void:
 	close_btn.add_theme_font_size_override("font_size", 13)
 	
 	close_btn.pressed.connect(func():
-		if get_tree().root.has_node("/root/AudioManager"):
-			AudioManager.play_sfx("click")
+		if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_sfx"):
+				am.play_sfx("click")
 		_close_panel()
 	)
 	vbox.add_child(close_btn)
 	
-	# --- QUIT GAME BUTTON (Safe Deferred Main Menu Transition) ---
 	var quit_btn = Button.new()
-	quit_btn.text = "🚪 QUIT GAME"
+	quit_btn.text = "🚪 QUIT & SYNC"
 	quit_btn.custom_minimum_size = Vector2(0, 40)
 	quit_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
@@ -104,12 +104,21 @@ func _build_settings_ui() -> void:
 	quit_btn.add_theme_color_override("font_color", Color.WHITE)
 	quit_btn.add_theme_font_size_override("font_size", 13)
 	
+	# DIRECTLY CALLS GameData.exit_to_dashboard() TO PASS LIVE STATS
 	quit_btn.pressed.connect(func():
-		if get_tree().root.has_node("/root/AudioManager"):
-			AudioManager.play_sfx("click")
+		if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_sfx"):
+				am.play_sfx("click")
 			
-		# Safely execute the scene switch on the next engine cycle to prevent tree crash exits
-		get_tree().call_deferred("change_scene_to_file", "res://scenes/Main_Menu.tscn")
+		var gd = get_node_or_null("/root/GameData")
+		if gd and gd.has_method("exit_to_dashboard"):
+			gd.exit_to_dashboard()
+		else:
+			if OS.has_feature("web"):
+				JavaScriptBridge.eval("window.location.href = 'http://localhost/GameLauncher/dashboard.php';")
+			else:
+				get_tree().quit()
 	)
 	vbox.add_child(quit_btn)
 
@@ -149,8 +158,10 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 		AudioServer.set_bus_mute(bus_idx, val <= 0.001)
 		val_lbl.text = str(int(val * 100)) + "%"
 		
-		if label_text.contains("SFX") and get_tree().root.has_node("/root/AudioManager"):
-			AudioManager.play_sfx("click")
+		if label_text.contains("SFX") and (has_node("/root/AudioManager") or Engine.has_singleton("AudioManager")):
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_sfx"):
+				am.play_sfx("click")
 	)
 	
 	container.add_child(slider)

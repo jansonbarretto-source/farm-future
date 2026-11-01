@@ -5,18 +5,22 @@ extends Control
 @onready var quit_button: TextureButton = $QuitButton
 
 func _ready() -> void:
-	play_button.pressed.connect(_on_play_button_pressed)
-	settings_button.pressed.connect(_on_settings_button_pressed)
-	quit_button.pressed.connect(_on_quit_button_pressed)
+	if play_button: play_button.pressed.connect(_on_play_button_pressed)
+	if settings_button: settings_button.pressed.connect(_on_settings_button_pressed)
+	if quit_button: quit_button.pressed.connect(_on_quit_button_pressed)
 
 func _on_play_button_pressed() -> void:
-	if has_node("/root/AudioManager"):
-		AudioManager.play_sfx("click")
+	if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_sfx"):
+			am.play_sfx("click")
 	get_tree().change_scene_to_file("res://scenes/MainFarm.tscn")
 
 func _on_settings_button_pressed() -> void:
-	if has_node("/root/AudioManager"):
-		AudioManager.play_sfx("open")
+	if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_sfx"):
+			am.play_sfx("open")
 		
 	var existing_settings = get_tree().current_scene.get_node_or_null("SettingsLayer")
 	if existing_settings:
@@ -107,8 +111,10 @@ func _on_settings_button_pressed() -> void:
 	close_btn.add_theme_font_size_override("font_size", 14)
 	
 	close_btn.pressed.connect(func():
-		if has_node("/root/AudioManager"):
-			AudioManager.play_sfx("click")
+		if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_sfx"):
+				am.play_sfx("click")
 		canvas_layer.queue_free()
 	)
 	vbox.add_child(close_btn)
@@ -152,21 +158,27 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 		AudioServer.set_bus_mute(bus_idx, val <= 0.001)
 		val_lbl.text = str(int(val * 100)) + "%"
 		
-		if label_text.contains("SFX") and has_node("/root/AudioManager"):
-			AudioManager.play_sfx("click")
+		if label_text.contains("SFX") and (has_node("/root/AudioManager") or Engine.has_singleton("AudioManager")):
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_sfx"):
+				am.play_sfx("click")
 	)
 	
 	container.add_child(slider)
 	return container
 
 func _on_quit_button_pressed() -> void:
-	if has_node("/root/AudioManager"):
-		AudioManager.play_sfx("click")
-		
-	if has_node("/root/GameData") and GameData.has_method("exit_to_dashboard"):
-		GameData.exit_to_dashboard()
+	if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_sfx"):
+			am.play_sfx("click")
+			
+	# DIRECTLY CALLS GameData.exit_to_dashboard() FROM MAIN MENU QUIT BUTTON
+	var gd = get_node_or_null("/root/GameData")
+	if gd and gd.has_method("exit_to_dashboard"):
+		gd.exit_to_dashboard()
 	else:
 		if OS.has_feature("web"):
-			JavaScriptBridge.eval("window.location.href = '../dashboard.php';")
+			JavaScriptBridge.eval("window.location.href = 'http://localhost/GameLauncher/dashboard.php';")
 		else:
 			get_tree().quit()
