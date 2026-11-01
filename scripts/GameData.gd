@@ -96,7 +96,7 @@ var SEED_DATA = {
 		"crop_icon": "res://images/assets/for main (crops)/mango/mango.png",
 		"harvest_yield": 5
 	},
-	
+
 	# --- LIVESTOCK PRODUCE & FERTILIZER DEFINITIONS ---
 	"Egg": {
 		"buy": 0,
@@ -250,28 +250,90 @@ func roll_daily_weather() -> void:
 	else:
 		current_weather = "Dry"
 		print("[WEATHER] Today's weather is Dry ☀️.")
-	
+
 	data_changed.emit()
 
 # --- DAY & NIGHT CYCLE TIME TRACKING ---
 var current_day: int = 1
-var current_hour: int = 6 
+var current_hour: int = 6
 var time_minutes: float = 0.0
 
-@export var minutes_per_second: float = 4.0 
+@export var minutes_per_second: float = 4.0
 
 signal time_changed(hour: int, day: int)
 signal data_changed
 
+# --- INITIALIZE GAME DATA ---
 func _ready() -> void:
+	# Load saved progress passed from the dashboard URL.
+	if OS.has_feature("web"):
+		var url_days = JavaScriptBridge.eval(
+			"new URLSearchParams(window.location.search).get('days');"
+		)
+
+		var url_coins = JavaScriptBridge.eval(
+			"new URLSearchParams(window.location.search).get('coins');"
+		)
+
+		if url_days != null and str(url_days).is_valid_int():
+			current_day = int(url_days)
+
+		if url_coins != null and str(url_coins).is_valid_int():
+			money = int(url_coins)
+
+		print("[LOAD] Day: ", current_day, " | Money: ", money)
+
 	select_seed_type("Wheat")
 	select_item(ActiveItem.SEED)
 	current_weather = "Rainy"
 
+
+# --- SAVE PROGRESS AND RETURN TO DASHBOARD ---
+func exit_to_dashboard() -> void:
+	if OS.has_feature("web"):
+		var save_script = """
+		fetch('/GameLauncher/update_progress.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'same-origin',
+			body: JSON.stringify({
+				days_progress: %d,
+				coins: %d
+			})
+		})
+		.then(function(response) {
+			if (!response.ok) {
+				throw new Error('HTTP Error: ' + response.status);
+			}
+			return response.json();
+		})
+		.then(function(data) {
+			console.log('[SAVE RESPONSE]', data);
+
+			if (data.status === 'success') {
+				alert('Progress saved! Money: ' + data.coins);
+				window.location.href = '/GameLauncher/dashboard.php';
+			} else {
+				alert('Save failed: ' + JSON.stringify(data));
+			}
+		})
+		.catch(function(error) {
+			console.error('[SAVE ERROR]', error);
+			alert('Unable to save progress: ' + error.message);
+		});
+		""" % [current_day, money]
+
+		JavaScriptBridge.eval(save_script)
+	else:
+		get_tree().quit()
+
+
 func update_game_time(delta: float) -> void:
 	var prev_minute = int(time_minutes)
 	time_minutes += delta * minutes_per_second
-	
+
 	if time_minutes >= 60.0:
 		time_minutes -= 60.0
 		current_hour += 1
@@ -283,19 +345,22 @@ func update_game_time(delta: float) -> void:
 		time_changed.emit(current_hour, current_day)
 		data_changed.emit()
 
+
 func can_sleep() -> bool:
 	return current_hour >= 20 or current_hour < 6
+
 
 func sleep_to_next_day() -> void:
 	current_day += 1
 	current_hour = 6
 	time_minutes = 0.0
-	
+
 	roll_daily_weather()
-	
+
 	time_changed.emit(current_hour, current_day)
 	data_changed.emit()
 	print("[SLEEP] Woke up on Day ", current_day, " at 06:00. Weather is now: ", current_weather)
+
 
 # --- WATER MANAGEMENT FUNCTIONS ---
 func use_water_for_irrigation(amount: float = 8.34) -> bool:
@@ -306,6 +371,7 @@ func use_water_for_irrigation(amount: float = 8.34) -> bool:
 		data_changed.emit()
 		return true
 	return false
+
 
 var seed_inventory: Dictionary = {
 	"Wheat": 10,
@@ -319,6 +385,7 @@ var seed_inventory: Dictionary = {
 	"Apple": 0,
 	"Mango": 0
 }
+
 
 var crop_inventory: Dictionary = {
 	"Wheat": 0,
@@ -350,18 +417,23 @@ var crop_inventory: Dictionary = {
 	"Carrot Juice": 0
 }
 
+
 var inventory: Dictionary:
 	get:
 		return crop_inventory
 
+
 enum ActiveItem { HOE, WATERING_CAN, SEED }
+
 var selected_item: ActiveItem = ActiveItem.SEED
 var selected_seed_type: String = "Wheat"
 var selected_inventory_item: String = ""
 
+
 func add_money(amount: int) -> void:
 	money += amount
 	data_changed.emit()
+
 
 func remove_money(amount: int) -> bool:
 	if money >= amount:
@@ -369,6 +441,7 @@ func remove_money(amount: int) -> bool:
 		data_changed.emit()
 		return true
 	return false
+
 
 func has_item(item_name: String, amount: int = 1) -> bool:
 	if crop_inventory.get(item_name, 0) >= amount:
@@ -378,6 +451,7 @@ func has_item(item_name: String, amount: int = 1) -> bool:
 	if animal_inventory.get(item_name, 0) >= amount:
 		return true
 	return false
+
 
 func remove_item(item_name: String, amount: int = 1) -> bool:
 	if crop_inventory.get(item_name, 0) >= amount:
@@ -394,12 +468,14 @@ func remove_item(item_name: String, amount: int = 1) -> bool:
 		return true
 	return false
 
+
 func add_seeds(seed_name: String, amount: int) -> void:
 	if seed_inventory.has(seed_name):
 		seed_inventory[seed_name] += amount
 	else:
 		seed_inventory[seed_name] = amount
 	data_changed.emit()
+
 
 func remove_seeds(seed_name: String, amount: int = 1) -> bool:
 	if seed_inventory.get(seed_name, 0) >= amount:
@@ -408,40 +484,47 @@ func remove_seeds(seed_name: String, amount: int = 1) -> bool:
 		return true
 	return false
 
+
 func get_total_seeds() -> int:
 	var total: int = 0
 	for count in seed_inventory.values():
 		total += count
 	return total
 
+
 func get_unique_item_count() -> int:
 	var unique_items = []
+
 	for k in crop_inventory.keys():
 		if crop_inventory[k] > 0 and not unique_items.has(k):
 			unique_items.append(k)
+
 	for k in animal_inventory.keys():
 		if animal_inventory[k] > 0 and not unique_items.has(k):
 			unique_items.append(k)
+
 	for k in seed_inventory.keys():
 		if seed_inventory[k] > 0 and not unique_items.has(k):
 			unique_items.append(k)
+
 	return unique_items.size()
+
 
 func add_crop(crop_name: String, amount: int = 1) -> void:
 	var already_owned: bool = (crop_inventory.get(crop_name, 0) > 0) or (animal_inventory.get(crop_name, 0) > 0) or (seed_inventory.get(crop_name, 0) > 0)
-	
+
 	if not already_owned and get_unique_item_count() >= unlocked_slots:
 		print("[INVENTORY] Inventory Full!")
 		return
-		
+
 	if crop_inventory.has(crop_name):
 		crop_inventory[crop_name] += amount
 	else:
 		crop_inventory[crop_name] = amount
-	
-	# Siguraduhing laging naka-emit ang signal at direktang tinatawagan ang inventory UI kung bukas ito sa grupo
+
 	data_changed.emit()
 	_force_open_inventory_ui()
+
 
 func remove_crop(crop_name: String, amount: int = 1) -> bool:
 	if crop_inventory.get(crop_name, 0) >= amount:
@@ -450,9 +533,11 @@ func remove_crop(crop_name: String, amount: int = 1) -> bool:
 		return true
 	return false
 
+
 func select_item(item: ActiveItem) -> void:
 	selected_item = item
 	data_changed.emit()
+
 
 func select_seed_type(seed_name: String) -> void:
 	selected_seed_type = seed_name
@@ -460,15 +545,18 @@ func select_seed_type(seed_name: String) -> void:
 	selected_item = ActiveItem.SEED
 	data_changed.emit()
 
+
 func select_inventory_item(item_name: String) -> void:
 	selected_inventory_item = item_name
 	selected_seed_type = ""
 	data_changed.emit()
 
+
 func deselect_current_item() -> void:
 	selected_seed_type = ""
 	selected_inventory_item = ""
 	data_changed.emit()
+
 
 var ANIMAL_DATA = {
 	"Chicken": {
@@ -493,6 +581,7 @@ var ANIMAL_DATA = {
 	}
 }
 
+
 var animal_inventory: Dictionary = {
 	"Chicken": 0,
 	"Cow": 0,
@@ -500,20 +589,22 @@ var animal_inventory: Dictionary = {
 	"Sheep": 0
 }
 
+
 func add_animal_to_inventory(animal_name: String, amount: int = 1) -> void:
 	var already_owned: bool = (crop_inventory.get(animal_name, 0) > 0) or (animal_inventory.get(animal_name, 0) > 0) or (seed_inventory.get(animal_name, 0) > 0)
-	
+
 	if not already_owned and get_unique_item_count() >= unlocked_slots:
 		print("[INVENTORY] Puno na ang imbentaryo para sa hayop: ", animal_name)
 		return
-		
+
 	if animal_inventory.has(animal_name):
 		animal_inventory[animal_name] += amount
 	else:
 		animal_inventory[animal_name] = amount
-		
+
 	data_changed.emit()
 	_force_open_inventory_ui()
+
 
 func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
 	if animal_inventory.get(animal_name, 0) >= amount:
@@ -522,11 +613,13 @@ func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
 		return true
 	return false
 
+
 # --- DIRECT WRAPPERS FOR HARVEST, MARKET & CRAFTING AUTO-OPEN TRIGGER ---
 
 func harvest_crop(crop_name: String, amount: int = 1) -> void:
 	add_crop(crop_name, amount)
 	print("[GAME DATA] Harvested: ", crop_name, " x", amount)
+
 
 func buy_animal(animal_name: String, amount: int = 1) -> bool:
 	if ANIMAL_DATA.has(animal_name):
@@ -537,6 +630,7 @@ func buy_animal(animal_name: String, amount: int = 1) -> bool:
 			return true
 	return false
 
+
 func buy_seed(seed_name: String, amount: int = 1) -> bool:
 	if SEED_DATA.has(seed_name):
 		var cost = SEED_DATA[seed_name].buy * amount
@@ -546,6 +640,7 @@ func buy_seed(seed_name: String, amount: int = 1) -> bool:
 			return true
 	return false
 
+
 func add_item_any(item_name: String, amount: int = 1) -> void:
 	if animal_inventory.has(item_name):
 		add_animal_to_inventory(item_name, amount)
@@ -554,7 +649,8 @@ func add_item_any(item_name: String, amount: int = 1) -> void:
 	else:
 		add_crop(item_name, amount)
 
-# Helper function para direktang i-trigger ang open_inventory_on_harvest sa UI kung may nadagdag
+
+# Helper function to trigger open_inventory_on_harvest in the UI.
 func _force_open_inventory_ui() -> void:
 	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
 	if inventory_ui and inventory_ui.has_method("open_inventory_on_harvest"):
