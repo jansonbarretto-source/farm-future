@@ -2741,9 +2741,9 @@ layout_mode = 2
 
 [node name="TextureButton" type="TextureButton" parent="HUD" unique_id=1685457520]
 offset_left = 8.0
-offset_top = 64.0
+offset_top = 61.0
 offset_right = 78.0
-offset_bottom = 136.0
+offset_bottom = 133.0
 texture_normal = ExtResource("65_tgrp5")
 ignore_texture_size = true
 stretch_mode = 0

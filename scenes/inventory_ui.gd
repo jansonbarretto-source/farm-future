@@ -16,7 +16,10 @@ var _last_item_counts: Dictionary = {}
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	mouse_filter = Control.MOUSE_FILTER_IGNORE # Prevent full-screen control from blocking game clicks
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	if not is_in_group("inventory_ui"):
+		add_to_group("inventory_ui")
 	
 	if GameData and "unlocked_slots" in GameData:
 		unlocked_slots = GameData.unlocked_slots
@@ -35,15 +38,15 @@ func _ready() -> void:
 func _cache_item_counts() -> void:
 	_last_item_counts.clear()
 	if GameData:
-		if "crop_inventory" in GameData:
-			for k in GameData.crop_inventory.keys():
-				_last_item_counts[k] = GameData.crop_inventory[k]
-		if "animal_inventory" in GameData:
-			for k in GameData.animal_inventory.keys():
-				_last_item_counts[k] = GameData.animal_inventory.get(k, 0)
-		if "seed_inventory" in GameData:
-			for k in GameData.seed_inventory.keys():
-				_last_item_counts[k] = GameData.seed_inventory.get(k, 0)
+		var inventories = [
+			GameData.crop_inventory if "crop_inventory" in GameData else {},
+			GameData.animal_inventory if "animal_inventory" in GameData else {},
+			GameData.seed_inventory if "seed_inventory" in GameData else {}
+		]
+		for inv_dict in inventories:
+			if inv_dict is Dictionary:
+				for k in inv_dict.keys():
+					_last_item_counts[k] = int(inv_dict[k])
 
 func _get_unique_item_count() -> int:
 	var unique_items = []
@@ -68,7 +71,16 @@ func _is_inventory_full() -> bool:
 	return _get_unique_item_count() >= current_limit
 
 func _on_game_data_changed() -> void:
+	# Nag-aantabay lang at nag-a-update ng UI/cache nang hindi kusang nagbubukas
 	update_inventory_ui()
+	_cache_item_counts()
+
+# Eksklusibong tinatawagan tuwing nag-a-harvest o bumibili upang kusang bumukas
+func open_inventory_on_harvest() -> void:
+	update_inventory_ui()
+	_cache_item_counts()
+	if not is_inventory_open and not is_animating:
+		toggle_inventory()
 
 # Safe texture lookup function designed specifically for web export compatibility
 func get_item_texture(item_name: String) -> Texture2D:
@@ -289,7 +301,7 @@ func _setup_code_designed_panel() -> void:
 	header_hbox.add_child(title_label)
 	
 	toggle_label = Label.new()
-	toggle_label.text = "⌨️ [F] Hide"
+	toggle_label.text = "[F] Hide"
 	toggle_label.add_theme_font_size_override("font_size", 10)
 	toggle_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.3))
 	toggle_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
@@ -308,7 +320,6 @@ func _setup_code_designed_panel() -> void:
 	if grid_container:
 		grid_container.reparent(content_vbox)
 		
-	# Start closed by default
 	bg_panel.visible = false
 	is_inventory_open = false
 
@@ -329,7 +340,7 @@ func _setup_persistent_f_toggle_badge() -> void:
 	toggle_badge.add_theme_stylebox_override("panel", badge_style)
 	
 	var badge_label = Label.new()
-	badge_label.text = "🎒 Press [F] Inventory"
+	badge_label.text = "Press [F] Inventory"
 	badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	badge_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	badge_label.add_theme_font_size_override("font_size", 11)
@@ -339,7 +350,7 @@ func _setup_persistent_f_toggle_badge() -> void:
 	
 	toggle_badge.add_child(badge_label)
 	add_child(toggle_badge)
-	toggle_badge.visible = true # Show hint badge by default
+	toggle_badge.visible = true
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -431,16 +442,6 @@ func update_inventory_ui() -> void:
 			vbox.add_theme_constant_override("separation", 3)
 			vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			slot_panel.add_child(vbox)
-			
-			var lock_rect = TextureRect.new()
-			lock_rect.custom_minimum_size = Vector2(14, 14)
-			lock_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			lock_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			lock_rect.modulate = Color(0.85, 0.75, 0.55, 0.9)
-			lock_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			if lock_texture:
-				lock_rect.texture = lock_texture
-			vbox.add_child(lock_rect)
 			
 			var buy_btn = Button.new()
 			buy_btn.text = "Buy Slot"
@@ -549,8 +550,6 @@ func update_inventory_ui() -> void:
 							
 							if item_name == "Pesticide":
 								show_pesticide_hint()
-							
-							print("[INVENTORY] Na-select ang item/hayop: ", item_name)
 						
 						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 							
@@ -566,7 +565,6 @@ func update_inventory_ui() -> void:
 								if "selected_seed_type" in GameData:
 									GameData.selected_seed_type = ""
 								GameData.data_changed.emit()
-							print("[INVENTORY] Na-deselect ang item.")
 						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			)
 		grid_container.add_child(slot_panel)

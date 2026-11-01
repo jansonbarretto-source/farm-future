@@ -47,7 +47,6 @@ func _on_pressed() -> void:
 	settings_ui.add_child(center)
 	
 	var panel = PanelContainer.new()
-	# Ginawang mas compact at eksaktong akma sa nilalaman
 	panel.custom_minimum_size = Vector2(360, 310)
 	
 	var style = StyleBoxFlat.new()
@@ -56,7 +55,6 @@ func _on_pressed() -> void:
 	style.set_border_width_all(4)
 	style.border_width_top = 6
 	style.set_corner_radius_all(12)
-	# Mas manipis na margins para mawala ang patlang sa gilid
 	style.content_margin_left = 16
 	style.content_margin_right = 16
 	style.content_margin_top = 12
@@ -116,7 +114,7 @@ func _on_pressed() -> void:
 	)
 	vbox.add_child(close_btn)
 	
-	# --- QUIT GAME BUTTON ---
+	# --- QUIT GAME BUTTON (Babalik sa Main Menu) ---
 	var quit_btn = Button.new()
 	quit_btn.text = "🚪 QUIT GAME"
 	quit_btn.custom_minimum_size = Vector2(0, 30)
@@ -134,7 +132,13 @@ func _on_pressed() -> void:
 	quit_btn.pressed.connect(func():
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
-		get_tree().quit()
+		
+		# Palitan ang path na ito kung iba ang lokasyon ng iyong Main Menu scene
+		var menu_path = "res://scenes/Main_Menu.tscn"
+		if ResourceLoader.exists(menu_path):
+			get_tree().change_scene_to_file(menu_path)
+		else:
+			print("[ERROR] Main Menu scene not found at: ", menu_path)
 	)
 	vbox.add_child(quit_btn)
 	

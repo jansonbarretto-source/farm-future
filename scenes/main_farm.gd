@@ -86,7 +86,7 @@ func _setup_minimap() -> void:
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.06, 0.03, 0.98)
-	style.border_color = Color(0.9, 0.7, 0.35, 1.0)
+	style.border_color = Color(0, 0, 0, 1.0) # Ginawang black ang outline ng minimap
 	style.set_border_width_all(3)
 	style.set_corner_radius_all(10)
 	style.content_margin_left = 4
@@ -99,7 +99,7 @@ func _setup_minimap() -> void:
 	vbox.add_theme_constant_override("separation", 2)
 	
 	var label = Label.new()
-	label.text = "🗺️ FARM MAP (Click to Expand)"
+	label.text = " FARM MAP (Click to Expand)"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 9)
 	label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.7))

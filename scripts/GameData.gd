@@ -213,19 +213,19 @@ var PESTICIDE_RECIPE = {
 # Player Currencies & Resources
 var money: int = 500
 
-# Getter/Alias para maging compatible ang 'player_money' sa mga bagong scripts gaya ng locked gates
 var player_money: int:
 	get:
 		return money
 	set(value):
 		money = value
+		data_changed.emit()
 
 # --- UNLOCKED AREAS & PROGRESSION SYSTEM ---
 var unlocked_areas: Dictionary = {
-	"Farm": true,          # Day 1: Bukas na agad
-	"Market": true,        # Day 1: Bukas na agad
-	"Factory": false,      # Day 5 i-aunlock (May bayad na 3,000)
-	"Livestock": false     # Day 10 i-aunlock (May bayad na 3,000)
+	"Farm": true,
+	"Market": true,
+	"Factory": false,
+	"Livestock": false
 }
 
 # --- INVENTORY SLOT CONFIGURATION ---
@@ -240,7 +240,7 @@ var max_watering_can_cap: float = 25.0
 var water_source_is_tank: bool = false
 
 # --- WEATHER SYSTEM VARIABLES ---
-var current_weather: String = "Raining" # Pwedeng "Dry" o "Rainy"
+var current_weather: String = "Raining"
 
 func roll_daily_weather() -> void:
 	var roll = randf()
@@ -438,7 +438,10 @@ func add_crop(crop_name: String, amount: int = 1) -> void:
 		crop_inventory[crop_name] += amount
 	else:
 		crop_inventory[crop_name] = amount
+	
+	# Siguraduhing laging naka-emit ang signal at direktang tinatawagan ang inventory UI kung bukas ito sa grupo
 	data_changed.emit()
+	_force_open_inventory_ui()
 
 func remove_crop(crop_name: String, amount: int = 1) -> bool:
 	if crop_inventory.get(crop_name, 0) >= amount:
@@ -508,7 +511,9 @@ func add_animal_to_inventory(animal_name: String, amount: int = 1) -> void:
 		animal_inventory[animal_name] += amount
 	else:
 		animal_inventory[animal_name] = amount
+		
 	data_changed.emit()
+	_force_open_inventory_ui()
 
 func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
 	if animal_inventory.get(animal_name, 0) >= amount:
@@ -516,3 +521,41 @@ func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
 		data_changed.emit()
 		return true
 	return false
+
+# --- DIRECT WRAPPERS FOR HARVEST, MARKET & CRAFTING AUTO-OPEN TRIGGER ---
+
+func harvest_crop(crop_name: String, amount: int = 1) -> void:
+	add_crop(crop_name, amount)
+	print("[GAME DATA] Harvested: ", crop_name, " x", amount)
+
+func buy_animal(animal_name: String, amount: int = 1) -> bool:
+	if ANIMAL_DATA.has(animal_name):
+		var cost = ANIMAL_DATA[animal_name].buy * amount
+		if remove_money(cost):
+			add_animal_to_inventory(animal_name, amount)
+			print("[GAME DATA] Bought Animal: ", animal_name, " x", amount)
+			return true
+	return false
+
+func buy_seed(seed_name: String, amount: int = 1) -> bool:
+	if SEED_DATA.has(seed_name):
+		var cost = SEED_DATA[seed_name].buy * amount
+		if remove_money(cost):
+			add_seeds(seed_name, amount)
+			print("[GAME DATA] Bought Seed: ", seed_name, " x", amount)
+			return true
+	return false
+
+func add_item_any(item_name: String, amount: int = 1) -> void:
+	if animal_inventory.has(item_name):
+		add_animal_to_inventory(item_name, amount)
+	elif SEED_DATA.has(item_name) and SEED_DATA[item_name].get("buy", 0) > 0 and not crop_inventory.has(item_name):
+		add_seeds(item_name, amount)
+	else:
+		add_crop(item_name, amount)
+
+# Helper function para direktang i-trigger ang open_inventory_on_harvest sa UI kung may nadagdag
+func _force_open_inventory_ui() -> void:
+	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
+	if inventory_ui and inventory_ui.has_method("open_inventory_on_harvest"):
+		inventory_ui.open_inventory_on_harvest()

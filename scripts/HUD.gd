@@ -20,6 +20,15 @@ extends CanvasLayer
 @onready var wheat_icon: TextureRect = $Control/TopBar/WheatIcon
 
 func _ready() -> void:
+	# --- PAGPAPaganda NG FONT STYLES SA TOPBAR ---
+	var labels_to_style = [money_label, seeds_label, wheat_label]
+	for lbl in labels_to_style:
+		if lbl:
+			lbl.add_theme_font_size_override("font_size", 13)
+			lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8)) # Warm cream color
+			lbl.add_theme_color_override("font_outline_color", Color(0.15, 0.08, 0.04)) # Dark brown outline
+			lbl.add_theme_constant_override("outline_size", 3)
+
 	# Listen to GameData updates
 	if GameData and GameData.has_signal("data_changed"):
 		if not GameData.data_changed.is_connected(_update_hud_ui):
@@ -97,9 +106,9 @@ func _update_resource_labels() -> void:
 	# 1. Money Display
 	if money_label:
 		if "player_money" in GameData:
-			money_label.text = "₱" + str(GameData.player_money)
+			money_label.text = str(GameData.player_money)
 		elif "money" in GameData:
-			money_label.text = "₱" + str(GameData.money)
+			money_label.text = str(GameData.money)
 
 	# 2. Selected Item / Seed / Animal / Crop Info & Count
 	var current_item = ""
@@ -138,13 +147,10 @@ func _update_resource_labels() -> void:
 			var data = GameData.ANIMAL_DATA[current_item]
 			icon_path = data.get("icon", "")
 			crop_icon_path = data.get("icon", "")
-		elif "SEED_DATA" in GameData and GameData.SEED_DATA.has(current_item): # Backup check
-			pass
 		# Kung ang item ay nasa crop_inventory (tulad ng Pesticide, Fertilizer, Produce, etc.)
 		elif "crop_inventory" in GameData and GameData.crop_inventory.has(current_item):
 			if "SEED_DATA" in GameData and GameData.SEED_DATA.has(current_item):
 				crop_icon_path = GameData.SEED_DATA[current_item].get("crop_icon", "")
-			# O kaya kung nakatabi sa inventory_ui textures, pwede rin nating direktang ilagay ang path:
 			elif current_item == "Pesticide":
 				crop_icon_path = "res://images/assets/for main (crops)/pest control station/pesticides.png"
 			elif current_item == "Organic Fertilizer":

@@ -117,14 +117,14 @@ func _update_clock_ui() -> void:
 	if time_label:
 		time_label.text = "%02d:%02d" % [hour, minute]
 
-	# --- UPDATE WEATHER TEXT & COLOR ---
+	# --- UPDATE WEATHER TEXT & COLOR (WALANG EMOJI) ---
 	if weather_label:
 		var weather = GameData.current_weather
 		if weather == "Rainy":
-			weather_label.text = "Raining 🌧️"
+			weather_label.text = "Raining"
 			weather_label.add_theme_color_override("font_color", Color(0.4, 0.7, 1.0))
 		else:
-			weather_label.text = "Dry ☀️"
+			weather_label.text = "Dry"
 			weather_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3))
 
 	# Swap Sun / Sunset / Moon Icon based on time of day
