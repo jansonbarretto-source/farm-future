@@ -56,7 +56,7 @@ func _build_ui_elements() -> void:
 	
 	# Header Title
 	day_title_label = Label.new()
-	day_title_label.text = "🌙 RESTING..."
+	day_title_label.text = "RESTING..."
 	day_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	day_title_label.add_theme_font_size_override("font_size", 14)
 	day_title_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.7))
@@ -111,7 +111,7 @@ func _run_sleep_sequence() -> void:
 	# Advance Game Time & Day via GameData
 	if GameData:
 		GameData.sleep_to_next_day()
-		day_title_label.text = "☀️ AWAKENING"
+		day_title_label.text = "AWAKENING"
 		big_day_label.text = "DAY " + str(GameData.current_day)
 		continue_btn.text = "Start Day " + str(GameData.current_day)
 	

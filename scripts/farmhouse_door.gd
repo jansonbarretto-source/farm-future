@@ -67,9 +67,9 @@ func _update_hint_text() -> void:
 		return
 		
 	if GameData.has_method("can_sleep") and GameData.can_sleep():
-		hint_label.text = "🌙 Press [E] to Sleep"
+		hint_label.text = "Press [E] to Sleep"
 	else:
-		hint_label.text = "🔒 Too early! (Sleeps at 8:00 PM)"
+		hint_label.text = "Too early! (Sleeps at 8:00 PM)"
 
 func _try_to_sleep() -> void:
 	if not GameData:

@@ -113,7 +113,7 @@ func try_start_crafting() -> void:
 		_play_bounce_effect() # <--- Bounce kapag pinindot ang [E] para mag-start!
 	else:
 		print("[PEST CONTROL] Not enough ingredients! Cannot process.")
-		_show_warning_text("⚠️ INGREDIENTS LACKING")
+		_show_warning_text("INGREDIENTS LACKING")
 
 func _show_warning_text(warn_text: String) -> void:
 	if not status_label:
@@ -148,11 +148,11 @@ func update_status_display() -> void:
 		
 	match current_state:
 		State.WAITING_FOR_INGREDIENTS:
-			status_label.text = "🧪 NEED POTATO & TOMATO [E]"
+			status_label.text = "NEED POTATO & TOMATO [E]"
 		State.PROCESSING:
-			status_label.text = "⏳ PROCESSING..."
+			status_label.text = "PROCESSING..."
 		State.READY_TO_COLLECT:
-			status_label.text = "✨ COLLECT PESTICIDE [E]"
+			status_label.text = "COLLECT PESTICIDE [E]"
 
 func _play_bounce_effect() -> void:
 	# Sinisiguro natin na mahahanap nito ang AnimatedSprite2D node nang ligtas

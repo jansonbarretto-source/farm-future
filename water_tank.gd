@@ -71,13 +71,13 @@ func _update_indicator_text() -> void:
 	
 	if current_water < max_water:
 		if GameData and GameData.current_weather == "Rainy":
-			indicator_label.text = "🌧️ Filling from Rain..."
+			indicator_label.text = "Filling from Rain..."
 		elif can_has_water:
-			indicator_label.text = "🪣 [E] Pour Water"
+			indicator_label.text = "[E] Pour Water"
 		else:
-			indicator_label.text = "⚠️ Get Water from River!"
+			indicator_label.text = "Get Water from River!"
 	else:
-		indicator_label.text = "💧 [E] Farm Auto-Water!"
+		indicator_label.text = "[E] Farm Auto-Water!"
 
 func _unhandled_input(event: InputEvent) -> void:
 	if player_in_range and event is InputEventKey and event.pressed and not event.echo:
