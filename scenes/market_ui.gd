@@ -176,7 +176,7 @@ func _create_market_card(item_title: String, price: int, action_text: String, bt
 	vbox.add_child(title_lbl)
 	
 	var price_lbl = Label.new()
-	price_lbl.text = "₱" + str(price)
+	price_lbl.text =str(price)
 	price_lbl.add_theme_font_size_override("font_size", 11)
 	price_lbl.add_theme_color_override("font_color", Color(0.8, 1.0, 0.8))
 	price_lbl.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -213,7 +213,7 @@ func _create_market_card(item_title: String, price: int, action_text: String, bt
 
 func update_ui() -> void:
 	if money_label:
-		money_label.text = "Money: ₱" + str(GameData.money) + " | Total Seeds: " + str(GameData.get_total_seeds())
+		money_label.text = "Money: " + str(GameData.money) + " | Total Seeds: " + str(GameData.get_total_seeds())
 
 func open_market() -> void:
 	if not is_store_open():

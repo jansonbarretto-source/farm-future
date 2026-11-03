@@ -655,3 +655,14 @@ func _force_open_inventory_ui() -> void:
 	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
 	if inventory_ui and inventory_ui.has_method("open_inventory_on_harvest"):
 		inventory_ui.open_inventory_on_harvest()
+
+# Ilagay ito sa iyong global GameData.gd script
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
+			var existing_settings = get_tree().root.get_node_or_null("SettingsLayer")
+			if existing_settings:
+				if has_node("/root/AudioManager"):
+					AudioManager.play_sfx("click")
+				existing_settings.queue_free()
+				get_viewport().set_input_as_handled()

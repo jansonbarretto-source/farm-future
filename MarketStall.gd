@@ -105,7 +105,7 @@ func _open_stock_menu() -> void:
 	vbox.add_theme_constant_override("separation", 12)
 	
 	var title = Label.new()
-	title.text = "📦 MARKET STALL MANAGEMENT"
+	title.text = "MARKET STALL MANAGEMENT"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_color_override("font_color", Color("#fef08a"))
 	title.add_theme_font_size_override("font_size", 16)
@@ -366,7 +366,7 @@ func _update_display() -> void:
 		return
 		
 	if not is_store_open():
-		stock_label.text = "🔒 STORE CLOSED\n(Opens at 6:00 AM)"
+		stock_label.text = " STORE CLOSED\n(Opens at 6:00 AM)"
 		stock_label.add_theme_color_override("font_color", Color("#ef4444")) # Red color
 		stock_label.show()
 	else:

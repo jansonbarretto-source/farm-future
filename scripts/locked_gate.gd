@@ -52,7 +52,7 @@ func _handle_gate_click() -> void:
 	if current_day < unlock_day:
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("error")
-		_show_feedback_message("🔒  LOCKED AREA  🔒\n\nThis area unlocks on\nDay " + str(unlock_day) + ".", Color(1.0, 0.45, 0.45))
+		_show_feedback_message("[LOCKED AREA]\n\nThis area unlocks on\nDay " + str(unlock_day) + ".", Color(1.0, 0.45, 0.45))
 		return
 		
 	# 2. Kung abot na ang araw, ipakita ang "Buy this Area" Prompt na may Yes/Cancel buttons
@@ -85,7 +85,7 @@ func _show_buy_prompt() -> void:
 	panel.add_child(vbox)
 	
 	var lbl = Label.new()
-	lbl.text = "🗺️  UNLOCK " + target_area.to_upper() + "  🗺️\n\nBuy this Area for " + str(unlock_fee) + " Coins?"
+	lbl.text = "UNLOCK " + target_area.to_upper() + "\n\nBuy this Area for " + str(unlock_fee) + " Coins?"
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
 	lbl.add_theme_font_size_override("font_size", 15)
@@ -101,7 +101,7 @@ func _show_buy_prompt() -> void:
 	
 	# YES BUTTON
 	var btn_yes = Button.new()
-	btn_yes.text = "  Yes  "
+	btn_yes.text = "Yes"
 	btn_yes.custom_minimum_size = Vector2(90, 35)
 	_style_button(btn_yes, Color(0.20, 0.65, 0.30), Color(0.25, 0.75, 0.35))
 	btn_yes.pressed.connect(func():
@@ -113,7 +113,7 @@ func _show_buy_prompt() -> void:
 	
 	# CANCEL BUTTON
 	var btn_cancel = Button.new()
-	btn_cancel.text = "  Cancel  "
+	btn_cancel.text = "Cancel"
 	btn_cancel.custom_minimum_size = Vector2(90, 35)
 	_style_button(btn_cancel, Color(0.65, 0.20, 0.20), Color(0.75, 0.25, 0.25))
 	btn_cancel.pressed.connect(func():
@@ -150,13 +150,13 @@ func _process_purchase(canvas: CanvasLayer) -> void:
 			
 		_open_gate()
 		_close_popup(canvas)
-		_show_feedback_message("✨ Successfully Unlocked " + target_area + "!", Color(0.3, 1.0, 0.4))
+		_show_feedback_message("Successfully Unlocked " + target_area + "!", Color(0.3, 1.0, 0.4))
 	else:
 		# KUNG KULANG ANG PERA
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("error")
 		_close_popup(canvas)
-		_show_feedback_message("⚠️ NOT ENOUGH MONEY!\nRequired: " + str(unlock_fee) + " Coins", Color(1.0, 0.35, 0.35))
+		_show_feedback_message("NOT ENOUGH MONEY!\nRequired: " + str(unlock_fee) + " Coins", Color(1.0, 0.35, 0.35))
 
 # --- STYLING NG BUTTONS PARA MAGING MODERN ---
 func _style_button(btn: Button, bg_col: Color, hover_col: Color) -> void:

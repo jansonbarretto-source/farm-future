@@ -76,7 +76,7 @@ func _build_ui() -> void:
 	margin.add_child(vbox)
 	
 	var title = Label.new()
-	title.text = "⚙️ FACTORY PRODUCTION TERMINAL"
+	title.text = "FACTORY PRODUCTION TERMINAL"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(1.0, 0.94, 0.8))
@@ -164,7 +164,7 @@ func _create_recipe_row(product_name: String, recipe: Dictionary, available_qty:
 	var label = Label.new()
 	var input_name = recipe["input"]
 	var req_qty = recipe["in_qty"]
-	label.text = input_name + " (" + str(req_qty) + ") [Owned: " + str(available_qty) + "]\n➔ " + product_name
+	label.text = input_name + " (" + str(req_qty) + ") [Owned: " + str(available_qty) + "]\n-> " + product_name
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_font_size_override("font_size", 11)
 	label.add_theme_color_override("font_color", Color(1, 1, 1))

@@ -45,6 +45,5 @@ func open_market() -> void:
 		elif ui.has_method("show"):
 			ui.show()
 	else:
-		if has_node("/root/AudioManager"):
-			AudioManager.play_sfx("error")
+		# --- TANGGALIN O INALIIS NA ANG ERROR SOUND DITO ---
 		print("Error: MarketUI node not found in scene tree!")

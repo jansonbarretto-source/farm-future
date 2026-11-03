@@ -92,7 +92,7 @@ func _build_ui() -> void:
 	
 	# Title Label
 	var title = Label.new()
-	title.text = "🏭 FACTORY RECIPE CATALOG"
+	title.text = "FACTORY RECIPE CATALOG"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
@@ -160,7 +160,7 @@ func _create_recipe_row(product_name: String, recipe: Dictionary) -> PanelContai
 	
 	# Arrow
 	var arrow = Label.new()
-	arrow.text = "➔"
+	arrow.text = "->"
 	arrow.add_theme_font_size_override("font_size", 16)
 	arrow.add_theme_color_override("font_color", Color(0.9, 0.7, 0.3))
 	hbox.add_child(arrow)
@@ -176,7 +176,7 @@ func _create_recipe_row(product_name: String, recipe: Dictionary) -> PanelContai
 	
 	# Time
 	var time_label = Label.new()
-	time_label.text = "⏱️ " + str(recipe["time"]) + "s"
+	time_label.text = str(recipe["time"]) + "s"
 	time_label.add_theme_font_size_override("font_size", 12)
 	time_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
 	hbox.add_child(time_label)

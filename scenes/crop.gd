@@ -265,7 +265,8 @@ func water_crop() -> void:
 # FERTILIZER LOGIC
 # --------------------------------------------------
 func apply_fertilizer() -> bool:
-	if is_fertilized:
+	# Kung infected ang tanim, huwag payagang mag-apply ng fertilizer o mag-sparkle
+	if is_fertilized or is_infected:
 		return false
 
 	var owned_fertilizer: int = (
@@ -342,6 +343,12 @@ func _trigger_pest_infection() -> void:
 
 	if randf() <= 0.25:
 		is_infected = true
+		
+		# Alisin ang mga umiiral na sparkles kapag nahawa/na-infect
+		var existing_sparkles = get_node_or_null("FertilizerSparkles")
+		if existing_sparkles:
+			existing_sparkles.queue_free()
+			
 		_update_modulate_color()
 		_spawn_pest_indicator()
 
@@ -352,13 +359,14 @@ func _spawn_pest_indicator() -> void:
 
 	var bug_label = Label.new()
 	bug_label.name = "PestBugIndicator"
-	bug_label.text = "🐛"
+	bug_label.text = "[!]"  
 	bug_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	bug_label.add_theme_font_size_override("font_size", 42)
+	bug_label.add_theme_font_size_override("font_size", 48)  # Pinakalaki ang sukat (mula 32 patungong 48)
+	bug_label.add_theme_color_override("font_color", Color(1.0, 0.15, 0.15)) # Matingkad na pulang kulay
 	bug_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	bug_label.add_theme_constant_override("outline_size", 6)
+	bug_label.add_theme_constant_override("outline_size", 8)  # Mas makapal na outline para lumutang
 	
-	bug_label.position = Vector2(-16, -55)
+	bug_label.position = Vector2(-22, -65)  # Inayos din ang posisyon para sa mas malaking sukat
 	bug_label.z_index = 50
 
 	pest_indicator_node = bug_label
@@ -366,7 +374,7 @@ func _spawn_pest_indicator() -> void:
 
 
 func _play_fertilizer_juice_effects() -> void:
-	if not animated_sprite:
+	if not animated_sprite or is_infected:
 		return
 
 	var orig_scale: Vector2 = animated_sprite.scale
@@ -378,6 +386,10 @@ func _play_fertilizer_juice_effects() -> void:
 
 
 func _spawn_sparkle_particles() -> void:
+	# Huwag mag-spawn ng sparkles kung infected ang tanim
+	if is_infected:
+		return
+
 	var sparkles := PixelSparkleEffect.new()
 	sparkles.name = "FertilizerSparkles"
 	sparkles.ambient = false
@@ -387,6 +399,10 @@ func _spawn_sparkle_particles() -> void:
 
 
 func _spawn_harvestable_sparkles() -> void:
+	# Huwag ding mag-spawn kung infected
+	if is_infected:
+		return
+
 	if is_instance_valid(harvest_particles):
 		harvest_particles.queue_free()
 
@@ -572,7 +588,6 @@ func _harvest() -> void:
 # HAZARD POPUPS & DESTRUCTION HANDLERS
 # --------------------------------------------------
 func _flood_destroy_crop() -> void:
-	# --- TUGTUGIN ANG CROP FLOODED SOUND ---
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("crop_flooded")
 		
@@ -581,7 +596,6 @@ func _flood_destroy_crop() -> void:
 
 
 func _wither_crop_due_to_heat() -> void:
-	# --- TUGTUGIN ANG CROP WITHER SOUND ---
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("crop_wither")
 		
@@ -602,7 +616,7 @@ func _show_flooded_flash_text() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	
 	var label = Label.new()
-	label.text = "🌊 FLOODED!"
+	label.text = "FLOODED!"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 9)
 	label.add_theme_color_override("font_color", Color(0.4, 0.7, 1.0))
@@ -633,7 +647,7 @@ func _show_withered_flash_text() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	
 	var label = Label.new()
-	label.text = "🔥 WITHERED!"
+	label.text = "WITHERED!"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 9)
 	label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.3))
@@ -664,7 +678,7 @@ func _show_infected_flash_text() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	
 	var label = Label.new()
-	label.text = "⚠️ INFECTED!"
+	label.text = "INFECTED!"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 9)
 	label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
@@ -687,7 +701,7 @@ func _trigger_fallback_inventory_full_popup() -> void:
 	var panel = PanelContainer.new()
 	panel.z_index = 1000
 	var label = Label.new()
-	label.text = "⚠️ INVENTORY IS FULL!"
+	label.text = "INVENTORY IS FULL!"
 	panel.add_child(label)
 	var canvas = CanvasLayer.new()
 	canvas.layer = 128

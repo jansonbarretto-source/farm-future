@@ -179,7 +179,7 @@ func start_specific_production(product_name: String, recipe: Dictionary, batches
 		if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("working"):
 			sprite.play("working")
 			
-		_set_status_text("⚙️ PROCESSING...", Color(0.9, 0.7, 0.2))
+		_set_status_text(" PROCESSING...", Color(0.9, 0.7, 0.2))
 		print("[FACTORY] Started making ", current_product, " (x", current_output_qty, ") in ", machine_name)
 	else:
 		print("[FACTORY WARNING] Not enough ", ingredient, " to process!")

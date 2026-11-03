@@ -129,13 +129,13 @@ func _setup_hunger_timer() -> void:
 func _on_harvest_ready() -> void:
 	is_ready_for_harvest = true
 	
-	var produce_text = "🥚 EGG!"
+	var produce_text = "[EGG]"
 	if harvest_item == "Milk":
-		produce_text = "🥛 MILK!"
+		produce_text = "[MILK]"
 	elif harvest_item == "Manure":
-		produce_text = "💩 MANURE!"
+		produce_text = "[MANURE]"
 	elif harvest_item == "Wool":
-		produce_text = "🧶 WOOL!"
+		produce_text = "[WOOL]"
 		has_wool = true
 		_switch_state(current_state)
 		
@@ -157,7 +157,7 @@ func _on_harvest_ready() -> void:
 
 func _on_became_hungry() -> void:
 	is_fed = false
-	_set_status_text("❗", Color(1.0, 0.2, 0.2)) # Magpapakita uli ang Red Exclamation Sign!
+	_set_status_text("[!]", Color(1.0, 0.2, 0.2))
 	print("[LIVESTOCK] ", AnimalType.keys()[animal_type], " is hungry again!")
 
 # --- STATUS LABEL SETUP (HUNGRY / FED / READY) ---
@@ -177,7 +177,7 @@ func _setup_status_label() -> void:
 	
 	add_child(status_label)
 	
-	_set_status_text("❗", Color(1.0, 0.2, 0.2))
+	_set_status_text("[!]", Color(1.0, 0.2, 0.2))
 
 func _stop_label_animations() -> void:
 	if float_tween and float_tween.is_running():
@@ -272,7 +272,7 @@ func _show_wrong_food_warning(required_food: String) -> void:
 	
 	get_tree().create_timer(1.8).timeout.connect(func():
 		if not is_fed and not is_ready_for_harvest:
-			_set_status_text("❗", Color(1.0, 0.2, 0.2))
+			_set_status_text("[!]", Color(1.0, 0.2, 0.2))
 	)
 
 func _feed_success() -> void:
@@ -291,7 +291,8 @@ func _feed_success() -> void:
 			AudioManager.play_sfx("sheep")
 
 	_play_happy_animation()
-	_set_status_text("❤️ FED", Color(1.0, 0.85, 0.85))
+	# Pinalitan ang kulay patungong Green (Color(0.2, 1.0, 0.3)) kapag napakain na
+	_set_status_text("[FED]", Color(0.2, 1.0, 0.3))
 	
 	harvest_timer.start()
 	_switch_state(State.EATING)
@@ -334,7 +335,7 @@ func reset_daily_fed_status() -> void:
 	is_fed = false
 	is_ready_for_harvest = false
 	_stop_label_animations()
-	_set_status_text("❗", Color(1.0, 0.2, 0.2))
+	_set_status_text("[!]", Color(1.0, 0.2, 0.2))
 
 # --- AI MOVEMENT & ANIMATION PREFIXES ---
 

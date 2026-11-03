@@ -40,7 +40,7 @@ func _build_settings_ui() -> void:
 	panel.add_child(vbox)
 	
 	var title = Label.new()
-	title.text = "🌿 GAME SETTINGS 🌿"
+	title.text = "GAME SETTINGS"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8))
@@ -59,9 +59,9 @@ func _build_settings_ui() -> void:
 	var sfx_idx = AudioServer.get_bus_index("SFX")
 	if sfx_idx == -1: sfx_idx = master_idx
 	
-	vbox.add_child(_create_volume_slider("🔊 Master Volume", master_idx))
-	vbox.add_child(_create_volume_slider("🎵 Music / BGM Volume", bgm_idx))
-	vbox.add_child(_create_volume_slider("🔔 SFX Volume", sfx_idx))
+	vbox.add_child(_create_volume_slider("Master Volume", master_idx))
+	vbox.add_child(_create_volume_slider("Music / BGM Volume", bgm_idx))
+	vbox.add_child(_create_volume_slider("SFX Volume", sfx_idx))
 	
 	var spacer = Control.new()
 	spacer.custom_minimum_size = Vector2(0, 5)
@@ -91,7 +91,7 @@ func _build_settings_ui() -> void:
 	vbox.add_child(close_btn)
 	
 	var quit_btn = Button.new()
-	quit_btn.text = "🚪 QUIT & SYNC"
+	quit_btn.text = "QUIT & SYNC"
 	quit_btn.custom_minimum_size = Vector2(0, 40)
 	quit_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
@@ -166,6 +166,12 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	
 	container.add_child(slider)
 	return container
+
+# --- NAGDAGDAG NG ESC KEY PRESS PARA ISARAHIN ANG SETTINGS ---
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
+			_close_panel()
 
 func _close_panel() -> void:
 	if get_parent() is CanvasLayer:

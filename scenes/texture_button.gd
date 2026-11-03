@@ -1,6 +1,7 @@
 extends TextureButton
 
 const SETTINGS_ICON_PATH = "res://Settings button.png"
+const HOW_TO_PLAY_IMAGE_PATH = "res://images/How To Play.png"
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -15,14 +16,34 @@ func _ready() -> void:
 	else:
 		print("[WARNING] Settings icon texture not found at: ", SETTINGS_ICON_PATH)
 	
-	if not is_connected("pressed", _on_pressed):
+	if not pressed.is_connected(_on_pressed):
 		pressed.connect(_on_pressed)
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
+			var existing_settings = get_tree().root.get_node_or_null("SettingsLayer")
+			var existing_htp = get_tree().root.get_node_or_null("HowToPlayLayer")
+			
+			if existing_htp:
+				if has_node("/root/AudioManager"):
+					AudioManager.play_sfx("click")
+				existing_htp.queue_free()
+				get_viewport().set_input_as_handled()
+			elif existing_settings:
+				if has_node("/root/AudioManager"):
+					AudioManager.play_sfx("click")
+				existing_settings.queue_free()
+				get_viewport().set_input_as_handled()
+			else:
+				_on_pressed()
+				get_viewport().set_input_as_handled()
 
 func _on_pressed() -> void:
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("open")
 		
-	var existing_settings = get_tree().current_scene.get_node_or_null("SettingsLayer")
+	var existing_settings = get_tree().root.get_node_or_null("SettingsLayer")
 	if existing_settings:
 		return
 
@@ -47,7 +68,7 @@ func _on_pressed() -> void:
 	settings_ui.add_child(center)
 	
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(360, 310)
+	panel.custom_minimum_size = Vector2(360, 350)
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.18, 0.11, 0.07, 0.98)
@@ -69,7 +90,7 @@ func _on_pressed() -> void:
 	panel.add_child(vbox)
 	
 	var title = Label.new()
-	title.text = "🌿 GAME SETTINGS 🌿"
+	title.text = "GAME SETTINGS"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8))
@@ -88,9 +109,9 @@ func _on_pressed() -> void:
 	var sfx_idx = AudioServer.get_bus_index("SFX")
 	if sfx_idx == -1: sfx_idx = master_idx
 	
-	vbox.add_child(_create_volume_slider("🔊 Master Volume", master_idx))
-	vbox.add_child(_create_volume_slider("🎵 Music / BGM Volume", bgm_idx))
-	vbox.add_child(_create_volume_slider("🔔 SFX Volume", sfx_idx))
+	vbox.add_child(_create_volume_slider("Master Volume", master_idx))
+	vbox.add_child(_create_volume_slider("Music / BGM Volume", bgm_idx))
+	vbox.add_child(_create_volume_slider("SFX Volume", sfx_idx))
 	
 	# --- CLOSE SETTINGS BUTTON ---
 	var close_btn = Button.new()
@@ -114,9 +135,31 @@ func _on_pressed() -> void:
 	)
 	vbox.add_child(close_btn)
 	
-	# --- QUIT GAME BUTTON (Babalik sa Main Menu) ---
+	# --- HOW TO PLAY BUTTON ---
+	var how_to_play_btn = Button.new()
+	how_to_play_btn.text = "HOW TO PLAY"
+	how_to_play_btn.custom_minimum_size = Vector2(0, 30)
+	how_to_play_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var htp_style = StyleBoxFlat.new()
+	htp_style.bg_color = Color(0.25, 0.55, 0.75)
+	htp_style.border_color = Color(0.8, 0.9, 1.0)
+	htp_style.set_border_width_all(2)
+	htp_style.set_corner_radius_all(6)
+	how_to_play_btn.add_theme_stylebox_override("normal", htp_style)
+	how_to_play_btn.add_theme_color_override("font_color", Color.WHITE)
+	how_to_play_btn.add_theme_font_size_override("font_size", 11)
+	
+	how_to_play_btn.pressed.connect(func():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
+		_show_how_to_play_panel()
+	)
+	vbox.add_child(how_to_play_btn)
+	
+	# --- QUIT GAME BUTTON ---
 	var quit_btn = Button.new()
-	quit_btn.text = "🚪 QUIT GAME"
+	quit_btn.text = "QUIT GAME"
 	quit_btn.custom_minimum_size = Vector2(0, 30)
 	quit_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
@@ -133,7 +176,6 @@ func _on_pressed() -> void:
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
 		
-		# Palitan ang path na ito kung iba ang lokasyon ng iyong Main Menu scene
 		var menu_path = "res://scenes/Main_Menu.tscn"
 		if ResourceLoader.exists(menu_path):
 			get_tree().change_scene_to_file(menu_path)
@@ -143,7 +185,63 @@ func _on_pressed() -> void:
 	vbox.add_child(quit_btn)
 	
 	canvas_layer.add_child(settings_ui)
-	get_tree().current_scene.add_child(canvas_layer)
+	get_tree().root.add_child(canvas_layer)
+
+# --- IPAPALABAS ANG HOW TO PLAY IMAGE PANEL GAMIT ANG CODE ---
+func _show_how_to_play_panel() -> void:
+	var htp_layer = CanvasLayer.new()
+	htp_layer.name = "HowToPlayLayer"
+	htp_layer.layer = 130 # Mas mataas kaysa settings para lumitaw sa ibabaw
+	
+	var ui_control = Control.new()
+	ui_control.set_anchors_preset(Control.PRESET_FULL_RECT)
+	
+	var bg = ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.05, 0.03, 0.02, 0.8)
+	bg.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed:
+			htp_layer.queue_free()
+	)
+	ui_control.add_child(bg)
+	
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ui_control.add_child(center)
+	
+	var texture_rect = TextureRect.new()
+	if ResourceLoader.exists(HOW_TO_PLAY_IMAGE_PATH):
+		texture_rect.texture = load(HOW_TO_PLAY_IMAGE_PATH)
+	else:
+		print("[WARNING] How To Play image not found at: ", HOW_TO_PLAY_IMAGE_PATH)
+		
+	texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH
+	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	texture_rect.custom_minimum_size = Vector2(600, 400)
+	center.add_child(texture_rect)
+	
+	var close_btn = Button.new()
+	close_btn.text = "X"
+	close_btn.custom_minimum_size = Vector2(35, 35)
+	close_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	close_btn.offset_left = -60
+	close_btn.offset_top = 30
+	
+	var btn_style = StyleBoxFlat.new()
+	btn_style.bg_color = Color(0.8, 0.2, 0.2)
+	btn_style.set_corner_radius_all(6)
+	close_btn.add_theme_stylebox_override("normal", btn_style)
+	close_btn.add_theme_color_override("font_color", Color.WHITE)
+	
+	close_btn.pressed.connect(func():
+		if has_node("/root/AudioManager"):
+			AudioManager.play_sfx("click")
+		htp_layer.queue_free()
+	)
+	
+	ui_control.add_child(close_btn)
+	htp_layer.add_child(ui_control)
+	get_tree().root.add_child(htp_layer)
 
 func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	var container = VBoxContainer.new()
@@ -163,7 +261,13 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	
 	var val_lbl = Label.new()
 	val_lbl.text = str(current_pct) + "%"
-	val_lbl.add_theme_font_size_override("font_size", 11)
+	
+	# Ayos na ang void return error dito
+	if val_lbl.has_method("add_font_size_override"):
+		val_lbl.add_font_size_override("font_size", 11)
+	else:
+		val_lbl.add_theme_font_size_override("font_size", 11)
+		
 	val_lbl.add_theme_color_override("font_color", Color(0.5, 0.95, 0.5))
 	hbox.add_child(val_lbl)
 	

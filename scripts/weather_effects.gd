@@ -42,7 +42,10 @@ func _update_weather_visuals() -> void:
 		if weather_modulate:
 			weather_modulate.color = Color(0.5, 0.55, 0.65, 1.0)
 			
-		print("[WEATHER FX] Umuulan sa buong map!")
+		# --- BASAIN LANG ANG MGA TILES NA MAY NAKATANIM NA SEEDS/CROPS ---
+		_water_planted_crops_only()
+			
+		print("[WEATHER FX] Umuulan sa buong map - Nabasa ang mga nakatanim na seeds!")
 		
 	elif GameData.current_weather == "Dry":
 		# I-off ang ulan kapag Dry
@@ -73,3 +76,42 @@ func _update_weather_visuals() -> void:
 			
 		if weather_modulate:
 			weather_modulate.color = Color(1.0, 1.0, 1.0, 1.0)
+
+# --- FUNCTION PARA SA MGA TILE NA MAY NAKATANIM LANG ANG MAGIGING WET SOIL ---
+func _water_planted_crops_only() -> void:
+	var current_scene = get_tree().current_scene
+	if not current_scene:
+		return
+		
+	# Hanapin ang Ground_Terrain TileMapLayer
+	var ground_terrain = current_scene.find_child("Ground_Terrain", true, false) as TileMapLayer
+	
+	# I-loop ang lahat ng child nodes sa active scene para hanapin ang mga Crop nodes
+	for child in current_scene.get_children():
+		# I-verify kung ang node ay isang Crop/Planted Seed
+		var is_crop_node = child.has_method("_harvest") or "crop_type" in child or child.name.contains("Crop")
+		
+		if is_crop_node:
+			# 1. I-set ang is_watered property ng Crop sa true
+			if "is_watered" in child:
+				child.is_watered = true
+			
+			# 2. Palitan ang Tile visual nito patungong Wet Soil (Vector2i(1, 1)) kung ito ay nakatanim sa Tilled Soil
+			if ground_terrain:
+				var crop_pos = Vector2i.ZERO
+				if "grid_position" in child:
+					crop_pos = child.grid_position
+				elif "cell_pos" in child:
+					crop_pos = child.cell_pos
+				elif child.has_method("get_grid_position"):
+					crop_pos = child.get_grid_position()
+				else:
+					crop_pos = ground_terrain.local_to_map(ground_terrain.to_local(child.global_position))
+				
+				var source_id = ground_terrain.get_cell_source_id(crop_pos)
+				var atlas_coords = ground_terrain.get_cell_atlas_coords(crop_pos)
+				
+				# Kung nakatanim sa dry tilled dirt (Source 0, Vector2i(1,0)), gawing watered dirt (Vector2i(1,1))
+				if source_id == 0 and atlas_coords == Vector2i(1, 0):
+					ground_terrain.set_cell(crop_pos, 0, Vector2i(1, 1))
+					print("[WEATHER FX] Naging wet soil ang tile ng pananim sa position: ", crop_pos)

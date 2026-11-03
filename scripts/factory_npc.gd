@@ -22,7 +22,7 @@ func _ready() -> void:
 func _setup_head_indicator() -> void:
 	indicator_label = Label.new()
 	indicator_label.name = "TalkIndicator"
-	indicator_label.text = "💬 [E]"
+	indicator_label.text = "[E]"
 	indicator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	indicator_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	indicator_label.position = Vector2(-25, indicator_offset_y)

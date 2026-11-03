@@ -14,7 +14,7 @@ func _ready() -> void:
 func _setup_indicators() -> void:
 	# Main prompt label ([E] Fill Can)
 	indicator_label = Label.new()
-	indicator_label.text = "💧 [E] Fill Can from River"
+	indicator_label.text = "[E] Fill Can from River"
 	indicator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	indicator_label.position = Vector2(-70, -30)
 	indicator_label.add_theme_font_size_override("font_size", 11)

@@ -59,6 +59,75 @@ func _ready() -> void:
 	
 	if how_to_play_panel:
 		_show_how_to_play_animated()
+		
+	# --- TAWAGIN ANG START GAME TITLE ANIMATION (MAY 5 SECONDS DELAY) ---
+	_show_starting_text_animation()
+
+# --- FUNCTION PARA SA MALAKING FARM FUTURE TITLE NA MAY 5 SECONDS DELAY ---
+func _show_starting_text_animation() -> void:
+	# Maghintay muna ng 5 segundo bago i-transition in sa screen
+	await get_tree().create_timer(2.5).timeout
+	
+	var canvas = CanvasLayer.new()
+	canvas.layer = 250
+	canvas.name = "GameStartTitleLayer"
+	
+	var center = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(center)
+	
+	# VBoxContainer para sa Title at Subtitle
+	var vbox = VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 6)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(vbox)
+	
+	# Pangunahing Pamagat: FARM FUTURE
+	var title_lbl = Label.new()
+	title_lbl.text = "FARM FUTURE"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 52)
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.88, 0.35)) # Harvest Gold
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.22, 0.11, 0.04)) # Earthy Brown Outline
+	title_lbl.add_theme_constant_override("outline_size", 12)
+	vbox.add_child(title_lbl)
+	
+	# Subtitle: Agricultural Cooperative
+	var subtitle_lbl = Label.new()
+	subtitle_lbl.text = "Agricultural Cooperative"
+	subtitle_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle_lbl.add_theme_font_size_override("font_size", 18)
+	subtitle_lbl.add_theme_color_override("font_color", Color(0.9, 0.95, 0.85))
+	subtitle_lbl.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02))
+	subtitle_lbl.add_theme_constant_override("outline_size", 6)
+	vbox.add_child(subtitle_lbl)
+	
+	get_tree().root.add_child(canvas)
+	
+	await get_tree().process_frame
+	
+	# I-set ang pivot sa gitna para sa zoom/scale effect
+	vbox.pivot_offset = vbox.size / 2.0
+	vbox.scale = Vector2(0.4, 0.4)
+	vbox.modulate.a = 0.0
+	
+	# 1. TRANSITION IN ANIMATION (Pop-in)
+	var tween_in = create_tween().set_parallel(true)
+	tween_in.tween_property(vbox, "scale", Vector2.ONE, 0.7).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween_in.tween_property(vbox, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# Mananatili sa screen nang 2.5 segundo bago mag-transition out
+	await get_tree().create_timer(2.5).timeout
+	
+	# 2. TRANSITION OUT ANIMATION (Fade out & Expand)
+	var tween_out = create_tween().set_parallel(true)
+	tween_out.tween_property(vbox, "scale", Vector2(1.15, 1.15), 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween_out.tween_property(vbox, "modulate:a", 0.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	await tween_out.finished
+	canvas.queue_free()
 
 # --- SETUP NG MINIMAP NA MAY CLICK-TO-OPEN FULL-SCREEN MAP ---
 func _setup_minimap() -> void:
@@ -75,7 +144,6 @@ func _setup_minimap() -> void:
 	map_panel.offset_top = -165
 	map_panel.offset_right = 195
 	
-	# Ginagawang interactive ang panel para ma-click at magbukas ng buong mapa
 	map_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	map_panel.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -86,7 +154,7 @@ func _setup_minimap() -> void:
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.06, 0.03, 0.98)
-	style.border_color = Color(0, 0, 0, 1.0) # Ginawang black ang outline ng minimap
+	style.border_color = Color(0, 0, 0, 1.0)
 	style.set_border_width_all(3)
 	style.set_corner_radius_all(10)
 	style.content_margin_left = 4
@@ -122,7 +190,6 @@ func _setup_minimap() -> void:
 	sub_viewport.size = Vector2i(512, 384)
 	sub_viewport.msaa_2d = SubViewport.MSAA_2X
 	
-	# Isama ang lahat ng visual nodes sa minimap
 	for child in get_children():
 		if child is TileMapLayer or child is TileMap or child is Sprite2D or child is Node2D:
 			if child.name != "Player" and child.name != "CanvasLayer" and not child is Camera2D:
@@ -203,7 +270,7 @@ func _open_fullscreen_map() -> void:
 	# Header title at close button
 	var header_hbox = HBoxContainer.new()
 	var title_lbl = Label.new()
-	title_lbl.text = "🗺️ FARM WORLD MAP - OVERVIEW"
+	title_lbl.text = "FARM WORLD MAP - OVERVIEW"
 	title_lbl.add_theme_font_size_override("font_size", 18)
 	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -227,7 +294,6 @@ func _open_fullscreen_map() -> void:
 	header_hbox.add_child(close_btn)
 	vbox.add_child(header_hbox)
 	
-	# Map Wrapper Container na may Control para sa mga Labels
 	var map_wrapper = Control.new()
 	map_wrapper.custom_minimum_size = Vector2(768, 470)
 	map_wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -243,14 +309,12 @@ func _open_fullscreen_map() -> void:
 	full_viewport.size = Vector2i(768, 470)
 	full_viewport.msaa_2d = SubViewport.MSAA_2X
 	
-	# Kopyahin ang lahat ng assets para sa full world map
 	for child in get_children():
 		if child is TileMapLayer or child is TileMap or child is Sprite2D or child is Node2D:
 			if child.name != "Player" and child.name != "CanvasLayer" and not child is Camera2D:
 				var asset_clone = child.duplicate()
 				full_viewport.add_child(asset_clone)
 	
-	# Full Map Camera (Naka-zoom in gamit ang 0.35 zoom)
 	var full_camera = Camera2D.new()
 	full_camera.name = "FullMapCamera"
 	full_camera.zoom = Vector2(0.35, 0.35) 
@@ -261,9 +325,10 @@ func _open_fullscreen_map() -> void:
 	vp_container.add_child(full_viewport)
 	map_wrapper.add_child(vp_container)
 	
-	# --- MGA INAYOS NA POSISYON NG AREA LABELS ---
+	# --- MGA POSISYON NG AREA LABELS (KASAMA NA ANG FARM) ---
 	var labels_data = [
 		{"text": "🏠 Player House", "pos": Vector2(330, 210)},   # Gitna
+		{"text": "🌾 Farm", "pos": Vector2(250, 310)},            # Farm Area
 		{"text": "🏭 Factory Area", "pos": Vector2(520, 90)},    # Upper Right
 		{"text": "🏪 Market", "pos": Vector2(350, 40)},          # Itaas (Top)
 		{"text": "🌾 Livestock Area", "pos": Vector2(550, 310)}, # Lower Right
@@ -280,7 +345,6 @@ func _open_fullscreen_map() -> void:
 		area_lbl.add_theme_constant_override("outline_size", 4)
 		map_wrapper.add_child(area_lbl)
 	
-	# Player Avatar sa Full Map
 	var avatar_path = "res://images/assets/ui/player.avatar.png"
 	var full_avatar = TextureRect.new()
 	full_avatar.custom_minimum_size = Vector2(28, 28)
@@ -351,7 +415,7 @@ func _on_ingame_settings_pressed() -> void:
 	settings_ui.add_child(center)
 	
 	var panel = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(440, 500) # Sapat na taas para sa lahat ng volume at buttons
+	panel.custom_minimum_size = Vector2(440, 500)
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.18, 0.11, 0.07, 0.98)
@@ -373,7 +437,7 @@ func _on_ingame_settings_pressed() -> void:
 	panel.add_child(vbox)
 	
 	var title = Label.new()
-	title.text = "🌿 GAME SETTINGS 🌿"
+	title.text = "GAME SETTINGS"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8))
@@ -392,9 +456,9 @@ func _on_ingame_settings_pressed() -> void:
 	var sfx_idx = AudioServer.get_bus_index("SFX")
 	if sfx_idx == -1: sfx_idx = master_idx
 	
-	vbox.add_child(_create_volume_slider("🔊 Master Volume", master_idx))
-	vbox.add_child(_create_volume_slider("🎵 Music / BGM Volume", bgm_idx))
-	vbox.add_child(_create_volume_slider("🔔 SFX Volume", sfx_idx))
+	vbox.add_child(_create_volume_slider("Master Volume", master_idx))
+	vbox.add_child(_create_volume_slider("Music / BGM Volume", bgm_idx))
+	vbox.add_child(_create_volume_slider("SFX Volume", sfx_idx))
 	
 	var spacer = Control.new()
 	spacer.custom_minimum_size = Vector2(0, 5)
@@ -424,7 +488,7 @@ func _on_ingame_settings_pressed() -> void:
 	
 	# --- QUIT GAME BUTTON ---
 	var quit_btn = Button.new()
-	quit_btn.text = "🚪 QUIT GAME"
+	quit_btn.text = "QUIT GAME"
 	quit_btn.custom_minimum_size = Vector2(0, 40)
 	quit_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
@@ -527,7 +591,6 @@ func _process(delta: float) -> void:
 		
 	_update_tile_cursor()
 	
-	# Sinusundan ng minimap camera ang posisyon ng player para laging nasa gitna
 	if mini_camera and player:
 		mini_camera.global_position = player.global_position
 
@@ -915,57 +978,53 @@ func _water_tile(map_pos: Vector2i) -> void:
 		ground_terrain.set_cell(map_pos, TILLED_SOURCE_ID, WATERED_DIRT_COORDS)
 		
 		if has_node("/root/AudioManager"):
-			AudioManager.play_sfx("watering")
-		
-		var crop_on_tile = _get_crop_at_tile(map_pos)
-		if crop_on_tile and crop_on_tile.has_method("water_crop"):
-			crop_on_tile.water_crop()
+			AudioManager.play_sfx("water")
 		
 		if player and player.has_method("use_watering_can"):
 			player.use_watering_can()
 
-func _handle_right_click_undo(map_pos: Vector2i) -> void:
-	if not _is_inside_farm_boundary(map_pos):
-		return
+func _get_crop_at_tile(map_pos: Vector2i) -> Node:
+	for child in get_children():
+		if child.has_method("get_grid_position"):
+			if child.get_grid_position() == map_pos:
+				return child
+		elif "grid_position" in child:
+			if child.grid_position == map_pos:
+				return child
+		elif "cell_pos" in child:
+			if child.cell_pos == map_pos:
+				return child
+	return null
 
-	var crop_on_tile = _get_crop_at_tile(map_pos)
-	
-	if crop_on_tile:
-		var seed_type = ""
-		if "seed_type" in crop_on_tile:
-			seed_type = crop_on_tile.seed_type
-		elif "crop_type" in crop_on_tile:
-			seed_type = crop_on_tile.crop_type
-			
-		if seed_type != "" and GameData and GameData.has_method("add_seeds"):
-			GameData.add_seeds(seed_type, 1)
+func _spawn_crop(map_pos: Vector2i, seed_type: String, is_watered: bool) -> void:
+	if not crop_scene:
+		return
 		
-		crop_on_tile.queue_free()
-		return
+	var crop = crop_scene.instantiate()
+	if "crop_type" in crop:
+		crop.crop_type = seed_type
+	if "is_watered" in crop:
+		crop.is_watered = is_watered
+		
+	crop.global_position = ground_terrain.map_to_local(map_pos)
+	
+	if "grid_position" in crop:
+		crop.grid_position = map_pos
+	elif "cell_pos" in crop:
+		crop.cell_pos = map_pos
+		
+	add_child(crop)
 
+func _handle_right_click_undo(map_pos: Vector2i) -> void:
 	var current_source_id = ground_terrain.get_cell_source_id(map_pos)
 	var current_tile_coords = ground_terrain.get_cell_atlas_coords(map_pos)
 	
-	if current_source_id == TILLED_SOURCE_ID and current_tile_coords == WATERED_DIRT_COORDS:
-		ground_terrain.set_cell(map_pos, TILLED_SOURCE_ID, TILLED_DIRT_COORDS)
+	var crop_on_tile = _get_crop_at_tile(map_pos)
+	if crop_on_tile:
+		crop_on_tile.queue_free()
+		print("Removed crop at tile: ", map_pos)
 		return
 
-	if current_source_id == TILLED_SOURCE_ID and current_tile_coords == TILLED_DIRT_COORDS:
+	if current_source_id == TILLED_SOURCE_ID:
 		ground_terrain.set_cell(map_pos, UNTILLED_SOURCE_ID, UNTILLED_DIRT_COORDS)
-		return
-
-func _get_crop_at_tile(map_pos: Vector2i) -> Node:
-	var tile_world_pos = ground_terrain.map_to_local(map_pos)
-	for child in get_children():
-		if (child.has_method("setup_crop") or child.has_method("water_crop")) and child.global_position.distance_to(tile_world_pos) < 8.0:
-			return child
-	return null
-
-func _spawn_crop(map_pos: Vector2i, seed_type: String, start_watered: bool = false) -> void:
-	var crop_instance = crop_scene.instantiate()
-	crop_instance.global_position = ground_terrain.map_to_local(map_pos)
-	
-	if crop_instance.has_method("setup_crop"):
-		crop_instance.setup_crop(seed_type, start_watered)
-		
-	add_child(crop_instance)
+		print("Reverted tilled/watered tile to untilled dirt at: ", map_pos)
