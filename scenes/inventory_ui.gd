@@ -1,10 +1,11 @@
+
 extends Control
 
 @onready var grid_container: GridContainer = $GridContainer
-@export var lock_texture: Texture2D = preload("res://Lock.png") 
-@export var max_slots: int = 12 
-@export var unlocked_slots: int = 6 
-@export var slot_cost: int = 100 
+@export var lock_texture: Texture2D = preload("res://Lock.png")
+@export var max_slots: int = 12
+@export var unlocked_slots: int = 6
+@export var slot_cost: int = 100
 
 var bg_panel: PanelContainer
 var title_label: Label
@@ -14,77 +15,85 @@ var is_inventory_open: bool = false
 var is_animating: bool = false
 var _last_item_counts: Dictionary = {}
 
+
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	
+
 	if not is_in_group("inventory_ui"):
 		add_to_group("inventory_ui")
-	
+
 	if GameData and "unlocked_slots" in GameData:
 		unlocked_slots = GameData.unlocked_slots
 	elif GameData:
 		GameData.unlocked_slots = unlocked_slots
-		
+
 	_setup_code_designed_panel()
 	_setup_persistent_f_toggle_badge()
-	
-	if GameData.has_signal("data_changed"):
+
+	if GameData and GameData.has_signal("data_changed"):
 		GameData.data_changed.connect(_on_game_data_changed)
-		
+
 	_cache_item_counts()
 	update_inventory_ui()
 
+
 func _cache_item_counts() -> void:
 	_last_item_counts.clear()
-	if GameData:
-		var inventories = [
-			GameData.crop_inventory if "crop_inventory" in GameData else {},
-			GameData.animal_inventory if "animal_inventory" in GameData else {},
-			GameData.seed_inventory if "seed_inventory" in GameData else {}
-		]
-		for inv_dict in inventories:
-			if inv_dict is Dictionary:
-				for k in inv_dict.keys():
-					_last_item_counts[k] = int(inv_dict[k])
 
+	if not GameData:
+		return
+
+	var inventories = [
+		GameData.crop_inventory if "crop_inventory" in GameData else {},
+		GameData.animal_inventory if "animal_inventory" in GameData else {}
+	]
+
+	for inv_dict in inventories:
+		if inv_dict is Dictionary:
+			for k in inv_dict.keys():
+				_last_item_counts[k] = int(inv_dict[k])
+
+
+# Seeds are excluded because they have their own inventory section.
 func _get_unique_item_count() -> int:
 	var unique_items = []
+
 	var inv = GameData.crop_inventory if GameData and "crop_inventory" in GameData else {}
 	var animal_inv = GameData.animal_inventory if GameData and "animal_inventory" in GameData else {}
-	var seed_inv = GameData.seed_inventory if GameData and "seed_inventory" in GameData else {}
-	
+
 	for k in inv.keys():
 		if inv[k] > 0 and not unique_items.has(k):
 			unique_items.append(k)
+
 	for k in animal_inv.keys():
 		if animal_inv[k] > 0 and not unique_items.has(k):
 			unique_items.append(k)
-	for k in seed_inv.keys():
-		if seed_inv[k] > 0 and not unique_items.has(k):
-			unique_items.append(k)
-			
+
 	return unique_items.size()
+
 
 func _is_inventory_full() -> bool:
 	var current_limit = GameData.unlocked_slots if GameData and "unlocked_slots" in GameData else unlocked_slots
 	return _get_unique_item_count() >= current_limit
 
+
 func _on_game_data_changed() -> void:
-	# Nag-aantabay lang at nag-a-update ng UI/cache nang hindi kusang nagbubukas
 	update_inventory_ui()
 	_cache_item_counts()
 
-# Eksklusibong tinatawagan tuwing nag-a-harvest o bumibili upang kusang bumukas
+
 func open_inventory_on_harvest() -> void:
 	update_inventory_ui()
 	_cache_item_counts()
+
 	if not is_inventory_open and not is_animating:
 		toggle_inventory()
 
-# Safe texture lookup function designed specifically for web export compatibility
+
 func get_item_texture(item_name: String) -> Texture2D:
 	var path = ""
+
 	match item_name:
 		"Wheat": path = "res://images/assets/Inventory (Fruits)/Wheattt.png"
 		"Carrot": path = "res://images/assets/Inventory (Fruits)/Carrots.png"
@@ -117,22 +126,25 @@ func get_item_texture(item_name: String) -> Texture2D:
 		"Banana Smoothie": path = "res://images/assets/for factory/banana_smoothie.png"
 		"Polished Rice Box": path = "res://images/assets/for factory/polished_rice.png"
 		"Carrot Juice": path = "res://images/assets/for factory/carrot_juice.png"
-	
+
 	if path != "" and ResourceLoader.exists(path):
 		return load(path)
+
 	return null
+
 
 func show_buy_slot_confirmation() -> void:
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("click")
+
 	var canvas = CanvasLayer.new()
 	canvas.layer = 129
-	
+
 	var panel = PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	
+
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.12, 0.08, 0.05, 0.98)
 	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
@@ -142,11 +154,11 @@ func show_buy_slot_confirmation() -> void:
 	style.shadow_color = Color(0, 0, 0, 0.7)
 	style.shadow_size = 12
 	panel.add_theme_stylebox_override("panel", style)
-	
+
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 14)
 	panel.add_child(vbox)
-	
+
 	var msg_label = Label.new()
 	msg_label.text = "🔒 UNLOCK INVENTORY SLOT?\n\nAre you sure you want to buy this slot\nfor ₱" + str(slot_cost) + "?"
 	msg_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -155,71 +167,77 @@ func show_buy_slot_confirmation() -> void:
 	msg_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	msg_label.add_theme_constant_override("outline_size", 4)
 	vbox.add_child(msg_label)
-	
+
 	var hbox = HBoxContainer.new()
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	hbox.add_theme_constant_override("separation", 16)
 	vbox.add_child(hbox)
-	
+
 	var yes_btn = Button.new()
 	yes_btn.text = "Yes, Buy"
 	yes_btn.custom_minimum_size = Vector2(90, 36)
-	
+
 	var yes_style = StyleBoxFlat.new()
 	yes_style.bg_color = Color(0.2, 0.5, 0.25, 1.0)
 	yes_style.border_color = Color(0.4, 0.8, 0.45, 1.0)
 	yes_style.set_border_width_all(2)
 	yes_style.set_corner_radius_all(6)
 	yes_btn.add_theme_stylebox_override("normal", yes_style)
-	
+
 	yes_btn.pressed.connect(func():
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
-		var cost: int = 100
+
 		if GameData and GameData.has_method("remove_money"):
-			if GameData.remove_money(cost):
+			if GameData.remove_money(slot_cost):
 				unlocked_slots = min(unlocked_slots + 1, max_slots)
-				if GameData:
-					GameData.unlocked_slots = unlocked_slots 
+				GameData.unlocked_slots = unlocked_slots
 				update_inventory_ui()
+
 		canvas.queue_free()
 	)
 	hbox.add_child(yes_btn)
-	
+
 	var cancel_btn = Button.new()
 	cancel_btn.text = "Cancel"
 	cancel_btn.custom_minimum_size = Vector2(90, 36)
-	
+
 	var cancel_style = StyleBoxFlat.new()
 	cancel_style.bg_color = Color(0.45, 0.2, 0.2, 1.0)
 	cancel_style.border_color = Color(0.8, 0.4, 0.4, 1.0)
 	cancel_style.set_border_width_all(2)
 	cancel_style.set_corner_radius_all(6)
 	cancel_btn.add_theme_stylebox_override("normal", cancel_style)
-	
+
 	cancel_btn.pressed.connect(func():
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
 		canvas.queue_free()
 	)
 	hbox.add_child(cancel_btn)
-	
+
 	canvas.add_child(panel)
 	get_tree().current_scene.add_child(canvas)
 
+
 func show_pesticide_hint() -> void:
 	var player = get_tree().get_first_node_in_group("player")
+
 	if not player:
 		player = get_tree().current_scene.find_node("Player", true, false)
+
 	if not player:
 		return
+
 	var existing = player.find_child("PesticideHintPopup", false, false)
+
 	if existing:
 		existing.queue_free()
+
 	var panel = PanelContainer.new()
 	panel.name = "PesticideHintPopup"
 	panel.z_index = 2000
-	
+
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
 	style.border_color = Color(0.95, 0.75, 0.35, 1.0)
@@ -230,7 +248,7 @@ func show_pesticide_hint() -> void:
 	style.content_margin_top = 4
 	style.content_margin_bottom = 4
 	panel.add_theme_stylebox_override("panel", style)
-	
+
 	var label = Label.new()
 	label.text = "🧴 Press [E] to apply"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -239,16 +257,16 @@ func show_pesticide_hint() -> void:
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	label.add_theme_constant_override("outline_size", 3)
 	panel.add_child(label)
-	
+
 	panel.position = Vector2(-40, -55)
 	panel.scale = Vector2(0.4, 0.4)
 	panel.pivot_offset = Vector2(40, 15)
-	
+
 	player.add_child(panel)
-	
+
 	var tween = panel.create_tween()
 	tween.tween_property(panel, "scale", Vector2.ONE, 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	
+
 	var timer = get_tree().create_timer(2.0)
 	timer.timeout.connect(func():
 		if is_instance_valid(panel):
@@ -257,6 +275,7 @@ func show_pesticide_hint() -> void:
 			fade_tween.tween_property(panel, "position:y", panel.position.y - 15, 0.4)
 			fade_tween.chain().tween_callback(panel.queue_free)
 	)
+
 
 func _setup_code_designed_panel() -> void:
 	bg_panel = PanelContainer.new()
@@ -267,7 +286,7 @@ func _setup_code_designed_panel() -> void:
 	bg_panel.offset_right = -15
 	bg_panel.offset_bottom = -15
 	bg_panel.pivot_offset = Vector2(107, 162)
-	
+
 	var style_box = StyleBoxFlat.new()
 	style_box.bg_color = Color(0.12, 0.08, 0.05, 0.96)
 	style_box.border_color = Color(0.58, 0.40, 0.22, 1.0)
@@ -278,19 +297,19 @@ func _setup_code_designed_panel() -> void:
 	style_box.shadow_color = Color(0, 0, 0, 0.6)
 	style_box.shadow_size = 10
 	bg_panel.add_theme_stylebox_override("panel", style_box)
-	
+
 	add_child(bg_panel)
-	
+
 	var content_vbox = VBoxContainer.new()
 	content_vbox.name = "ContentVBox"
 	content_vbox.add_theme_constant_override("separation", 6)
 	bg_panel.add_child(content_vbox)
-	
+
 	var header_hbox = HBoxContainer.new()
 	header_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	header_hbox.add_theme_constant_override("separation", 8)
 	content_vbox.add_child(header_hbox)
-	
+
 	title_label = Label.new()
 	title_label.text = "INVENTORY"
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -299,7 +318,7 @@ func _setup_code_designed_panel() -> void:
 	title_label.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02))
 	title_label.add_theme_constant_override("outline_size", 6)
 	header_hbox.add_child(title_label)
-	
+
 	toggle_label = Label.new()
 	toggle_label.text = "[F] Hide"
 	toggle_label.add_theme_font_size_override("font_size", 10)
@@ -307,21 +326,22 @@ func _setup_code_designed_panel() -> void:
 	toggle_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	toggle_label.add_theme_constant_override("outline_size", 3)
 	header_hbox.add_child(toggle_label)
-	
+
 	var divider = ColorRect.new()
 	divider.custom_minimum_size = Vector2(0, 2)
 	divider.color = Color(0.58, 0.40, 0.22, 0.8)
 	content_vbox.add_child(divider)
-	
+
 	var spacer = Control.new()
 	spacer.custom_minimum_size = Vector2(0, 2)
 	content_vbox.add_child(spacer)
-	
+
 	if grid_container:
 		grid_container.reparent(content_vbox)
-		
+
 	bg_panel.visible = false
 	is_inventory_open = false
+
 
 func _setup_persistent_f_toggle_badge() -> void:
 	toggle_badge = PanelContainer.new()
@@ -331,14 +351,14 @@ func _setup_persistent_f_toggle_badge() -> void:
 	toggle_badge.offset_top = -45
 	toggle_badge.offset_right = -15
 	toggle_badge.offset_bottom = -15
-	
+
 	var badge_style = StyleBoxFlat.new()
 	badge_style.bg_color = Color(0.12, 0.08, 0.05, 0.9)
 	badge_style.border_color = Color(0.58, 0.40, 0.22, 1.0)
 	badge_style.set_border_width_all(2)
 	badge_style.set_corner_radius_all(6)
 	toggle_badge.add_theme_stylebox_override("panel", badge_style)
-	
+
 	var badge_label = Label.new()
 	badge_label.text = "Press [F] Inventory"
 	badge_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -347,36 +367,39 @@ func _setup_persistent_f_toggle_badge() -> void:
 	badge_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75))
 	badge_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	badge_label.add_theme_constant_override("outline_size", 4)
-	
+
 	toggle_badge.add_child(badge_label)
 	add_child(toggle_badge)
 	toggle_badge.visible = true
+
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_F or event.physical_keycode == KEY_F or event.keycode == KEY_I or event.physical_keycode == KEY_I:
 			toggle_inventory()
 
+
 func toggle_inventory() -> void:
 	if is_animating:
 		return
-		
+
 	is_animating = true
 	is_inventory_open = not is_inventory_open
-	
+
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("open_inventory")
-	
+
 	var target_alpha: float = 1.0 if is_inventory_open else 0.0
 	var target_scale: Vector2 = Vector2.ONE if is_inventory_open else Vector2(0.8, 0.8)
-	
+
 	if is_inventory_open:
 		bg_panel.visible = true
 		toggle_badge.visible = false
 	else:
 		toggle_badge.visible = true
-	
+
 	var tween = create_tween().set_parallel(true)
+
 	if is_inventory_open:
 		bg_panel.modulate.a = 0.0
 		bg_panel.scale = Vector2(0.8, 0.8)
@@ -385,49 +408,51 @@ func toggle_inventory() -> void:
 	else:
 		tween.tween_property(bg_panel, "modulate:a", target_alpha, 0.18)
 		tween.tween_property(bg_panel, "scale", target_scale, 0.18)
-	
+
 	tween.chain().tween_callback(func():
 		is_animating = false
 		if not is_inventory_open:
 			bg_panel.visible = false
 	)
 
+
 func update_inventory_ui() -> void:
 	if not grid_container:
 		return
+
 	for child in grid_container.get_children():
 		child.queue_free()
+
 	grid_container.columns = 3
 	grid_container.add_theme_constant_override("h_separation", 8)
 	grid_container.add_theme_constant_override("v_separation", 8)
+
 	var inv: Dictionary = GameData.crop_inventory if GameData and "crop_inventory" in GameData else {}
 	var animal_inv: Dictionary = GameData.animal_inventory if GameData and "animal_inventory" in GameData else {}
-	var seed_inv: Dictionary = GameData.seed_inventory if GameData and "seed_inventory" in GameData else {}
-	
+
+	# IMPORTANT: Seed inventory is intentionally not included here.
 	var owned_items = []
-	
+
 	for item_name in inv.keys():
 		if inv[item_name] > 0 and not owned_items.has(item_name):
 			owned_items.append(item_name)
+
 	for animal_name in animal_inv.keys():
 		if animal_inv[animal_name] > 0 and not owned_items.has(animal_name):
 			owned_items.append(animal_name)
-	for seed_name in seed_inv.keys():
-		if seed_inv[seed_name] > 0 and not owned_items.has(seed_name):
-			owned_items.append(seed_name)
-			
+
 	for i in range(max_slots):
 		var slot_panel = PanelContainer.new()
 		slot_panel.custom_minimum_size = Vector2(58, 58)
 		slot_panel.pivot_offset = Vector2(29, 29)
-		
+
 		var default_style = StyleBoxFlat.new()
 		default_style.bg_color = Color(0.09, 0.06, 0.04, 0.95)
 		default_style.border_color = Color(0.35, 0.23, 0.14, 1.0)
 		default_style.set_border_width_all(2)
 		default_style.set_corner_radius_all(6)
 		slot_panel.add_theme_stylebox_override("panel", default_style)
-		
+
 		if i >= unlocked_slots:
 			var locked_style = StyleBoxFlat.new()
 			locked_style.bg_color = Color(0.05, 0.035, 0.025, 0.95)
@@ -435,57 +460,58 @@ func update_inventory_ui() -> void:
 			locked_style.set_border_width_all(2)
 			locked_style.set_corner_radius_all(6)
 			slot_panel.add_theme_stylebox_override("panel", locked_style)
-			
+
 			var vbox = VBoxContainer.new()
 			vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 			vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 			vbox.add_theme_constant_override("separation", 3)
 			vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			slot_panel.add_child(vbox)
-			
+
 			var buy_btn = Button.new()
 			buy_btn.text = "Buy Slot"
 			buy_btn.add_theme_font_size_override("font_size", 9)
 			buy_btn.mouse_filter = Control.MOUSE_FILTER_STOP
-			
+
 			var btn_style = StyleBoxFlat.new()
 			btn_style.bg_color = Color(0.3, 0.19, 0.11, 1.0)
 			btn_style.border_color = Color(0.75, 0.55, 0.3, 1.0)
 			btn_style.set_border_width_all(1)
 			btn_style.set_corner_radius_all(4)
 			buy_btn.add_theme_stylebox_override("normal", btn_style)
-			
+
 			buy_btn.pressed.connect(func():
 				show_buy_slot_confirmation()
 			)
 			vbox.add_child(buy_btn)
-			
+
 			slot_panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 					show_buy_slot_confirmation()
 			)
-			
+
 		elif i < owned_items.size():
-			var item_name = owned_items[i]
-			var count = inv.get(item_name, animal_inv.get(item_name, seed_inv.get(item_name, 0)))
-			
+			var item_name: String = owned_items[i]
+
+			# Crop count takes priority over animal count.
+			var count: int = int(inv.get(item_name, animal_inv.get(item_name, 0)))
+
 			slot_panel.tooltip_text = item_name + " (x" + str(count) + ")"
-			
+
+			# These are regular inventory items, never seeds.
 			var is_selected = false
-			if GameData:
-				if seed_inv.has(item_name):
-					if "selected_seed_type" in GameData and GameData.selected_seed_type == item_name:
-						is_selected = true
-				else:
-					if "selected_inventory_item" in GameData and GameData.selected_inventory_item == item_name:
-						is_selected = true
-			
+
+			if GameData and "selected_inventory_item" in GameData:
+				is_selected = GameData.selected_inventory_item == item_name
+
 			var slot_style = default_style.duplicate()
+
 			if is_selected:
 				slot_style.border_color = Color(0.95, 0.75, 0.35, 1.0)
 				slot_style.set_border_width_all(3)
+
 			slot_panel.add_theme_stylebox_override("panel", slot_style)
-			
+
 			var icon_rect = TextureRect.new()
 			icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 			icon_rect.offset_left = 4
@@ -495,12 +521,14 @@ func update_inventory_ui() -> void:
 			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			
+
 			var tex = get_item_texture(item_name)
+
 			if tex:
 				icon_rect.texture = tex
+
 			slot_panel.add_child(icon_rect)
-			
+
 			var label = Label.new()
 			label.text = "x" + str(count)
 			label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -516,55 +544,66 @@ func update_inventory_ui() -> void:
 			label.add_theme_constant_override("outline_size", 4)
 			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			slot_panel.add_child(label)
-			
+
 			var hover_style = slot_style.duplicate()
 			hover_style.border_color = Color(0.95, 0.75, 0.35, 1.0)
 			hover_style.set_border_width_all(3)
+
 			slot_panel.mouse_entered.connect(func():
 				slot_panel.add_theme_stylebox_override("panel", hover_style)
 				var tween = create_tween()
 				tween.tween_property(slot_panel, "scale", Vector2(1.08, 1.08), 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			)
-			
+
 			slot_panel.mouse_exited.connect(func():
 				slot_panel.add_theme_stylebox_override("panel", slot_style)
 				var tween = create_tween()
 				tween.tween_property(slot_panel, "scale", Vector2.ONE, 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 			)
+
 			slot_panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed:
 					if event.button_index == MOUSE_BUTTON_LEFT:
 						if has_node("/root/AudioManager"):
 							AudioManager.play_sfx("click")
+
 						if GameData:
-							if seed_inv.has(item_name):
-								if GameData.has_method("select_seed_type"):
-									GameData.select_seed_type(item_name)
+							# Always select this as a regular inventory item.
+							if GameData.has_method("select_inventory_item"):
+								GameData.select_inventory_item(item_name)
 							else:
-								if GameData.has_method("select_inventory_item"):
-									GameData.select_inventory_item(item_name)
-								elif "selected_inventory_item" in GameData:
+								if "selected_inventory_item" in GameData:
 									GameData.selected_inventory_item = item_name
+
+								if "selected_seed_type" in GameData:
 									GameData.selected_seed_type = ""
+
+								if GameData.has_signal("data_changed"):
 									GameData.data_changed.emit()
-							
+
 							if item_name == "Pesticide":
 								show_pesticide_hint()
-						
+
 						Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
-							
+
 					elif event.button_index == MOUSE_BUTTON_RIGHT:
 						if has_node("/root/AudioManager"):
 							AudioManager.play_sfx("click")
+
 						if GameData:
 							if GameData.has_method("deselect_current_item"):
 								GameData.deselect_current_item()
 							else:
 								if "selected_inventory_item" in GameData:
 									GameData.selected_inventory_item = ""
+
 								if "selected_seed_type" in GameData:
 									GameData.selected_seed_type = ""
-								GameData.data_changed.emit()
+
+								if GameData.has_signal("data_changed"):
+									GameData.data_changed.emit()
+
 						Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			)
+
 		grid_container.add_child(slot_panel)

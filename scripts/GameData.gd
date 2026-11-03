@@ -1,216 +1,51 @@
+
 extends Node
 
-# Item & Crop Data Reference Dictionary (Prices, Growth, and Asset Paths)
+signal data_changed
+signal time_changed(hour: int, day: int)
+
+
+# ITEM & CROP DATA
 var SEED_DATA = {
-	"Wheat": {
-		"buy": 10,
-		"sell": 20,
-		"growth_time": 3.0,
-		"scale": Vector2(0.2, 0.2),
-		"icon": "res://images/assets/seeds/wheat seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/Wheat.png",
-		"harvest_yield": 1
-	},
-	"Carrot": {
-		"buy": 10,
-		"sell": 25,
-		"growth_time": 5.0,
-		"scale": Vector2(0.5, 0.5),
-		"icon": "res://images/assets/seeds/carrot seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/carrot/carrot.png",
-		"harvest_yield": 1
-	},
-	"Potato": {
-		"buy": 12,
-		"sell": 30,
-		"growth_time": 8.0,
-		"scale": Vector2(0.5, 0.5),
-		"icon": "res://images/assets/seeds/potato seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/potato/potato.png",
-		"harvest_yield": 3
-	},
-	"Tomato": {
-		"buy": 15,
-		"sell": 35,
-		"growth_time": 10.0,
-		"scale": Vector2(0.6, 0.6),
-		"icon": "res://images/assets/seeds/tomato seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/tomato/tomato.png",
-		"harvest_yield": 5
-	},
-	"Rice": {
-		"buy": 18,
-		"sell": 50,
-		"growth_time": 12.0,
-		"scale": Vector2(0.5, 0.5),
-		"icon": "res://images/assets/seeds/rice seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/rice/rice.png",
-		"harvest_yield": 1
-	},
-	"Corn": {
-		"buy": 20,
-		"sell": 45,
-		"growth_time": 15.0,
-		"scale": Vector2(0.8, 0.8),
-		"offset": Vector2(0, -8),
-		"icon": "res://images/assets/seeds/corn seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/corn/corn.png",
-		"harvest_yield": 1
-	},
-	"Strawberry": {
-		"buy": 20,
-		"sell": 40,
-		"growth_time": 18.0,
-		"scale": Vector2(0.5, 0.5),
-		"icon": "res://images/assets/seeds/strawberry seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/strawberry/strawberry.png",
-		"harvest_yield": 5
-	},
-	"Banana": {
-		"buy": 40,
-		"sell": 80,
-		"growth_time": 25.0,
-		"stage_scales": [Vector2(0.5, 0.5), Vector2(1.0, 1.0), Vector2(1.4, 1.4)],
-		"stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -130)],
-		"icon": "res://images/assets/seeds/banana seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/banana/banana.png",
-		"harvest_yield": 1
-	},
-	"Apple": {
-		"buy": 50,
-		"sell": 100,
-		"growth_time": 30.0,
-		"stage_scales": [Vector2(0.5, 0.5), Vector2(1.0, 1.0), Vector2(1.6, 1.6)],
-		"stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -140)],
-		"icon": "res://images/assets/seeds/apple seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/apple/apple.png",
-		"harvest_yield": 5
-	},
-	"Mango": {
-		"buy": 60,
-		"sell": 120,
-		"growth_time": 40.0,
-		"stage_scales": [Vector2(0.5, 0.5), Vector2(1.1, 1.1), Vector2(1.6, 1.6)],
-		"stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -140)],
-		"icon": "res://images/assets/seeds/mango seed pack.png",
-		"crop_icon": "res://images/assets/for main (crops)/mango/mango.png",
-		"harvest_yield": 5
-	},
+	"Wheat": {"buy": 10, "sell": 20, "growth_time": 3.0, "scale": Vector2(0.2, 0.2), "icon": "res://images/assets/seeds/wheat seed pack.png", "crop_icon": "res://images/assets/for main (crops)/Wheat.png", "harvest_yield": 1},
+	"Carrot": {"buy": 10, "sell": 25, "growth_time": 5.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/carrot seed pack.png", "crop_icon": "res://images/assets/for main (crops)/carrot/carrot.png", "harvest_yield": 1},
+	"Potato": {"buy": 12, "sell": 30, "growth_time": 8.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/potato seed pack.png", "crop_icon": "res://images/assets/for main (crops)/potato/potato.png", "harvest_yield": 3},
+	"Tomato": {"buy": 15, "sell": 35, "growth_time": 10.0, "scale": Vector2(0.6, 0.6), "icon": "res://images/assets/seeds/tomato seed pack.png", "crop_icon": "res://images/assets/for main (crops)/tomato/tomato.png", "harvest_yield": 5},
+	"Rice": {"buy": 18, "sell": 50, "growth_time": 12.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/rice seed pack.png", "crop_icon": "res://images/assets/for main (crops)/rice/rice.png", "harvest_yield": 1},
+	"Corn": {"buy": 20, "sell": 45, "growth_time": 15.0, "scale": Vector2(0.8, 0.8), "offset": Vector2(0, -8), "icon": "res://images/assets/seeds/corn seed pack.png", "crop_icon": "res://images/assets/for main (crops)/corn/corn.png", "harvest_yield": 1},
+	"Strawberry": {"buy": 20, "sell": 40, "growth_time": 18.0, "scale": Vector2(0.5, 0.5), "icon": "res://images/assets/seeds/strawberry seed pack.png", "crop_icon": "res://images/assets/for main (crops)/strawberry/strawberry.png", "harvest_yield": 5},
+	"Banana": {"buy": 40, "sell": 80, "growth_time": 25.0, "stage_scales": [Vector2(0.5, 0.5), Vector2(1.0, 1.0), Vector2(1.4, 1.4)], "stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -130)], "icon": "res://images/assets/seeds/banana seed pack.png", "crop_icon": "res://images/assets/for main (crops)/banana/banana.png", "harvest_yield": 1},
+	"Apple": {"buy": 50, "sell": 100, "growth_time": 30.0, "stage_scales": [Vector2(0.5, 0.5), Vector2(1.0, 1.0), Vector2(1.6, 1.6)], "stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -140)], "icon": "res://images/assets/seeds/apple seed pack.png", "crop_icon": "res://images/assets/for main (crops)/apple/apple.png", "harvest_yield": 5},
+	"Mango": {"buy": 60, "sell": 120, "growth_time": 40.0, "stage_scales": [Vector2(0.5, 0.5), Vector2(1.1, 1.1), Vector2(1.6, 1.6)], "stage_offsets": [Vector2(0, 0), Vector2(0, -50), Vector2(0, -140)], "icon": "res://images/assets/seeds/mango seed pack.png", "crop_icon": "res://images/assets/for main (crops)/mango/mango.png", "harvest_yield": 5},
 
-	# --- LIVESTOCK PRODUCE & FERTILIZER DEFINITIONS ---
-	"Egg": {
-		"buy": 0,
-		"sell": 15,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for main (crops)/egg/egg.png"
-	},
-	"Milk": {
-		"buy": 0,
-		"sell": 30,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for main (crops)/milk/milk.png"
-	},
-	"Manure": {
-		"buy": 0,
-		"sell": 5,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for main (crops)/manure/manure.png"
-	},
-	"Organic Fertilizer": {
-		"buy": 0,
-		"sell": 50,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for main (crops)/fertilizer/fertilizer.png"
-	},
-	"Pesticide": {
-		"buy": 0,
-		"sell": 60,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for main (crops)/pest control station/pesticides.png"
-	},
-	"Wool": {
-		"buy": 0,
-		"sell": 40,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for main (crops)/wool/wool.png"
-	},
+	"Egg": {"buy": 0, "sell": 15, "growth_time": 0.0, "crop_icon": "res://images/assets/for main (crops)/egg/egg.png"},
+	"Milk": {"buy": 0, "sell": 30, "growth_time": 0.0, "crop_icon": "res://images/assets/for main (crops)/milk/milk.png"},
+	"Manure": {"buy": 0, "sell": 5, "growth_time": 0.0, "crop_icon": "res://images/assets/for main (crops)/manure/manure.png"},
+	"Organic Fertilizer": {"buy": 0, "sell": 50, "growth_time": 0.0, "crop_icon": "res://images/assets/for main (crops)/fertilizer/fertilizer.png"},
+	"Pesticide": {"buy": 0, "sell": 60, "growth_time": 0.0, "crop_icon": "res://images/assets/for main (crops)/pest control station/pesticides.png"},
+	"Wool": {"buy": 0, "sell": 40, "growth_time": 0.0, "crop_icon": "res://images/assets/for main (crops)/wool/wool.png"},
 
-	# --- PROCESSED FACTORY GOODS ---
-	"Flour": {
-		"buy": 0,
-		"sell": 40,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/flour.png"
-	},
-	"Cheese": {
-		"buy": 0,
-		"sell": 75,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/cheese.png"
-	},
-	"Bread": {
-		"buy": 0,
-		"sell": 120,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/bread.png"
-	},
-	"Yarn": {
-		"buy": 0,
-		"sell": 100,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/yarn.png"
-	},
-	"Jam": {
-		"buy": 0,
-		"sell": 90,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/jam.png"
-	},
-	"French Fries": {
-		"buy": 0,
-		"sell": 85,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/french_fries.png"
-	},
-	"Tomato Ketchup": {
-		"buy": 0,
-		"sell": 70,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/ketchup.png"
-	},
-	"Popcorn": {
-		"buy": 0,
-		"sell": 65,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/popcorn.png"
-	},
-	"Banana Smoothie": {
-		"buy": 0,
-		"sell": 110,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/banana_smoothie.png"
-	},
-	"Polished Rice Box": {
-		"buy": 0,
-		"sell": 60,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/polished_rice.png"
-	},
-	"Carrot Juice": {
-		"buy": 0,
-		"sell": 55,
-		"growth_time": 0.0,
-		"crop_icon": "res://images/assets/for factory/carrot_juice.png"
-	}
+	"Flour": {"buy": 0, "sell": 40, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/flour.png"},
+	"Cheese": {"buy": 0, "sell": 75, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/cheese.png"},
+	"Bread": {"buy": 0, "sell": 120, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/bread.png"},
+	"Yarn": {"buy": 0, "sell": 100, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/yarn.png"},
+	"Jam": {"buy": 0, "sell": 90, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/jam.png"},
+	"French Fries": {"buy": 0, "sell": 85, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/french_fries.png"},
+	"Tomato Ketchup": {"buy": 0, "sell": 70, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/ketchup.png"},
+	"Popcorn": {"buy": 0, "sell": 65, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/popcorn.png"},
+	"Banana Smoothie": {"buy": 0, "sell": 110, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/banana_smoothie.png"},
+	"Polished Rice Box": {"buy": 0, "sell": 60, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/polished_rice.png"},
+	"Carrot Juice": {"buy": 0, "sell": 55, "growth_time": 0.0, "crop_icon": "res://images/assets/for factory/carrot_juice.png"}
 }
 
-# --- PEST CONTROL RECIPE DEFINITION ---
+
 var PESTICIDE_RECIPE = {
 	"Tomato": 2,
 	"Potato": 1
 }
 
-# Player Currencies & Resources
+
+# PLAYER CURRENCIES & RESOURCES
 var money: int = 500
 
 var player_money: int:
@@ -220,7 +55,8 @@ var player_money: int:
 		money = value
 		data_changed.emit()
 
-# --- UNLOCKED AREAS & PROGRESSION SYSTEM ---
+
+# UNLOCKED AREAS
 var unlocked_areas: Dictionary = {
 	"Farm": true,
 	"Market": true,
@@ -228,22 +64,26 @@ var unlocked_areas: Dictionary = {
 	"Livestock": false
 }
 
-# --- INVENTORY SLOT CONFIGURATION ---
+
+# INVENTORY SLOT CONFIGURATION
 var unlocked_slots: int = 6
 var max_slots: int = 12
 
-# --- WATER MANAGEMENT SYSTEM VARIABLES ---
+
+# WATER MANAGEMENT
 var water_tank_level: float = 0.0
 var max_water_capacity: float = 100.0
 var watering_can_water: float = 0.0
 var max_watering_can_cap: float = 25.0
 var water_source_is_tank: bool = false
 
-# --- WEATHER SYSTEM VARIABLES ---
+
+# WEATHER SYSTEM
 var current_weather: String = "Raining"
 
 func roll_daily_weather() -> void:
 	var roll = randf()
+
 	if roll <= 0.30:
 		current_weather = "Rainy"
 		print("[WEATHER] Today's weather is Rainy 🌧️! Crops will be automatically watered.")
@@ -253,126 +93,16 @@ func roll_daily_weather() -> void:
 
 	data_changed.emit()
 
-# --- DAY & NIGHT CYCLE TIME TRACKING ---
+
+# DAY & NIGHT CYCLE
 var current_day: int = 1
 var current_hour: int = 6
 var time_minutes: float = 0.0
 
 @export var minutes_per_second: float = 4.0
 
-signal time_changed(hour: int, day: int)
-signal data_changed
 
-# --- INITIALIZE GAME DATA ---
-func _ready() -> void:
-	# Load saved progress passed from the dashboard URL.
-	if OS.has_feature("web"):
-		var url_days = JavaScriptBridge.eval(
-			"new URLSearchParams(window.location.search).get('days');"
-		)
-
-		var url_coins = JavaScriptBridge.eval(
-			"new URLSearchParams(window.location.search).get('coins');"
-		)
-
-		if url_days != null and str(url_days).is_valid_int():
-			current_day = int(url_days)
-
-		if url_coins != null and str(url_coins).is_valid_int():
-			money = int(url_coins)
-
-		print("[LOAD] Day: ", current_day, " | Money: ", money)
-
-	select_seed_type("Wheat")
-	select_item(ActiveItem.SEED)
-	current_weather = "Rainy"
-
-
-# --- SAVE PROGRESS AND RETURN TO DASHBOARD ---
-func exit_to_dashboard() -> void:
-	if OS.has_feature("web"):
-		var save_script = """
-		fetch('/GameLauncher/update_progress.php', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			credentials: 'same-origin',
-			body: JSON.stringify({
-				days_progress: %d,
-				coins: %d
-			})
-		})
-		.then(function(response) {
-			if (!response.ok) {
-				throw new Error('HTTP Error: ' + response.status);
-			}
-			return response.json();
-		})
-		.then(function(data) {
-			console.log('[SAVE RESPONSE]', data);
-
-			if (data.status === 'success') {
-				alert('Progress saved! Money: ' + data.coins);
-				window.location.href = '/GameLauncher/dashboard.php';
-			} else {
-				alert('Save failed: ' + JSON.stringify(data));
-			}
-		})
-		.catch(function(error) {
-			console.error('[SAVE ERROR]', error);
-			alert('Unable to save progress: ' + error.message);
-		});
-		""" % [current_day, money]
-
-		JavaScriptBridge.eval(save_script)
-	else:
-		get_tree().quit()
-
-
-func update_game_time(delta: float) -> void:
-	var prev_minute = int(time_minutes)
-	time_minutes += delta * minutes_per_second
-
-	if time_minutes >= 60.0:
-		time_minutes -= 60.0
-		current_hour += 1
-		if current_hour >= 24:
-			current_hour = 0
-			current_day += 1
-
-	if int(time_minutes) != prev_minute:
-		time_changed.emit(current_hour, current_day)
-		data_changed.emit()
-
-
-func can_sleep() -> bool:
-	return current_hour >= 20 or current_hour < 6
-
-
-func sleep_to_next_day() -> void:
-	current_day += 1
-	current_hour = 6
-	time_minutes = 0.0
-
-	roll_daily_weather()
-
-	time_changed.emit(current_hour, current_day)
-	data_changed.emit()
-	print("[SLEEP] Woke up on Day ", current_day, " at 06:00. Weather is now: ", current_weather)
-
-
-# --- WATER MANAGEMENT FUNCTIONS ---
-func use_water_for_irrigation(amount: float = 8.34) -> bool:
-	if watering_can_water > 0 and water_source_is_tank:
-		watering_can_water = max(0.0, watering_can_water - amount)
-		if watering_can_water <= 0.0:
-			water_source_is_tank = false
-		data_changed.emit()
-		return true
-	return false
-
-
+# INITIAL INVENTORY
 var seed_inventory: Dictionary = {
 	"Wheat": 10,
 	"Carrot": 0,
@@ -385,7 +115,6 @@ var seed_inventory: Dictionary = {
 	"Apple": 0,
 	"Mango": 0
 }
-
 
 var crop_inventory: Dictionary = {
 	"Wheat": 0,
@@ -417,12 +146,19 @@ var crop_inventory: Dictionary = {
 	"Carrot Juice": 0
 }
 
+var animal_inventory: Dictionary = {
+	"Chicken": 0,
+	"Cow": 0,
+	"Pig": 0,
+	"Sheep": 0
+}
 
 var inventory: Dictionary:
 	get:
 		return crop_inventory
 
 
+# ITEM SELECTION
 enum ActiveItem { HOE, WATERING_CAN, SEED }
 
 var selected_item: ActiveItem = ActiveItem.SEED
@@ -430,68 +166,242 @@ var selected_seed_type: String = "Wheat"
 var selected_inventory_item: String = ""
 
 
-func add_money(amount: int) -> void:
-	money += amount
+# HELPER: CONVERT SAVED INVENTORY COUNTS TO INTEGERS
+func convert_inventory_to_int(data: Dictionary) -> Dictionary:
+	var converted: Dictionary = {}
+
+	for key in data.keys():
+		converted[key] = int(data[key])
+
+	return converted
+
+
+# INITIALIZE GAME DATA
+func _ready() -> void:
+	if OS.has_feature("web"):
+		var url_days = JavaScriptBridge.eval(
+			"new URLSearchParams(window.location.search).get('days');"
+		)
+
+		var url_coins = JavaScriptBridge.eval(
+			"new URLSearchParams(window.location.search).get('coins');"
+		)
+
+		var url_inventory = JavaScriptBridge.eval(
+			"new URLSearchParams(window.location.search).get('inventory');"
+		)
+
+		if url_days != null and str(url_days).is_valid_int():
+			current_day = int(url_days)
+
+		if url_coins != null and str(url_coins).is_valid_int():
+			money = int(url_coins)
+
+		# Restore saved inventory. Convert all quantities to integers.
+		if url_inventory != null and url_inventory != "":
+			var saved_inventory = JSON.parse_string(str(url_inventory))
+
+			if saved_inventory is Dictionary:
+				var saved_seeds = saved_inventory.get("seed_inventory", {})
+				var saved_crops = saved_inventory.get("crop_inventory", {})
+				var saved_animals = saved_inventory.get("animal_inventory", {})
+
+				if saved_seeds is Dictionary:
+					seed_inventory = convert_inventory_to_int(saved_seeds)
+
+				if saved_crops is Dictionary:
+					crop_inventory = convert_inventory_to_int(saved_crops)
+
+				if saved_animals is Dictionary:
+					animal_inventory = convert_inventory_to_int(saved_animals)
+
+				unlocked_slots = int(saved_inventory.get("unlocked_slots", 6))
+
+		print("[LOAD] Day: ", current_day)
+		print("[LOAD] Money: ", money)
+		print("[LOAD] Seeds: ", seed_inventory)
+		print("[LOAD] Crops: ", crop_inventory)
+		print("[LOAD] Animals: ", animal_inventory)
+		print("[LOAD] Unlocked Slots: ", unlocked_slots)
+
+	select_seed_type("Wheat")
+	select_item(ActiveItem.SEED)
+	current_weather = "Rainy"
 	data_changed.emit()
 
 
-func remove_money(amount: int) -> bool:
-	if money >= amount:
-		money -= amount
+# SAVE PROGRESS AND RETURN TO DASHBOARD
+func exit_to_dashboard() -> void:
+	if OS.has_feature("web"):
+		var payload = {
+			"days_progress": current_day,
+			"coins": money,
+			"seed_inventory": seed_inventory,
+			"crop_inventory": crop_inventory,
+			"animal_inventory": animal_inventory,
+			"unlocked_slots": unlocked_slots
+		}
+
+		var payload_json = JSON.stringify(payload)
+		var body_string = JSON.stringify(payload_json)
+
+		print("[SAVE] Full payload: ", payload)
+
+		var save_script = """
+		fetch('/GameLauncher/update_progress.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'same-origin',
+			body: %s
+		})
+		.then(function(response) {
+			return response.json().then(function(data) {
+				if (!response.ok) {
+					throw new Error(data.message || 'Save request failed');
+				}
+				return data;
+			});
+		})
+		.then(function(data) {
+			console.log('[SAVE RESPONSE]', data);
+
+			if (data.status === 'success') {
+				window.location.href = '/GameLauncher/dashboard.php';
+			} else {
+				alert('Save failed: ' + JSON.stringify(data));
+			}
+		})
+		.catch(function(error) {
+			console.error('[SAVE ERROR]', error);
+			alert('Unable to save progress: ' + error.message);
+		});
+		""" % [body_string]
+
+		JavaScriptBridge.eval(save_script)
+	else:
+		get_tree().quit()
+
+
+func update_game_time(delta: float) -> void:
+	var prev_minute = int(time_minutes)
+	time_minutes += delta * minutes_per_second
+
+	if time_minutes >= 60.0:
+		time_minutes -= 60.0
+		current_hour += 1
+
+		if current_hour >= 24:
+			current_hour = 0
+			current_day += 1
+
+	if int(time_minutes) != prev_minute:
+		time_changed.emit(current_hour, current_day)
+		data_changed.emit()
+
+
+func can_sleep() -> bool:
+	return current_hour >= 20 or current_hour < 6
+
+
+func sleep_to_next_day() -> void:
+	current_day += 1
+	current_hour = 6
+	time_minutes = 0.0
+
+	roll_daily_weather()
+	time_changed.emit(current_hour, current_day)
+	data_changed.emit()
+
+	print("[SLEEP] Woke up on Day ", current_day, " at 06:00. Weather is now: ", current_weather)
+
+
+# WATER MANAGEMENT
+func use_water_for_irrigation(amount: float = 8.34) -> bool:
+	if watering_can_water > 0 and water_source_is_tank:
+		watering_can_water = max(0.0, watering_can_water - amount)
+
+		if watering_can_water <= 0.0:
+			water_source_is_tank = false
+
 		data_changed.emit()
 		return true
+
 	return false
 
 
+# ITEM CHECKING AND REMOVAL
 func has_item(item_name: String, amount: int = 1) -> bool:
 	if crop_inventory.get(item_name, 0) >= amount:
 		return true
+
 	if seed_inventory.get(item_name, 0) >= amount:
 		return true
+
 	if animal_inventory.get(item_name, 0) >= amount:
 		return true
+
 	return false
 
 
 func remove_item(item_name: String, amount: int = 1) -> bool:
+	if amount <= 0:
+		return false
+
 	if crop_inventory.get(item_name, 0) >= amount:
 		crop_inventory[item_name] -= amount
 		data_changed.emit()
 		return true
+
 	if seed_inventory.get(item_name, 0) >= amount:
 		seed_inventory[item_name] -= amount
 		data_changed.emit()
 		return true
+
 	if animal_inventory.get(item_name, 0) >= amount:
 		animal_inventory[item_name] -= amount
 		data_changed.emit()
 		return true
+
 	return false
 
 
 func add_seeds(seed_name: String, amount: int) -> void:
+	if amount <= 0:
+		return
+
 	if seed_inventory.has(seed_name):
 		seed_inventory[seed_name] += amount
 	else:
 		seed_inventory[seed_name] = amount
+
 	data_changed.emit()
 
 
 func remove_seeds(seed_name: String, amount: int = 1) -> bool:
+	if amount <= 0:
+		return false
+
 	if seed_inventory.get(seed_name, 0) >= amount:
 		seed_inventory[seed_name] -= amount
 		data_changed.emit()
 		return true
+
 	return false
 
 
 func get_total_seeds() -> int:
 	var total: int = 0
+
 	for count in seed_inventory.values():
-		total += count
+		total += int(count)
+
 	return total
 
 
+# REGULAR INVENTORY COUNT
+# Seeds are NOT counted as regular inventory items.
 func get_unique_item_count() -> int:
 	var unique_items = []
 
@@ -503,18 +413,28 @@ func get_unique_item_count() -> int:
 		if animal_inventory[k] > 0 and not unique_items.has(k):
 			unique_items.append(k)
 
-	for k in seed_inventory.keys():
-		if seed_inventory[k] > 0 and not unique_items.has(k):
-			unique_items.append(k)
-
 	return unique_items.size()
 
 
-func add_crop(crop_name: String, amount: int = 1) -> void:
-	var already_owned: bool = (crop_inventory.get(crop_name, 0) > 0) or (animal_inventory.get(crop_name, 0) > 0) or (seed_inventory.get(crop_name, 0) > 0)
+func can_add_inventory_item(item_name: String) -> bool:
+	if crop_inventory.get(item_name, 0) > 0:
+		return true
 
-	if not already_owned and get_unique_item_count() >= unlocked_slots:
-		print("[INVENTORY] Inventory Full!")
+	if animal_inventory.get(item_name, 0) > 0:
+		return true
+
+	return get_unique_item_count() < unlocked_slots
+
+
+# HARVESTED CROPS AND PRODUCE
+func add_crop(crop_name: String, amount: int = 1) -> void:
+	if amount <= 0:
+		return
+
+	# Only existing crops or animals count as already owned.
+	# Having seeds of the same name does not count.
+	if not can_add_inventory_item(crop_name):
+		print("[INVENTORY] Inventory Full! Could not add: ", crop_name)
 		return
 
 	if crop_inventory.has(crop_name):
@@ -522,18 +442,25 @@ func add_crop(crop_name: String, amount: int = 1) -> void:
 	else:
 		crop_inventory[crop_name] = amount
 
+	print("[INVENTORY] Added harvested item: ", crop_name, " x", amount)
+
 	data_changed.emit()
 	_force_open_inventory_ui()
 
 
 func remove_crop(crop_name: String, amount: int = 1) -> bool:
+	if amount <= 0:
+		return false
+
 	if crop_inventory.get(crop_name, 0) >= amount:
 		crop_inventory[crop_name] -= amount
 		data_changed.emit()
 		return true
+
 	return false
 
 
+# ITEM SELECTION
 func select_item(item: ActiveItem) -> void:
 	selected_item = item
 	data_changed.emit()
@@ -558,6 +485,7 @@ func deselect_current_item() -> void:
 	data_changed.emit()
 
 
+# ANIMAL DATA
 var ANIMAL_DATA = {
 	"Chicken": {
 		"buy": 150,
@@ -582,19 +510,13 @@ var ANIMAL_DATA = {
 }
 
 
-var animal_inventory: Dictionary = {
-	"Chicken": 0,
-	"Cow": 0,
-	"Pig": 0,
-	"Sheep": 0
-}
-
-
 func add_animal_to_inventory(animal_name: String, amount: int = 1) -> void:
-	var already_owned: bool = (crop_inventory.get(animal_name, 0) > 0) or (animal_inventory.get(animal_name, 0) > 0) or (seed_inventory.get(animal_name, 0) > 0)
+	if amount <= 0:
+		return
 
-	if not already_owned and get_unique_item_count() >= unlocked_slots:
-		print("[INVENTORY] Puno na ang imbentaryo para sa hayop: ", animal_name)
+	# Seeds with the same name do not give an extra inventory slot.
+	if not can_add_inventory_item(animal_name):
+		print("[INVENTORY] Inventory Full! Could not add animal: ", animal_name)
 		return
 
 	if animal_inventory.has(animal_name):
@@ -607,37 +529,53 @@ func add_animal_to_inventory(animal_name: String, amount: int = 1) -> void:
 
 
 func remove_animal_from_inventory(animal_name: String, amount: int = 1) -> bool:
+	if amount <= 0:
+		return false
+
 	if animal_inventory.get(animal_name, 0) >= amount:
 		animal_inventory[animal_name] -= amount
 		data_changed.emit()
 		return true
+
 	return false
 
 
-# --- DIRECT WRAPPERS FOR HARVEST, MARKET & CRAFTING AUTO-OPEN TRIGGER ---
-
+# DIRECT WRAPPERS FOR HARVEST, MARKET & CRAFTING
 func harvest_crop(crop_name: String, amount: int = 1) -> void:
 	add_crop(crop_name, amount)
 	print("[GAME DATA] Harvested: ", crop_name, " x", amount)
 
 
 func buy_animal(animal_name: String, amount: int = 1) -> bool:
-	if ANIMAL_DATA.has(animal_name):
-		var cost = ANIMAL_DATA[animal_name].buy * amount
-		if remove_money(cost):
-			add_animal_to_inventory(animal_name, amount)
-			print("[GAME DATA] Bought Animal: ", animal_name, " x", amount)
-			return true
+	if not ANIMAL_DATA.has(animal_name) or amount <= 0:
+		return false
+
+	# Check inventory space BEFORE taking the player's money.
+	if not can_add_inventory_item(animal_name):
+		print("[INVENTORY] Inventory Full! Cannot buy: ", animal_name)
+		return false
+
+	var cost = ANIMAL_DATA[animal_name].buy * amount
+
+	if remove_money(cost):
+		add_animal_to_inventory(animal_name, amount)
+		print("[GAME DATA] Bought Animal: ", animal_name, " x", amount)
+		return true
+
 	return false
 
 
 func buy_seed(seed_name: String, amount: int = 1) -> bool:
-	if SEED_DATA.has(seed_name):
-		var cost = SEED_DATA[seed_name].buy * amount
-		if remove_money(cost):
-			add_seeds(seed_name, amount)
-			print("[GAME DATA] Bought Seed: ", seed_name, " x", amount)
-			return true
+	if not SEED_DATA.has(seed_name) or amount <= 0:
+		return false
+
+	var cost = SEED_DATA[seed_name].buy * amount
+
+	if remove_money(cost):
+		add_seeds(seed_name, amount)
+		print("[GAME DATA] Bought Seed: ", seed_name, " x", amount)
+		return true
+
 	return false
 
 
@@ -650,19 +588,37 @@ func add_item_any(item_name: String, amount: int = 1) -> void:
 		add_crop(item_name, amount)
 
 
-# Helper function to trigger open_inventory_on_harvest in the UI.
+func add_money(amount: int) -> void:
+	money += amount
+	data_changed.emit()
+
+
+func remove_money(amount: int) -> bool:
+	if money >= amount:
+		money -= amount
+		data_changed.emit()
+		return true
+
+	return false
+
+
+# HELPER: OPEN INVENTORY UI
 func _force_open_inventory_ui() -> void:
 	var inventory_ui = get_tree().get_first_node_in_group("inventory_ui")
+
 	if inventory_ui and inventory_ui.has_method("open_inventory_on_harvest"):
 		inventory_ui.open_inventory_on_harvest()
 
-# Ilagay ito sa iyong global GameData.gd script
+
+# ESCAPE KEY HANDLING
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
 			var existing_settings = get_tree().root.get_node_or_null("SettingsLayer")
+
 			if existing_settings:
 				if has_node("/root/AudioManager"):
 					AudioManager.play_sfx("click")
+
 				existing_settings.queue_free()
 				get_viewport().set_input_as_handled()
