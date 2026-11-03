@@ -4,6 +4,9 @@ func _ready() -> void:
 	_build_settings_ui()
 
 func _build_settings_ui() -> void:
+	# Siguraduhing sumasakop ito sa buong screen para makuha ang mouse/input
+	set_anchors_preset(Control.PRESET_FULL_RECT)
+	
 	var bg = ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.color = Color(0.05, 0.03, 0.02, 0.75)
@@ -104,7 +107,6 @@ func _build_settings_ui() -> void:
 	quit_btn.add_theme_color_override("font_color", Color.WHITE)
 	quit_btn.add_theme_font_size_override("font_size", 13)
 	
-	# DIRECTLY CALLS GameData.exit_to_dashboard() TO PASS LIVE STATS
 	quit_btn.pressed.connect(func():
 		if has_node("/root/AudioManager") or Engine.has_singleton("AudioManager"):
 			var am = get_node_or_null("/root/AudioManager")
@@ -167,14 +169,17 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	container.add_child(slider)
 	return container
 
-# --- NAGDAGDAG NG ESC KEY PRESS PARA ISARAHIN ANG SETTINGS ---
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
 			_close_panel()
+			accept_event()
 
+# --- INAYOS ANG PAG-CLOSE PARA SIGURADONG MAWALA ANG PANEL ---
 func _close_panel() -> void:
-	if get_parent() is CanvasLayer:
-		get_parent().queue_free()
+	var p = get_parent()
+	# Kung ang parent ay CanvasLayer (karaniwang ginagawa para sa mga UI popups), ang CanvasLayer ang i-queue_free
+	if p is CanvasLayer:
+		p.queue_free()
 	else:
 		queue_free()

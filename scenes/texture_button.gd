@@ -113,7 +113,7 @@ func _on_pressed() -> void:
 	vbox.add_child(_create_volume_slider("Music / BGM Volume", bgm_idx))
 	vbox.add_child(_create_volume_slider("SFX Volume", sfx_idx))
 	
-	# --- CLOSE SETTINGS BUTTON ---
+	# --- CLOSE SETTINGS BUTTON (NA-FIX PARA GUMANA ANG PAG-CLOSE) ---
 	var close_btn = Button.new()
 	close_btn.text = "CLOSE SETTINGS"
 	close_btn.custom_minimum_size = Vector2(0, 30)
@@ -128,7 +128,8 @@ func _on_pressed() -> void:
 	close_btn.add_theme_color_override("font_color", Color.WHITE)
 	close_btn.add_theme_font_size_override("font_size", 11)
 	
-	close_btn.pressed.connect(func():
+	# Sinigurong tama ang pag-connect ng signal gamit ang direct lambda
+	close_btn.pressed.connect(func() -> void:
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
 		canvas_layer.queue_free()
@@ -150,7 +151,7 @@ func _on_pressed() -> void:
 	how_to_play_btn.add_theme_color_override("font_color", Color.WHITE)
 	how_to_play_btn.add_theme_font_size_override("font_size", 11)
 	
-	how_to_play_btn.pressed.connect(func():
+	how_to_play_btn.pressed.connect(func() -> void:
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
 		_show_how_to_play_panel()
@@ -172,7 +173,7 @@ func _on_pressed() -> void:
 	quit_btn.add_theme_color_override("font_color", Color.WHITE)
 	quit_btn.add_theme_font_size_override("font_size", 11)
 	
-	quit_btn.pressed.connect(func():
+	quit_btn.pressed.connect(func() -> void:
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("click")
 		
@@ -191,7 +192,7 @@ func _on_pressed() -> void:
 func _show_how_to_play_panel() -> void:
 	var htp_layer = CanvasLayer.new()
 	htp_layer.name = "HowToPlayLayer"
-	htp_layer.layer = 130 # Mas mataas kaysa settings para lumitaw sa ibabaw
+	htp_layer.layer = 130 
 	
 	var ui_control = Control.new()
 	ui_control.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -262,7 +263,6 @@ func _create_volume_slider(label_text: String, bus_idx: int) -> VBoxContainer:
 	var val_lbl = Label.new()
 	val_lbl.text = str(current_pct) + "%"
 	
-	# Ayos na ang void return error dito
 	if val_lbl.has_method("add_font_size_override"):
 		val_lbl.add_font_size_override("font_size", 11)
 	else:
